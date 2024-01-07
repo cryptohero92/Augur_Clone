@@ -1,6 +1,6 @@
 import { useLocalStorage } from 'usehooks-ts'
 import { AccountInfo } from './AccountInfo'
-import { Login } from './Login'
+import { Login } from './Login/Login'
 import { Auth } from '../../types'
 
 export default function Header() {

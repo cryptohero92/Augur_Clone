@@ -5,10 +5,7 @@ import Header from "./component/header/Index"
 import Home from "./page/Home"
 
 function App() {
-  const account = useAccount()
-  const { connectors, connect, status, error } = useConnect()
-  const { disconnect } = useDisconnect()
-
+  
   // here in App, will show Header, and Routes.
   return (
     <BrowserRouter>
