@@ -1,17 +1,24 @@
 import { Box, Button, Modal, Typography } from "@mui/material"
-import { useState } from "react";
-import { useConnect } from "wagmi";
+import { useEffect, useState } from "react";
+import { useAccount, useConnect, useSignMessage } from "wagmi";
 import "./Login.scss"
-import zIndex from "@mui/material/styles/zIndex";
+import { Auth } from "../../../types";
 
-export function Login() {
+interface Props {
+	handleLoggedIn: (auth: Auth) => void;
+}
+
+export function Login({handleLoggedIn}: Props) {
 	// need to show login button. 
 	// i want to 
 	const [open, setOpen] = useState(false);
 	const handleOpen = () => setOpen(true);
 	const handleClose = () => setOpen(false);
-
+	
+	const { signMessageAsync } = useSignMessage()
+	const { address } = useAccount()
   	const { connectors, connect } = useConnect()
+	let previousAddress = '';
 
 	const style = {
 		position: 'absolute' as 'absolute',
@@ -24,6 +31,80 @@ export function Login() {
 		boxShadow: 24,
 		p: 4,
 	};
+
+	const handleAuthenticate = ({
+		publicAddress,
+		signature,
+	}: {
+		publicAddress: string;
+		signature: `0x${string}`;
+	}) =>
+		fetch(`${import.meta.env.VITE_BACKEND_URL}/auth`, {
+			body: JSON.stringify({ publicAddress, signature }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			method: 'POST',
+		}).then((response) => response.json());
+
+	const handleSignMessage = async ({
+		publicAddress,
+		nonce,
+	}: {
+		publicAddress: string;
+		nonce: string;
+	}) => {
+		try {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore because web3 is defined here.
+			if (!publicAddress) {
+				throw new Error(
+					'There is issue: address or chain is missing.'
+				);
+			} else {
+				const message = `I am signing my one-time nonce: ${nonce}`;
+
+				const signature = await signMessageAsync({ message })
+
+				return { publicAddress, signature };
+			}
+		} catch (err) {
+			throw new Error(
+				'You need to sign the message to be able to log in.'
+			);
+		}
+	};
+
+	const handleSignup = (publicAddress: string) =>
+		fetch(`${import.meta.env.VITE_BACKEND_URL}/users`, {
+			body: JSON.stringify({ publicAddress }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			method: 'POST'
+		}).then((response) => response.json());
+
+	useEffect(() => {
+		if (address && address != previousAddress) {
+			previousAddress = address;
+
+			fetch(`${import.meta.env.VITE_BACKEND_URL}/users?publicAddress=${address}`)
+			.then((response) => response.json())
+			// If yes, retrieve it. If no, create it.
+			.then((users) =>
+				users.length ? users[0] : handleSignup(address)
+			)
+			.then(handleSignMessage)
+			// Send signature to backend on the /auth route
+			.then(handleAuthenticate)
+			// Pass accessToken back to parent component (to save it in localStorage)
+			.then(handleLoggedIn)
+			.catch((err) => {
+				window.alert(err);
+			});
+
+		}
+	}, [address])
 
 	return (
 		<>
