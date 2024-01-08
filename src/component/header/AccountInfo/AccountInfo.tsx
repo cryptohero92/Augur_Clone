@@ -67,7 +67,7 @@ export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
 				aria-expanded={open ? 'true' : undefined}
 				onClick={handleClick}
 			>
-				${userInfo.correspondingAddress}
+				{userInfo.correspondingAddress}
 			</Button>
 			<Menu
 				id="basic-menu"
