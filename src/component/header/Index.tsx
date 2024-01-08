@@ -2,8 +2,10 @@ import { useLocalStorage } from 'usehooks-ts'
 import { AccountInfo } from './AccountInfo/AccountInfo'
 import { Login } from './Login/Login'
 import { Auth } from '../../types'
+import { useDisconnect } from 'wagmi'
 
 export default function Header() {
+	const { disconnectAsync } = useDisconnect()
 	const [auth, setAuth] = useLocalStorage<string>('auth', '')
 
 	const handleLoggedIn = (auth: Auth) => {
@@ -13,7 +15,8 @@ export default function Header() {
 		// after getting auth, need to save it to localstorage.
 	};
 
-	const handleLogout = () => {
+	const handleLogout = async () => {
+		await disconnectAsync();
 		setAuth('');
 	}
 
