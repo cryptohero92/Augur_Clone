@@ -1,5 +1,5 @@
 import { useLocalStorage } from 'usehooks-ts'
-import { AccountInfo } from './AccountInfo'
+import { AccountInfo } from './AccountInfo/AccountInfo'
 import { Login } from './Login/Login'
 import { Auth } from '../../types'
 
@@ -13,10 +13,14 @@ export default function Header() {
 		// after getting auth, need to save it to localstorage.
 	};
 
+	const handleLogout = () => {
+		setAuth('');
+	}
+
 	return (
 		<div>
 			{auth != '' ? (
-				<AccountInfo auth={JSON.parse(auth) as Auth} />
+				<AccountInfo auth={JSON.parse(auth) as Auth} handleLogout={handleLogout} />
 			) : (
 				<Login handleLoggedIn={handleLoggedIn} />
 			)}

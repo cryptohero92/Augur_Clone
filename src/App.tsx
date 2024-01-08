@@ -1,4 +1,3 @@
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { Routes, Route, BrowserRouter } from 'react-router-dom'
 
 import Header from "./component/header/Index"
