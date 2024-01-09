@@ -47,12 +47,12 @@ export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
 			debugger
 			fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${correspondingAddress}`)
 				.then((response) => response.json())
-				.then((balance) => {
+				.then(({balance, decimals}) => {
 					debugger
 					setUserInfo({
 						id: Number(id), 
 						correspondingAddress,
-						currentMoney: Number(formatUnits(balance, 6))
+						currentMoney: Number(formatUnits(balance, Number(decimals)))
 					})
 				})
 				.catch((err) => {
