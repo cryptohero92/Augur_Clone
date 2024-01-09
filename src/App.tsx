@@ -2,6 +2,7 @@ import { Routes, Route, BrowserRouter } from 'react-router-dom'
 
 import Header from "./component/header/Index"
 import Home from "./page/Home"
+import Money from "./page/Money/Money"
 
 function App() {
   
@@ -11,6 +12,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="money" element={<Money />} />
       </Routes>
     </BrowserRouter>
   )

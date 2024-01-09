@@ -1,28 +1,18 @@
 import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect } from 'react'
-import { Auth } from '../../../types';
+import { useNavigate } from 'react-router-dom';
+import { Auth, UserInfo } from '../../../types';
 import { Box, Button, Menu, MenuItem } from '@mui/material';
 import { formatUnits } from 'ethers';
+import { JwtDecoded } from '../../../types';
 
 interface Props {
 	auth: Auth,
 	handleLogout: () => void
 }
 
-interface UserInfo {
-	id: number;
-	correspondingAddress: string;
-	currentMoney: number;
-}
-
 export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
-
-	interface JwtDecoded {
-		payload: {
-			id: string;
-			correspondingAddress: string;
-		};
-	}
+	const navigate = useNavigate()
 
 	const [userInfo, setUserInfo] = useState<UserInfo>({
 		id: 0,
@@ -44,11 +34,9 @@ export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
 				}
 			} = jwtDecode<JwtDecoded>(accessToken)
 	
-			debugger
 			fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${correspondingAddress}`)
 				.then((response) => response.json())
 				.then(({balance, decimals}) => {
-					debugger
 					setUserInfo({
 						id: Number(id), 
 						correspondingAddress,
@@ -75,6 +63,11 @@ export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
 		handleLogout()
 	}
 
+	const goToMoneyPage = () => {
+		handleClose()
+		navigate("money")
+	}
+
 	return (
 		<div className="Account">
 			<Box>
@@ -98,6 +91,7 @@ export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
 				'aria-labelledby': 'basic-button',
 				}}
 			>
+				<MenuItem onClick={goToMoneyPage}>Deposit & Withdraw</MenuItem>
 				<MenuItem onClick={onLogout}>Logout</MenuItem>
 			</Menu>
 		</div>
