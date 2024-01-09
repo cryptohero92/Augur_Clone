@@ -1,7 +1,8 @@
 import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect } from 'react'
 import { Auth } from '../../../types';
-import { Button, Menu, MenuItem } from '@mui/material';
+import { Box, Button, Menu, MenuItem } from '@mui/material';
+import { formatUnits } from 'ethers';
 
 interface Props {
 	auth: Auth,
@@ -29,20 +30,36 @@ export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
 		currentMoney: 0
 	});
 
+	let previousToken = '';
+
 	useEffect(() => {
 		const { accessToken } = auth
-		const {
-			payload: {
-				id,
-				correspondingAddress
-			}
-		} = jwtDecode<JwtDecoded>(accessToken)
 
-		setUserInfo({
-			id: Number(id), 
-			correspondingAddress,
-			currentMoney: 0
-		})
+		if ( accessToken != '' && accessToken != previousToken) {
+			previousToken = accessToken;
+			const {
+				payload: {
+					id,
+					correspondingAddress
+				}
+			} = jwtDecode<JwtDecoded>(accessToken)
+	
+			debugger
+			fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${correspondingAddress}`)
+				.then((response) => response.json())
+				.then((balance) => {
+					debugger
+					setUserInfo({
+						id: Number(id), 
+						correspondingAddress,
+						currentMoney: Number(formatUnits(balance, 6))
+					})
+				})
+				.catch((err) => {
+					debugger
+					window.alert(err);
+				});
+		}
 	}, [auth]) 
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -60,6 +77,9 @@ export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
 
 	return (
 		<div className="Account">
+			<Box>
+				Balance: ${userInfo.currentMoney}
+			</Box>
 			<Button
 				id="basic-button"
 				aria-controls={open ? 'basic-menu' : undefined}

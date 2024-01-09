@@ -9,10 +9,8 @@ export default function Header() {
 	const [auth, setAuth] = useLocalStorage<string>('auth', '')
 
 	const handleLoggedIn = (auth: Auth) => {
-		debugger
 		console.log(auth)
 		setAuth(JSON.stringify(auth));
-		// after getting auth, need to save it to localstorage.
 	};
 
 	const handleLogout = async () => {
