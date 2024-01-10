@@ -1,53 +1,19 @@
-import { jwtDecode } from 'jwt-decode';
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { UserInfo } from '../../../types';
 import { Box, Button, Menu, MenuItem } from '@mui/material';
-import { formatUnits } from 'ethers';
-import { JwtDecoded } from '../../../types';
 import { useLocalStorage } from 'usehooks-ts';
+import { RootState } from '../../../app/store';
+import { useSelector } from 'react-redux';
 
 interface Props {
-	accessToken: string,
 	handleLogout: () => void
 }
 
-export const AccountInfo = ({accessToken, handleLogout} : Props) : JSX.Element => {
+export const AccountInfo = ({handleLogout} : Props) : JSX.Element => {
 	const navigate = useNavigate()
-	const [currentMoney, setCurrentMoney] = useLocalStorage<number>('currentMoney', 0)
-
-	const [userInfo, setUserInfo] = useState<UserInfo>({
-		id: 0,
-		correspondingAddress: ''
-	});
-
-	let previousToken = '';
-
-	useEffect(() => {
-		if ( accessToken != '' && accessToken != previousToken) {
-			previousToken = accessToken;
-			const {
-				payload: {
-					id,
-					correspondingAddress
-				}
-			} = jwtDecode<JwtDecoded>(accessToken)
-
-			setUserInfo({
-				id: Number(id),
-				correspondingAddress
-			})
+	const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
 	
-			fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${correspondingAddress}`)
-				.then((response) => response.json())
-				.then(({balance, decimals}) => {
-					setCurrentMoney(Number(formatUnits(balance, Number(decimals))));
-				})
-				.catch((err) => {
-					window.alert(err);
-				});
-		}
-	}, [accessToken]) 
+	const [currentMoney] = useLocalStorage<number>('currentMoney', 0)
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
@@ -79,7 +45,7 @@ export const AccountInfo = ({accessToken, handleLogout} : Props) : JSX.Element =
 				aria-expanded={open ? 'true' : undefined}
 				onClick={handleClick}
 			>
-				{userInfo.correspondingAddress}
+				{correspondingAddress}
 			</Button>
 			<Menu
 				id="basic-menu"

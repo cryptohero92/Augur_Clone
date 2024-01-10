@@ -23,7 +23,7 @@ export default function Header() {
 	return (
 		<div>
 			{accessToken != '' ? (
-				<AccountInfo accessToken={accessToken} handleLogout={handleLogout} />
+				<AccountInfo handleLogout={handleLogout} />
 			) : (
 				<Login handleLoggedIn={handleLoggedIn} />
 			)}

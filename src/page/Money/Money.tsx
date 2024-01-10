@@ -1,15 +1,16 @@
 import { Box, Button, FormControl, InputAdornment, InputLabel, Modal, OutlinedInput, TextField } from '@mui/material'
 import { useLocalStorage } from 'usehooks-ts'
 import { formatUnits } from 'ethers';
-import { JwtDecoded, UserInfo } from '../../types'
 import { useEffect, useState } from 'react'
-import { jwtDecode } from 'jwt-decode'
 import { toast } from 'react-toastify';
 import "./Money.scss"
+import { useSelector } from 'react-redux';
+import { RootState } from '../../app/store';
 
 export default function MoneyPage() {
+    const { id, correspondingAddress } = useSelector((state: RootState) => state.userKey);
+    
     const [accessToken] = useLocalStorage<string>('accessToken', '')
-    const [_, setCurrentMoney] = useLocalStorage<number>('currentMoney', 0)
 
     const [open, setOpen] = useState(false);
     const [isWithdrawing, setIsWithdrawing] = useState(false);
@@ -19,11 +20,6 @@ export default function MoneyPage() {
 
     const [withdrawAddress, setWithdrawAddress] = useState('')
     const [withdrawAmount, setWithdrawAmount] = useState('0.01')
-
-    const [userInfo, setUserInfo] = useState<UserInfo>({
-        id: 0,
-		correspondingAddress: ''
-    })
 
     const style = {
         position: 'absolute' as 'absolute',
@@ -39,7 +35,7 @@ export default function MoneyPage() {
 
     const handleWithdraw = () => {
         setIsWithdrawing(true)
-        fetch(`${import.meta.env.VITE_BACKEND_URL}/users/${userInfo.id}/withdraw`, {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/users/${id}/withdraw`, {
 			body: JSON.stringify({ withdrawAddress, withdrawAmount }),
 			headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -59,7 +55,6 @@ export default function MoneyPage() {
                 setIsWithdrawing(false)
                 setOpen(false);
                 toast("withdraw succeed!")
-                setCurrentMoney(Number(formatUnits(balance, Number(decimals))));
             })
             .catch(_ => {
                 setOpen(false);
@@ -68,28 +63,11 @@ export default function MoneyPage() {
             });
     }
 
-    useEffect(() => {
-        if (accessToken != '') {
-            const {
-				payload: {
-					id,
-					correspondingAddress
-				}
-			} = jwtDecode<JwtDecoded>(accessToken)
-
-            setUserInfo({
-                id: Number(id),
-                correspondingAddress
-            })
-        }
-        
-    }, [accessToken])
-
     return (
       <Box>
         <Box>
             <h1>Deposit</h1>
-            <p>Send/withdraw Coast Coin to the address {userInfo.correspondingAddress}</p>
+            <p>Send/withdraw Coast Coin to the address {correspondingAddress}</p>
         </Box>
         <Box>
             <h1>Withdraw</h1>
