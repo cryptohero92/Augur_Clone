@@ -26,6 +26,18 @@ function App() {
 
   const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
 
+  const fetchBalance = (address: string) => {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${address}`)
+			.then((response) => response.json())
+			.then(({balance, decimals}) => {
+				setCurrentMoney(Number(formatUnits(balance, Number(decimals))));
+			})
+			.catch((err) => {
+				console.log(err);
+				setCurrentMoney(0);
+			});
+  }
+
   useEffect(() => {
     if (accessToken == '') {
       dispatch(setUserInfo({id: 0, correspondingAddress: ''}));
@@ -43,15 +55,7 @@ function App() {
   }, [accessToken])
 
   useEffect(() => {
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${correspondingAddress}`)
-			.then((response) => response.json())
-			.then(({balance, decimals}) => {
-				setCurrentMoney(Number(formatUnits(balance, Number(decimals))));
-			})
-			.catch((err) => {
-				console.log(err);
-				setCurrentMoney(0);
-			});
+		fetchBalance(correspondingAddress)
 	}, [correspondingAddress])
   
   useWatchContractEvent({
@@ -63,7 +67,7 @@ function App() {
       try {
         const { from, to } = (logs[0] as any).args;
         if(from == correspondingAddress || to == correspondingAddress) {
-          // re-get balance.
+          fetchBalance(correspondingAddress)
         }
       } catch (err) {
         console.log(err);

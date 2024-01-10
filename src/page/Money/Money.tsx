@@ -1,7 +1,6 @@
 import { Box, Button, FormControl, InputAdornment, InputLabel, Modal, OutlinedInput, TextField } from '@mui/material'
 import { useLocalStorage } from 'usehooks-ts'
-import { formatUnits } from 'ethers';
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'react-toastify';
 import "./Money.scss"
 import { useSelector } from 'react-redux';
@@ -51,14 +50,14 @@ export default function MoneyPage() {
                     return response.json()
                 }
             })
-            .then(({balance, decimals}) => {
+            .then(({address, amount}) => {
                 setIsWithdrawing(false)
-                setOpen(false);
-                toast("withdraw succeed!")
+                setOpen(false)
+                toast(`withdraw succeed! $${amount} sent to ${address}...`)
             })
             .catch(_ => {
-                setOpen(false);
                 setIsWithdrawing(false)
+                setOpen(false)
                 toast("withdraw failed!")
             });
     }
