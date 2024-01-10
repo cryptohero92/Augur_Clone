@@ -6,22 +6,24 @@ import { useDisconnect } from 'wagmi'
 
 export default function Header() {
 	const { disconnectAsync } = useDisconnect()
-	const [auth, setAuth] = useLocalStorage<string>('auth', '')
+	const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
 
 	const handleLoggedIn = (auth: Auth) => {
 		console.log(auth)
-		setAuth(JSON.stringify(auth));
+		debugger
+		const { accessToken } = auth;
+		setAccessToken(accessToken);
 	};
 
 	const handleLogout = async () => {
 		await disconnectAsync();
-		setAuth('');
+		setAccessToken('');
 	}
 
 	return (
 		<div>
-			{auth != '' ? (
-				<AccountInfo auth={JSON.parse(auth) as Auth} handleLogout={handleLogout} />
+			{accessToken != '' ? (
+				<AccountInfo accessToken={accessToken} handleLogout={handleLogout} />
 			) : (
 				<Login handleLoggedIn={handleLoggedIn} />
 			)}

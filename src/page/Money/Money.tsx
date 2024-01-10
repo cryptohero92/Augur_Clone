@@ -1,12 +1,12 @@
 import { Box, Button, FormControl, InputAdornment, InputLabel, Modal, OutlinedInput, TextField } from '@mui/material'
 import { useLocalStorage } from 'usehooks-ts'
-import { JwtDecoded, Auth, UserInfo } from '../../types'
+import { JwtDecoded, UserInfo } from '../../types'
 import { useEffect, useState } from 'react'
 import { jwtDecode } from 'jwt-decode'
 import "./Money.scss"
 
 export default function MoneyPage() {
-    const [auth] = useLocalStorage<string>('auth', '')
+    const [accessToken] = useLocalStorage<string>('accessToken', '')
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -32,10 +32,19 @@ export default function MoneyPage() {
         p: 4,
     };
 
-    useEffect(() => {
-        if (auth != '') {
-            const { accessToken } = (JSON.parse(auth) as Auth)
+    const handleWithdraw = () => {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/users/${userInfo.id}/withdraw`, {
+			body: JSON.stringify({ withdrawAddress, withdrawAmount }),
+			headers: {
+                Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
+			method: 'POST'
+		}).then((response) => response.json());
+    }
 
+    useEffect(() => {
+        if (accessToken != '') {
             const {
 				payload: {
 					id,
@@ -50,7 +59,7 @@ export default function MoneyPage() {
             })
         }
         
-    }, [auth])
+    }, [accessToken])
 
     return (
       <Box>
@@ -91,6 +100,7 @@ export default function MoneyPage() {
                             value={withdrawAmount}
                         />
                     </FormControl>
+                    <Button variant="contained" onClick={handleWithdraw}>Withdraw</Button>
                 </FormControl>
             </Box>
         </Modal>

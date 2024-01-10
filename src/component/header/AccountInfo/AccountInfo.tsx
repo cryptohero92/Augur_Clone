@@ -1,17 +1,17 @@
 import { jwtDecode } from 'jwt-decode';
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { Auth, UserInfo } from '../../../types';
+import { UserInfo } from '../../../types';
 import { Box, Button, Menu, MenuItem } from '@mui/material';
 import { formatUnits } from 'ethers';
 import { JwtDecoded } from '../../../types';
 
 interface Props {
-	auth: Auth,
+	accessToken: string,
 	handleLogout: () => void
 }
 
-export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
+export const AccountInfo = ({accessToken, handleLogout} : Props) : JSX.Element => {
 	const navigate = useNavigate()
 
 	const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -23,8 +23,6 @@ export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
 	let previousToken = '';
 
 	useEffect(() => {
-		const { accessToken } = auth
-
 		if ( accessToken != '' && accessToken != previousToken) {
 			previousToken = accessToken;
 			const {
@@ -48,7 +46,7 @@ export const AccountInfo = ({auth, handleLogout} : Props) : JSX.Element => {
 					window.alert(err);
 				});
 		}
-	}, [auth]) 
+	}, [accessToken]) 
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
