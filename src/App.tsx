@@ -6,6 +6,8 @@ import Money from "./page/Money/Money"
 import ProtectedRoute from "./feature/protectedRoute";
 import { ToastContainer } from 'react-toastify';
 
+import 'react-toastify/dist/ReactToastify.css';
+
 function App() {
   
   // here in App, will show Header, and Routes.

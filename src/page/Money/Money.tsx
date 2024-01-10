@@ -47,7 +47,14 @@ export default function MoneyPage() {
 			},
 			method: 'POST'
 		})
-            .then((response) => response.json())
+            .then((response) => {
+                if (response.status != 200) {
+                    throw new Error('withdraw failed')
+                    
+                } else {
+                    return response.json()
+                }
+            })
             .then(({balance, decimals}) => {
                 setIsWithdrawing(false)
                 setOpen(false);
