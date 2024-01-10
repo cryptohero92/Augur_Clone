@@ -4,6 +4,7 @@ import Header from "./component/header/Index"
 import Home from "./page/Home"
 import Money from "./page/Money/Money"
 import ProtectedRoute from "./feature/protectedRoute";
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   
@@ -15,6 +16,18 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="money" element={<ProtectedRoute><Money /></ProtectedRoute>} />
       </Routes>
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </BrowserRouter>
   )
 
