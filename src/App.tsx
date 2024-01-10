@@ -27,15 +27,18 @@ function App() {
   const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
 
   const fetchBalance = (address: string) => {
-    fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${address}`)
+    if (address && address != '') {
+      fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${address}`)
 			.then((response) => response.json())
 			.then(({balance, decimals}) => {
 				setCurrentMoney(Number(formatUnits(balance, Number(decimals))));
 			})
 			.catch((err) => {
 				console.log(err);
-				setCurrentMoney(0);
 			});
+    } else {
+      setCurrentMoney(0);
+    }
   }
 
   useEffect(() => {
@@ -63,7 +66,6 @@ function App() {
     abi: CoastToken.abi,
     eventName: 'Transfer',
     onLogs(logs) {
-      debugger
       try {
         const { from, to } = (logs[0] as any).args;
         if(from == correspondingAddress || to == correspondingAddress) {

@@ -12,7 +12,8 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         setUserInfo: (state, action) => {
-            state = action.payload;
+            state.id = action.payload.id;
+            state.correspondingAddress = action.payload.correspondingAddress
         }
     }
 });

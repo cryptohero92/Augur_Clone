@@ -10,7 +10,6 @@ export default function Header() {
 
 	const handleLoggedIn = (auth: Auth) => {
 		console.log(auth)
-		debugger
 		const { accessToken } = auth;
 		setAccessToken(accessToken);
 	};
