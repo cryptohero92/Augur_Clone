@@ -5,10 +5,14 @@ import { Auth } from '../../types'
 import { useDisconnect } from 'wagmi'
 import { AppBar, Box, Button, Container, Menu, MenuItem, Toolbar, Typography } from '@mui/material'
 import { useState } from 'react'
+import logo from "../../assets/logo.png"
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
 	const { disconnectAsync } = useDisconnect()
 	const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
+
+	const navigate = useNavigate()
 
 	const handleLoggedIn = (auth: Auth) => {
 		console.log(auth)
@@ -21,11 +25,20 @@ export default function Header() {
 		setAccessToken('');
 	}
 
+	const [anchorElNav, setAnchorElNav] = useState(null);
 	const [pages, setPages] = useState(['Markets', 'Activity', 'Learn', 'LeaderBoard']);
+
+	const handleOpenNavMenu = (event: any) => {
+		setAnchorElNav(event.currentTarget);
+	};
+
+	const handleCloseNavMenu = () => {
+		setAnchorElNav(null);
+	};
 
 	return (
 		<AppBar position="static" sx={{ backgroundColor: 'yellowgreen' }}>
-			<Container maxWidth="false">
+			<Container>
 				<Toolbar disableGutters>
 				<Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
 					<Typography
@@ -47,22 +60,22 @@ export default function Header() {
 					/>
 					</Typography>
 					<Menu
-					id="menu-appbar"
-					anchorEl={anchorElNav}
-					anchorOrigin={{
-						vertical: 'bottom',
-						horizontal: 'left',
-					}}
-					keepMounted
-					transformOrigin={{
-						vertical: 'top',
-						horizontal: 'left',
-					}}
-					open={Boolean(anchorElNav)}
-					onClose={handleCloseNavMenu}
-					sx={{
-						display: { xs: 'block', md: 'none' },
-					}}
+						id="menu-appbar"
+						anchorEl={anchorElNav}
+						anchorOrigin={{
+							vertical: 'bottom',
+							horizontal: 'left',
+						}}
+						keepMounted
+						transformOrigin={{
+							vertical: 'top',
+							horizontal: 'left',
+						}}
+						open={Boolean(anchorElNav)}
+						onClose={handleCloseNavMenu}
+						sx={{
+							display: { xs: 'block', md: 'none' },
+						}}
 					>
 					<MenuItem key="home" onClick={() => {navigate("/");handleCloseNavMenu()}}>
 						<Typography textAlign="center">Home</Typography>
@@ -82,17 +95,17 @@ export default function Header() {
 					sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
 				>
 					<Box
-					onClick={() => navigate("/")}
-					pl={{ xs: 10, md: 0 }}
-					component="img"
-					sx={{
-						height: "60px",
-						width: "200px",
-						py: "20px",
-						cursor: "pointer",
-					}}
-					alt="The house from the offer."
-					src={logo}
+						onClick={() => navigate("/")}
+						pl={{ xs: 10, md: 0 }}
+						component="img"
+						sx={{
+							height: "60px",
+							width: "200px",
+							py: "20px",
+							cursor: "pointer",
+						}}
+						alt="The house from the offer."
+						src={logo}
 					/>
 				</Typography>
 				<Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
@@ -113,7 +126,6 @@ export default function Header() {
 					) : (
 						<Login handleLoggedIn={handleLoggedIn} />
 					)}
-				
 				</Box>
 				</Toolbar>
 			</Container>
