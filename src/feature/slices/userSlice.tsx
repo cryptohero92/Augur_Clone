@@ -4,7 +4,8 @@ import { UserInfo } from "../../types";
 
 const initialState: UserInfo = {
     id: 0,
-    correspondingAddress: ''
+    correspondingAddress: '',
+    isAdmin: false
 };
 
 const userSlice = createSlice({
@@ -14,6 +15,7 @@ const userSlice = createSlice({
         setUserInfo: (state, action) => {
             state.id = action.payload.id;
             state.correspondingAddress = action.payload.correspondingAddress
+            state.isAdmin = action.payload.isAdmin
         }
     }
 });
