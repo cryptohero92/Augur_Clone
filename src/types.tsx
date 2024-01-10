@@ -12,5 +12,4 @@ export interface JwtDecoded {
 export interface UserInfo {
 	id: number;
 	correspondingAddress: string;
-	currentMoney: number;
 }

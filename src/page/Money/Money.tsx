@@ -1,5 +1,6 @@
 import { Box, Button, FormControl, InputAdornment, InputLabel, Modal, OutlinedInput, TextField } from '@mui/material'
 import { useLocalStorage } from 'usehooks-ts'
+import { formatUnits } from 'ethers';
 import { JwtDecoded, UserInfo } from '../../types'
 import { useEffect, useState } from 'react'
 import { jwtDecode } from 'jwt-decode'
@@ -7,6 +8,8 @@ import "./Money.scss"
 
 export default function MoneyPage() {
     const [accessToken] = useLocalStorage<string>('accessToken', '')
+    const [_, setCurrentMoney] = useLocalStorage<number>('currentMoney', 0)
+
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
@@ -16,8 +19,7 @@ export default function MoneyPage() {
 
     const [userInfo, setUserInfo] = useState<UserInfo>({
         id: 0,
-		correspondingAddress: '',
-		currentMoney: 0
+		correspondingAddress: ''
     })
 
     const style = {
@@ -40,7 +42,14 @@ export default function MoneyPage() {
 				'Content-Type': 'application/json',
 			},
 			method: 'POST'
-		}).then((response) => response.json());
+		})
+            .then((response) => response.json())
+            .then(({balance, decimals}) => {
+                setCurrentMoney(Number(formatUnits(balance, Number(decimals))));
+            })
+            .catch((err) => {
+                window.alert(err);
+            });
     }
 
     useEffect(() => {
@@ -54,8 +63,7 @@ export default function MoneyPage() {
 
             setUserInfo({
                 id: Number(id),
-                correspondingAddress,
-                currentMoney: 0
+                correspondingAddress
             })
         }
         
