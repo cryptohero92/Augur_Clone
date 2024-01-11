@@ -21,3 +21,10 @@
 .connector-button:hover {
     background-color: #f2f2f2;
 }
+
+.modal-inner-wrapper, .email-login-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+}
