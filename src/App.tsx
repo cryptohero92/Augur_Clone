@@ -4,6 +4,7 @@ import Header from "./component/header/Index"
 import Home from "./page/Home"
 import Money from "./page/Money/Money"
 import ProtectedRoute from "./feature/protectedRoute";
+import AdminRoute from "./feature/adminRoute";
 import { ToastContainer } from 'react-toastify';
 import { useWatchContractEvent } from 'wagmi';
 
@@ -17,6 +18,9 @@ import { formatUnits } from 'ethers';
 import { useDispatch, useSelector } from "react-redux";
 import { setUserInfo } from './feature/slices/userSlice';
 import { RootState } from './app/store';
+import Dashboard from './page/Dashboard/Dashboard';
+import EventCreatePage from './page/EventPage/EventCreatePage';
+import EventEditPage from './page/EventPage/EventEditPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -85,6 +89,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="money" element={<ProtectedRoute><Money /></ProtectedRoute>} />
+        <Route path="dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
+        <Route path="dashboard/create" element={<AdminRoute><EventCreatePage /></AdminRoute>} />
+        <Route path="dashboard/update/:eventID" element={<AdminRoute><EventEditPage /></AdminRoute>} />
       </Routes>
       <ToastContainer 
         position="top-right"
