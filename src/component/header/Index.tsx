@@ -4,13 +4,16 @@ import { Login } from './Login/Login'
 import { Auth } from '../../types'
 import { useDisconnect } from 'wagmi'
 import { AppBar, Box, Button, Container, Menu, MenuItem, Toolbar, Typography } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import logo from "../../assets/logo.png"
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux'
+import { RootState } from '../../app/store'
 
 export default function Header() {
 	const { disconnectAsync } = useDisconnect()
 	const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
+	const isAdmin = useSelector((state: RootState) => state.userKey.isAdmin)
 
 	const navigate = useNavigate()
 
@@ -35,6 +38,17 @@ export default function Header() {
 	const handleCloseNavMenu = () => {
 		setAnchorElNav(null);
 	};
+
+	useEffect(() => {
+		if (isAdmin) {
+			const exists = pages.includes('Dashboard');
+			if (!exists) {
+				setPages([...pages, 'Dashboard']);
+			}
+		} else {
+			setPages(pages.filter(page => page != 'Dashboard'))
+		}
+	}, [isAdmin])
 
 	return (
 		<AppBar position="static" sx={{ backgroundColor: 'yellowgreen' }}>
