@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { UserInfo } from "../../types";
 
-
 const initialState: UserInfo = {
     id: 0,
     correspondingAddress: '',
