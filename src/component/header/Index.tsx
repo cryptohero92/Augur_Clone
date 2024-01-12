@@ -135,7 +135,7 @@ export default function Header() {
 				</Box>
 
 				<Box sx={{ flexGrow: 0 }}>
-					{accessToken != '' ? (
+					{accessToken != undefined && accessToken != '' ? (
 						<AccountInfo handleLogout={handleLogout} />
 					) : (
 						<Login handleLoggedIn={handleLoggedIn} />

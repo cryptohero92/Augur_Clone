@@ -46,7 +46,7 @@ function App() {
   }
 
   useEffect(() => {
-    if (accessToken == '') {
+    if (accessToken == undefined || accessToken == '') {
       dispatch(setUserInfo({id: 0, correspondingAddress: '', isAdmin: false}));
     }
     else if (accessToken != '' && accessToken != previousToken) {
