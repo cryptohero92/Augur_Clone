@@ -24,6 +24,7 @@ import DateTimePickerValue, { addMonths } from "../../component/Event/DateTimePi
 import { uploadImage } from "../../component/Event/uploadFile";
 import dayjs from 'dayjs';
 import BettingOptionsField from "../../component/Event/BettingOptionField";
+import { useLocalStorage } from "usehooks-ts";
 
 interface InputState {
     image: string;
@@ -33,9 +34,22 @@ interface InputState {
     endDate: dayjs.Dayjs;
     bettingOptions: { title: string; image: string; file: File | null }[];
 }
+
+enum Status {
+    INITIAL,
+    LOADING,
+    HAVERESULT
+}
+
+enum Result {
+    SUCCESS,
+    FAILURE
+}
   
 export default function EventCreate() {
     const navigate = useNavigate();
+
+    const [accessToken] = useLocalStorage<string>('accessToken', '')
 
     const categories = useSelector((state: RootState) => state.categoryKey.keywords);
     const [bettingOptions, setBettingOptions] = useState([{ title: '', image: null, file: null }]);
@@ -55,9 +69,10 @@ export default function EventCreate() {
         category: false,
         endDate: false
     });
-    const [open, setOpen] = useState(false);
+    
     const [imgFile, setImgFile] = useState<File | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState(Status.INITIAL);
+    const [result, setResult] = useState(Result.SUCCESS);
 
     function handleChange(e: any) {
         const { name, value } = e.target;
@@ -68,7 +83,7 @@ export default function EventCreate() {
         setInputs((inputs) => ({...inputs, endDate: value}));
     }
     function handleClose() {
-        setOpen(false);
+        setStatus(Status.INITIAL);
         navigate("/dashboard");
     }
     function handleFileChange(value: File | null) {
@@ -102,9 +117,10 @@ export default function EventCreate() {
         return isValid;
     }
 
-    async function handleSubmit(e: any) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (handleValidate(inputs)) {
+            setStatus(Status.LOADING);
             let image = inputs.image;
             if (imgFile) {
                 image = await uploadImage(imgFile);
@@ -117,6 +133,29 @@ export default function EventCreate() {
             }
             // dispatch(clearResponse());
             // dispatch(addEvent({...inputs, endDate: inputs.endDate.toString(), image}));
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/event`, {
+                body: JSON.stringify({...inputs, endDate: inputs.endDate.toString(), image}),
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                method: 'POST',
+            })
+                .then((response) => {
+                    debugger
+                    if (response.status != 200) {
+                        throw new Error('withdraw failed')
+                    } else {
+                        setStatus(Status.HAVERESULT)
+                        setResult(Result.SUCCESS)
+                    }
+                })
+                .catch(err => {
+                    debugger
+                    setStatus(Status.HAVERESULT)
+                    setResult(Result.FAILURE)
+                    console.error(err)
+                });
         }
     }
 
@@ -194,7 +233,7 @@ export default function EventCreate() {
                 
                 <Box sx={{display: 'flex', gap: '2rem'}}>
                     <Button 
-                        disabled={loading} 
+                        disabled={status == Status.LOADING} 
                         variant="outlined" 
                         color="secondary" 
                         type="submit"
@@ -202,7 +241,7 @@ export default function EventCreate() {
                         Add Event
                     </Button>
                     <Button 
-                        disabled={loading} 
+                        disabled={status == Status.LOADING} 
                         variant="outlined" 
                         color="secondary" 
                         onClick={() => navigate("/dashboard")}
@@ -211,19 +250,19 @@ export default function EventCreate() {
                     </Button>
                 </Box>
                 {
-                    loading && (
+                    status == Status.LOADING && (
                         <CircularProgress size={24} sx={{position:'absolute', top:'50%', left: '50%'}} />
                     )
                 }
             </form>
             <Snackbar
-                open={open}
+                open={status == Status.HAVERESULT}
                 autoHideDuration={2000}
                 onClose={handleClose}
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             >
                 <Alert onClose={handleClose} severity="info" sx={{ width: "100%" }}>
-                    "Event added successfully"
+                    {result == Result.SUCCESS ? "Event added successfully" : "There was an error to add event"}
                 </Alert>
             </Snackbar>
         </Box>

@@ -2,7 +2,7 @@ import { Box, Button, Grid, Typography } from '@mui/material'
 import { Link } from 'react-router-dom';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useEffect, useState } from 'react';
-import Event from "../../component/Event/event"
+import Event from "../../component/Event/Event"
 
 export default function Dashboard() {
     // first need to get all events. these events are from mongodb.
