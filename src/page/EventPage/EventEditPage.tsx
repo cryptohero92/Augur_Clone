@@ -126,14 +126,15 @@ export default function EventEdit() {
         }
         // dispatch(clearResponse());
         // dispatch(modifiedEvent({...inputs, endDate: inputs.endDate.toString(), image, id: eventID}));
-        fetch(`${import.meta.env.VITE_BACKEND_URL}/events`, {
-          body: JSON.stringify({...inputs, endDate: inputs.endDate.toString(), image}),
-          headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-          },
-          method: 'POST',
-      })
+
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/events/${eventID}`, {
+            body: JSON.stringify({...inputs, endDate: inputs.endDate.toString(), image}),
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            method: 'PATCH',
+        })
           .then((response) => {
               debugger
               if (response.status != 200) {
