@@ -262,7 +262,7 @@ export default function EventEdit() {
                     color="secondary" 
                     type="submit"
                 >
-                    Add Event
+                    Save
                 </Button>
                 <Button 
                     disabled={status == Status.LOADING} 

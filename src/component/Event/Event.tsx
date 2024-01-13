@@ -6,7 +6,7 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
-export default function Event({event}: any) {
+export default function Event({event, removeEvent}: any) {
     const [open, setOpen] = useState(false);
     const [accessToken] = useLocalStorage<string>('accessToken', '')
 
@@ -27,7 +27,13 @@ export default function Event({event}: any) {
 				'Content-Type': 'application/json',
 			},
             method: 'DELETE'
-        }).then((response) => response.json());
+        }).then((response) => {
+            response.json()
+            removeEvent(event._id)
+        })
+        .catch((err) => {
+            console.error(err);
+        });
     };
 
     const [openPublish, setOpenPublish] = useState(false);

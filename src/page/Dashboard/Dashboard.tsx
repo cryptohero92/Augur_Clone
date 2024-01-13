@@ -20,6 +20,14 @@ export default function Dashboard() {
             });
     }
 
+    const removeEvent = (eventId: any) => {
+        setEvents((events) => {
+            return events.filter(
+                (event: any) => event._id != eventId
+            );
+        })
+    }
+
     useEffect(() => {
         getAllEvents();
     }, [])
@@ -47,7 +55,7 @@ export default function Dashboard() {
                     <Grid container spacing={2} sx={{p: 2}}>
                         {events.map((event, index) => (
                             <Grid item key={index} xs={12} sm={6} lg={4} xl={3}>
-                                <Event event={event} />
+                                <Event event={event} removeEvent={removeEvent} />
                             </Grid>
                         ))}
                     </Grid>
