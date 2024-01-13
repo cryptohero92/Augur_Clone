@@ -25,26 +25,7 @@ import { uploadImage } from "../../component/Event/uploadFile";
 import dayjs from 'dayjs';
 import BettingOptionsField from "../../component/Event/BettingOptionField";
 import { useLocalStorage } from "usehooks-ts";
-
-interface InputState {
-    image: string;
-    title: string;
-    detail: string;
-    category: string;
-    endDate: dayjs.Dayjs;
-    bettingOptions: { title: string; image: string; file: File | null }[];
-}
-
-enum Status {
-    INITIAL,
-    LOADING,
-    HAVERESULT
-}
-
-enum Result {
-    SUCCESS,
-    FAILURE
-}
+import { InputState, Result, Status } from "../../types";
   
 export default function EventCreate() {
     const navigate = useNavigate();
@@ -52,7 +33,7 @@ export default function EventCreate() {
     const [accessToken] = useLocalStorage<string>('accessToken', '')
 
     const categories = useSelector((state: RootState) => state.categoryKey.keywords);
-    const [bettingOptions, setBettingOptions] = useState([{ title: '', image: null, file: null }]);
+    const [bettingOptions, setBettingOptions] = useState([{ title: '', image: '', file: null }]);
 
     const [inputs, setInputs] = useState<InputState>({
         image: "",
@@ -87,6 +68,10 @@ export default function EventCreate() {
             setInputs((inputs) => ({...inputs, image: URL.createObjectURL(imgFile)}));
         }
     }, [imgFile]);
+
+    useEffect(() => {
+        setInputs((inputs) => ({...inputs, bettingOptions: bettingOptions}));
+    }, [bettingOptions])
 
     function handleChange(e: any) {
         const { name, value } = e.target;
