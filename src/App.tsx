@@ -50,7 +50,6 @@ function App() {
       dispatch(setUserInfo({id: '', correspondingAddress: '', isAdmin: false}));
     }
     else if (accessToken != '' && accessToken != previousToken) {
-      debugger
       previousToken = accessToken;
       const {
 				payload: {

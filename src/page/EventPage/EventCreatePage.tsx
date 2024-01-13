@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { MuiFileInput } from 'mui-file-input';
@@ -74,6 +74,20 @@ export default function EventCreate() {
     const [status, setStatus] = useState(Status.INITIAL);
     const [result, setResult] = useState(Result.SUCCESS);
 
+    useEffect(() => {
+        handleValidate(inputs);
+    }, [inputs]);
+
+    useEffect(() => {
+        setInputs((inputs) => ({...inputs, category: categories[0].subcategories[0]}))
+    }, [categories])
+
+    useEffect(() => {
+        if (imgFile) {
+            setInputs((inputs) => ({...inputs, image: URL.createObjectURL(imgFile)}));
+        }
+    }, [imgFile]);
+
     function handleChange(e: any) {
         const { name, value } = e.target;
         setInputs((inputs) => ({ ...inputs, [name]: value }));
@@ -122,6 +136,7 @@ export default function EventCreate() {
         if (handleValidate(inputs)) {
             setStatus(Status.LOADING);
             let image = inputs.image;
+            debugger
             if (imgFile) {
                 image = await uploadImage(imgFile);
             }
@@ -133,7 +148,7 @@ export default function EventCreate() {
             }
             // dispatch(clearResponse());
             // dispatch(addEvent({...inputs, endDate: inputs.endDate.toString(), image}));
-            fetch(`${import.meta.env.VITE_BACKEND_URL}/event`, {
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/events`, {
                 body: JSON.stringify({...inputs, endDate: inputs.endDate.toString(), image}),
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
