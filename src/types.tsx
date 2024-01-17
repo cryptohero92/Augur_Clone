@@ -37,3 +37,13 @@ export enum Result {
     SUCCESS,
     FAILURE
 }
+
+export interface Category {
+    name: string;
+    subcategories: string[];
+}
+
+export interface CategoryState {
+    keywords: Category[];
+    activeList: string[];
+}

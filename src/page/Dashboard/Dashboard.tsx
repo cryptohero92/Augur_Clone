@@ -2,7 +2,7 @@ import { Box, Button, Grid, Typography } from '@mui/material'
 import { Link } from 'react-router-dom';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useEffect, useState } from 'react';
-import Event from "../../component/Event/Event"
+import UnPublishedEvent from "../../component/Event/UnPublishedEvent"
 
 export default function Dashboard() {
     // first need to get all events. these events are from mongodb.
@@ -55,7 +55,7 @@ export default function Dashboard() {
                     <Grid container spacing={2} sx={{p: 2}}>
                         {events.map((event, index) => (
                             <Grid item key={index} xs={12} sm={6} lg={4} xl={3}>
-                                <Event event={event} removeEvent={removeEvent} />
+                                <UnPublishedEvent event={event} removeEvent={removeEvent} />
                             </Grid>
                         ))}
                     </Grid>

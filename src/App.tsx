@@ -21,6 +21,7 @@ import { RootState } from './app/store';
 import Dashboard from './page/Dashboard/Dashboard';
 import EventCreatePage from './page/EventPage/EventCreatePage';
 import EventEditPage from './page/EventPage/EventEditPage';
+import Markets from './page/Market/Market';
 
 function App() {
   const dispatch = useDispatch();
@@ -89,6 +90,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="money" element={<ProtectedRoute><Money /></ProtectedRoute>} />
+        <Route path="markets" element={<Markets />} />
         <Route path="dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
         <Route path="dashboard/create" element={<AdminRoute><EventCreatePage /></AdminRoute>} />
         <Route path="dashboard/update/:eventID" element={<AdminRoute><EventEditPage /></AdminRoute>} />

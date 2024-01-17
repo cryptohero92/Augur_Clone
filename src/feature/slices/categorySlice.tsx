@@ -1,14 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface Category {
-  name: string;
-  subcategories: string[];
-}
-
-interface CategoryState {
-  keywords: Category[];
-  activeList: string[];
-}
+import { CategoryState } from '../../types';
 
 const initialState: CategoryState = {
   keywords: [
