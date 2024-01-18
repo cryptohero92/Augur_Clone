@@ -12,7 +12,7 @@ export const eventSlice = createSlice({
     },
     updatePublishedEvent: (state, action) => {
       state.publishedEvents = [...state.publishedEvents.filter(event => {
-        action.payload.ipfsUrl != event.ipfsUrl
+        return action.payload.ipfsUrl != event.ipfsUrl
       }), action.payload as PublishedEventInfo]
     }
   },

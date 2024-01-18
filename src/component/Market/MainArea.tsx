@@ -1,7 +1,3 @@
-import {
-  Box,
-  Grid
-} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { RootState } from "../../app/store";
@@ -11,6 +7,10 @@ import { PublishedEventInfo } from "../../types";
 import PublishedEvent from "./PublishedEvent";
 import { config } from "../../wagmi";
 import { readContract } from "@wagmi/core";
+import {
+  Box,
+  Grid
+} from "@mui/material";
   
 export default function MainArea() {
 const dispatch = useDispatch();
