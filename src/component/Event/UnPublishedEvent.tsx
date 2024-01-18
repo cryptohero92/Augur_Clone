@@ -66,6 +66,7 @@ export default function UnPublishedEvent({event, removeEvent}: any) {
             }
         })
         .catch(err => {
+            
             console.error(err);
         });
     }
