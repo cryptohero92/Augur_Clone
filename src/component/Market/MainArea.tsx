@@ -4,12 +4,13 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { useReadContract } from "wagmi";
 import { RootState } from "../../app/store";
 import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
 import { updatePublishedEvent } from "../../feature/slices/eventSlice";
 import { PublishedEventInfo } from "../../types";
 import PublishedEvent from "./PublishedEvent";
+import { config } from "../../wagmi";
+import { readContract } from "@wagmi/core";
   
 export default function MainArea() {
 const dispatch = useDispatch();
@@ -32,88 +33,85 @@ function inRange(num: number, min: number, max: number): boolean {
   return (num >= min && num < max) ? true : false;
 }
 
-// how to get events from PLSpeakContract.
-// PLSpeakContract contains getEvents function.
-const result = useReadContract({
-  abi: PLSpeakContract.abi,
-  address: PLSpeakContract.address as `0x${string}`,
-  functionName: 'getEvents'
-});
-
 useEffect(() => {
-  // get json content from hash code.
-  console.log(result);
-
-  if (result.data) {
-    // after getting event ipfs array from PLSpeakContract, how to get events data. 
-    // first after getting events, need to update events of eventSlice. 
-    // and compare events with eventSlice's eventList and if there is omitted thing, update event list.
-    let filteredEvents = [];
-
-    let eventsData: any[] = result.data as any[];
-
-    // Iterate through the array of IPFS URLs
-    for (let i = 0; i < eventsData.length; i++) {
-        let ipfsUrl = eventsData[i].ipfsUrl;
-        let eventExists = false;
-
-        // Compare the IPFS URL with the predetermined publishedEvents
-        for (let j = 0; j < publishedEvents.length; j++) {
-            if (ipfsUrl === publishedEvents[j].ipfsUrl) {
-                // if resolved changed, then need to update 
-                if (eventsData[i].resolved != publishedEvents[j].resolved) {
-                  updatePublishedEvent({
-                    ...publishedEvents[j],
-                    resolved: eventsData[i].resolved
-                  })
-                }
-                eventExists = true;
-                break;
-            }
-        }
-
-        // If there is no match, add the IPFS URL to the filteredEvents array
-        if (!eventExists) {
-            filteredEvents.push(eventsData[i]);
-        }
-    }
-
-    // now based on filteredEvents, need to fetch corresponding json content and based on it, update publishedEvents. 
-
-    filteredEvents.forEach(event => {
-        // for this event, make new event and dispatch updatePublishedEvents.
-        let item: any = {
-          ipfsUrl: event.ipfsUrl,
-          resolved: event.resolved
-        };
-        fetch(`https://gateway.pinata.cloud/ipfs/${event.ipfsUrl}`)
-          .then((response) => response.json())
-          .then(eventInfo => {
-            item.title = eventInfo.title
-            item.detail = eventInfo.detail
-            item.image = eventInfo.image
-            item.category = eventInfo.category
-            item.endDate = eventInfo.endDate
-            let promises = [];
-            for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
-              promises.push(fetch(eventInfo.bettingOptions[i]).then((response) => response.json()).then(optionInfo => ({
-                title: optionInfo.title,
-                image: optionInfo.image,
-                bet: 0
-              })))
-            }
-            Promise.all(promises)
-              .then(bettingOptions => {
-                item.bettingOptions = bettingOptions;
-                dispatch(updatePublishedEvent(item as PublishedEventInfo))
-              })
-          })
-          .catch(err => {
-            console.error(err);
-          })
+  async function getResult() {
+    const result = await readContract(config, {
+      abi: PLSpeakContract.abi,
+      address: PLSpeakContract.address as `0x${string}`,
+      functionName: 'getEvents',
     });
-  }
-}, [result])
+    if (result) {
+      // after getting event ipfs array from PLSpeakContract, how to get events data. 
+      // first after getting events, need to update events of eventSlice. 
+      // and compare events with eventSlice's eventList and if there is omitted thing, update event list.
+      let filteredEvents = [];
+  
+      let eventsData: any[] = result as any[];
+  
+      // Iterate through the array of IPFS URLs
+      for (let i = 0; i < eventsData.length; i++) {
+          let ipfsUrl = eventsData[i].ipfsUrl;
+          let eventExists = false;
+  
+          // Compare the IPFS URL with the predetermined publishedEvents
+          for (let j = 0; j < publishedEvents.length; j++) {
+              if (ipfsUrl === publishedEvents[j].ipfsUrl) {
+                  // if resolved changed, then need to update 
+                  if (eventsData[i].resolved != publishedEvents[j].resolved) {
+                    updatePublishedEvent({
+                      ...publishedEvents[j],
+                      resolved: eventsData[i].resolved
+                    })
+                  }
+                  eventExists = true;
+                  break;
+              }
+          }
+  
+          // If there is no match, add the IPFS URL to the filteredEvents array
+          if (!eventExists) {
+              filteredEvents.push(eventsData[i]);
+          }
+      }
+  
+      // now based on filteredEvents, need to fetch corresponding json content and based on it, update publishedEvents. 
+  
+      filteredEvents.forEach(event => {
+          // for this event, make new event and dispatch updatePublishedEvents.
+          let item: any = {
+            ipfsUrl: event.ipfsUrl,
+            resolved: event.resolved
+          };
+          fetch(`https://gateway.pinata.cloud/ipfs/${event.ipfsUrl}`)
+            .then((response) => response.json())
+            .then(eventInfo => {
+              item.title = eventInfo.title
+              item.detail = eventInfo.detail
+              item.image = eventInfo.image
+              item.category = eventInfo.category
+              item.endDate = eventInfo.endDate
+              let promises = [];
+              for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
+                promises.push(fetch(eventInfo.bettingOptions[i]).then((response) => response.json()).then(optionInfo => ({
+                  title: optionInfo.title,
+                  image: optionInfo.image,
+                  bet: 0
+                })))
+              }
+              Promise.all(promises)
+                .then(bettingOptions => {
+                  item.bettingOptions = bettingOptions;
+                  dispatch(updatePublishedEvent(item as PublishedEventInfo))
+                })
+            })
+            .catch(err => {
+              console.error(err);
+            })
+      });
+    }
+  } 
+  getResult();
+}, [])
 
 useEffect(() => {
   if (publishedEvents && publishedEvents.length > 0) {
