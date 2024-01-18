@@ -33,6 +33,7 @@ export default function UnPublishedEvent({event, removeEvent}: any) {
         })
         .catch((err) => {
             console.error(err);
+            alert("event publish failed");
         });
     };
 
@@ -66,7 +67,7 @@ export default function UnPublishedEvent({event, removeEvent}: any) {
             }
         })
         .catch(err => {
-            
+
             console.error(err);
         });
     }

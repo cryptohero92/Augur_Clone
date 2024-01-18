@@ -4,7 +4,6 @@ export const filterSlice = createSlice({
   name: 'filter',
   initialState: {
     Volume: 0,
-    Liquidity: 0,
     EndDate: 0,
     Status: 1
   },

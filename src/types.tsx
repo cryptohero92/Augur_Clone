@@ -27,6 +27,25 @@ export interface InputState {
     bettingOptions: { title: string; image: string; file: File | null }[];
 }
 
+export interface PublishedEventInfo {
+    ipfsUrl: string,
+    resolved: boolean,
+    title: string,
+    detail: string,
+    image: string,
+    category: string,
+    endDate: string,
+    comments: {
+        content: string,
+        writer: `0x${string}`
+    }[],
+    bettingOptions: {
+        title: string,
+        image: string,
+        bet: number,
+    }[]
+}
+
 export enum Status {
     INITIAL,
     LOADING,
