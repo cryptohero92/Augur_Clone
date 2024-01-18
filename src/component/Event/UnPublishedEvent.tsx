@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import CampaignIcon from '@mui/icons-material/Campaign';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useState } from 'react';
 import { useLocalStorage } from 'usehooks-ts';
 
 export default function UnPublishedEvent({event, removeEvent}: any) {
     const [open, setOpen] = useState(false);
+    const [isProgressing, setIsProgressing] = useState(false);
     const [accessToken] = useLocalStorage<string>('accessToken', '')
 
     const openDialog = () => {
@@ -50,6 +52,7 @@ export default function UnPublishedEvent({event, removeEvent}: any) {
     const confirmPublish = () => {
         // dispatch(publishEvent({id: event._id}));
         setOpenPublish(false);
+        setIsProgressing(true)
         fetch(`${import.meta.env.VITE_BACKEND_URL}/events/publish`, {
             body: JSON.stringify({id: event._id}),
             headers: {
@@ -59,6 +62,7 @@ export default function UnPublishedEvent({event, removeEvent}: any) {
             method: 'POST'
         }).then((response) => {
             debugger
+            setIsProgressing(false);
             if (response.status != 200) {
                 throw new Error('publish failed')
                 
@@ -67,7 +71,7 @@ export default function UnPublishedEvent({event, removeEvent}: any) {
             }
         })
         .catch(err => {
-
+            setIsProgressing(false);
             console.error(err);
         });
     }
@@ -86,15 +90,7 @@ export default function UnPublishedEvent({event, removeEvent}: any) {
                     {event.title}
                 </Typography>
             </Box>
-            <Link to={`/dashboard/update/${event._id}`}>
-                <EditIcon>edit</EditIcon>
-            </Link>
-            <DeleteForeverIcon onClick={() => openDialog()}>
-                delete
-            </DeleteForeverIcon>
-            <CampaignIcon onClick={() => openPublishDialog()}>
-                Publish
-            </CampaignIcon>
+            
             {open && (
                 <Dialog
                     open={open}
@@ -133,6 +129,22 @@ export default function UnPublishedEvent({event, removeEvent}: any) {
                         </Button>
                     </DialogActions>
                 </Dialog>
+            )}
+
+            {isProgressing ? (
+                <CircularProgress />
+            ) : (
+                <>
+                <Link to={`/dashboard/update/${event._id}`}>
+                    <EditIcon>edit</EditIcon>
+                </Link>
+                <DeleteForeverIcon onClick={() => openDialog()}>
+                    delete
+                </DeleteForeverIcon>
+                <CampaignIcon onClick={() => openPublishDialog()}>
+                    Publish
+                </CampaignIcon>
+                </>
             )}
         </Box>
         
