@@ -22,6 +22,7 @@ import Dashboard from './page/Dashboard/Dashboard';
 import EventCreatePage from './page/EventPage/EventCreatePage';
 import EventEditPage from './page/EventPage/EventEditPage';
 import Markets from './page/Market/Market';
+import EventView from './page/EventPage/EventViewPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -91,6 +92,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="money" element={<ProtectedRoute><Money /></ProtectedRoute>} />
         <Route path="markets" element={<Markets />} />
+        <Route path="event/:eventID" element={<EventView />} />
         <Route path="dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
         <Route path="dashboard/create" element={<AdminRoute><EventCreatePage /></AdminRoute>} />
         <Route path="dashboard/update/:eventID" element={<AdminRoute><EventEditPage /></AdminRoute>} />

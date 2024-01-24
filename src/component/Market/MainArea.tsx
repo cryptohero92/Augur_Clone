@@ -58,10 +58,12 @@ useEffect(() => {
               if (ipfsUrl === publishedEvents[j].ipfsUrl) {
                   // if resolved changed, then need to update 
                   if (eventsData[i].resolved != publishedEvents[j].resolved) {
-                    updatePublishedEvent({
-                      ...publishedEvents[j],
-                      resolved: eventsData[i].resolved
-                    })
+                    dispatch(
+                      updatePublishedEvent({
+                        ...publishedEvents[j],
+                        resolved: eventsData[i].resolved
+                      })
+                    );
                   }
                   eventExists = true;
                   break;
