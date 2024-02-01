@@ -83,10 +83,14 @@ export default function RightPanel() {
             color: 'rgb(25, 118, 210)'
         }
     };
+    // in right panel, if current event is not resolved yet, need to show buy & sell.
+    // 
 
     return (
         <Box sx={styles.panel}>
+            <Box sx={styles.container}>
             Right Panel            
+            </Box>
         </Box>
     )
 }
