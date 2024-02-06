@@ -65,7 +65,6 @@ export default function UnPublishedEvent({event, removeEvent}: any) {
             setIsProgressing(false);
             if (response.status != 200) {
                 throw new Error('publish failed')
-                
             } else {
                 confirmDelete();
             }

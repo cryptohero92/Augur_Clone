@@ -35,56 +35,18 @@ function inRange(num: number, min: number, max: number): boolean {
 
 useEffect(() => {
   async function getResult() {
-    const result = await readContract(config, {
+    const eventUrls = await readContract(config, {
       abi: PLSpeakContract.abi,
       address: PLSpeakContract.address as `0x${string}`,
-      functionName: 'getEvents',
+      functionName: 'getEventUrls',
     });
-    if (result) {
-      // after getting event ipfs array from PLSpeakContract, how to get events data. 
-      // first after getting events, need to update events of eventSlice. 
-      // and compare events with eventSlice's eventList and if there is omitted thing, update event list.
-      let filteredEvents = [];
-  
-      let eventsData: any[] = result as any[];
-  
-      // Iterate through the array of IPFS URLs
-      for (let i = 0; i < eventsData.length; i++) {
-          let ipfsUrl = eventsData[i].ipfsUrl;
-          let eventExists = false;
-  
-          // Compare the IPFS URL with the predetermined publishedEvents
-          for (let j = 0; j < publishedEvents.length; j++) {
-              if (ipfsUrl === publishedEvents[j].ipfsUrl) {
-                  // if resolved changed, then need to update 
-                  if (eventsData[i].resolved != publishedEvents[j].resolved) {
-                    dispatch(
-                      updatePublishedEvent({
-                        ...publishedEvents[j],
-                        resolved: eventsData[i].resolved
-                      })
-                    );
-                  }
-                  eventExists = true;
-                  break;
-              }
-          }
-  
-          // If there is no match, add the IPFS URL to the filteredEvents array
-          if (!eventExists) {
-              filteredEvents.push(eventsData[i]);
-          }
-      }
-  
-      // now based on filteredEvents, need to fetch corresponding json content and based on it, update publishedEvents. 
-  
-      filteredEvents.forEach(event => {
-          // for this event, make new event and dispatch updatePublishedEvents.
+    if (eventUrls) {
+      eventUrls.forEach(ipfsUrl => {
           let item: any = {
-            ipfsUrl: event.ipfsUrl,
-            resolved: event.resolved
+            ipfsUrl
           };
-          fetch(`https://gateway.pinata.cloud/ipfs/${event.ipfsUrl}`)
+
+          fetch(`https://gateway.pinata.cloud/ipfs/${ipfsUrl}`)
             .then((response) => response.json())
             .then(eventInfo => {
               item.title = eventInfo.title
@@ -94,11 +56,34 @@ useEffect(() => {
               item.endDate = eventInfo.endDate
               let promises = [];
               for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
-                promises.push(fetch(eventInfo.bettingOptions[i]).then((response) => response.json()).then(optionInfo => ({
+                const contractPromise = readContract(config, {
+                  contracts: [
+                    {
+                      abi: PLSpeakContract.abi,
+                      address: PLSpeakContract.address as `0x${string}`,
+                      functionName: 'getBetAmountOfBettingOption',
+                      args: [eventInfo.bettingOptions[i]] 
+                    },
+                    {
+                      abi: PLSpeakContract.abi,
+                      address: PLSpeakContract.address as `0x${string}`,
+                      functionName: 'getResultOfBettingOption',
+                      args: [eventInfo.bettingOptions[i]]
+                    }
+                  ]                  
+                }).then(res => ({
+                  ipfsUrl: eventInfo.bettingOptions[i]
+                  bet: res[0],
+                  result: res[1]
+                }))
+
+                const ipfsPromise = fetch(`https://gateway.pinata.cloud/ipfs/${eventInfo.bettingOptions[i]}`).then((response) => response.json()).then(optionInfo => ({
                   title: optionInfo.title,
-                  image: optionInfo.image,
-                  bet: 0
-                })))
+                  image: optionInfo.image
+                }));
+
+                promises.push(Promise.all([contractPromise, ipfsPromise])
+                  .then((results) => (Object.assign({}, ...results)))) 
               }
               Promise.all(promises)
                 .then(bettingOptions => {
@@ -117,7 +102,7 @@ useEffect(() => {
 
 useEffect(() => {
   if (publishedEvents && publishedEvents.length > 0) {
-    let events = filter.Status == 1 ? publishedEvents.filter(event => event.resolved == false) : filter.Status == 2 ? publishedEvents.filter(event => event.resolved == true) : publishedEvents;
+    let events = filter.Status == 1 ? publishedEvents.filter(event => event.bettingOptions.reduce((resolved, item) => resolved * item.result, 1) == 0) : filter.Status == 2 ? publishedEvents.filter(event => event.bettingOptions.reduce((resolved, item) => resolved * item.result, 1) != 0) : publishedEvents;
 
     events = filter.Volume == 1 ? events.filter(event => event.bettingOptions.reduce((total, item) => total + item.bet, 0) < 10000) : filter.Volume == 2 ? events.filter(event => inRange(event.bettingOptions.reduce((total, item) => total + item.bet, 0), 10000, 50000)) : filter.Volume == 3 ? events.filter(event => inRange(event.bettingOptions.reduce((total, item) => total + item.bet, 0), 50000, 100000)) : filter.Volume == 4 ? events.filter(event => event.bettingOptions.reduce((total, item) => total + item.bet, 0) >= 100000) : events; 
 

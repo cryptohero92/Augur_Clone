@@ -92,7 +92,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="money" element={<ProtectedRoute><Money /></ProtectedRoute>} />
         <Route path="markets" element={<Markets />} />
-        <Route path="event/:eventID" element={<EventView />} />
+        <Route path="event/:ipfsUrl" element={<EventView />} />
         <Route path="dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
         <Route path="dashboard/create" element={<AdminRoute><EventCreatePage /></AdminRoute>} />
         <Route path="dashboard/update/:eventID" element={<AdminRoute><EventEditPage /></AdminRoute>} />

@@ -29,7 +29,6 @@ export interface InputState {
 
 export interface PublishedEventInfo {
     ipfsUrl: string,
-    resolved: boolean,
     title: string,
     detail: string,
     image: string,
@@ -40,9 +39,11 @@ export interface PublishedEventInfo {
         writer: `0x${string}`
     }[],
     bettingOptions: {
+        ipfsUrl: string,
         title: string,
         image: string,
         bet: number,
+        result: number
     }[]
 }
 
@@ -66,3 +67,8 @@ export interface CategoryState {
     keywords: Category[];
     activeList: string[];
 }
+
+export const BettingStyle = {
+    Market: 'Market',
+    Limit: 'Limit'
+};

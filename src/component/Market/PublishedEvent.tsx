@@ -1,28 +1,56 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardMedia, Box, Typography } from '@mui/material';
 import ModeCommentOutlinedIcon from '@mui/icons-material/ModeCommentOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import { PublishedEventInfo } from '../../types';
 
+function BettingOptionPrices({ipfsUrl}) {
+    const [prices, setPrices] = useState({
+        yes: 50,
+        no: 50
+    });
+    useEffect(() => {
+        if (ipfsUrl) {
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/prices?ipfsUrl=${ipfsUrl}`)
+                .then((response) => response.json())
+                // If yes, retrieve it. If no, create it.
+                .then((prices) => {
+                    setPrices(prices)
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        }
+    }, [ipfsUrl])
 
+    return (
+        <>
+            <Box sx={{ background: 'rgba(39, 174, 96, 0.1)',width: `${prices.yes}%`, display: 'flex', justifyContent: 'left' }}>
+                <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Yes {prices.yes}¢</Typography>
+            </Box>
+            <Box sx={{ background: 'rgba(235, 87, 87, 0.1)',width: `${prices.no}%`, display: 'flex', justifyContent: 'right' }}>
+                <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>No {prices.no}¢</Typography>
+            </Box>
+        </>
+    )
+
+}
 
 export default function PublishedEvent({event}: {event: PublishedEventInfo}) {
     let total = 0;
+    let resolved = true;
     for (let i = 0; i < event.bettingOptions.length; i++) {
         total += event.bettingOptions[i].bet;
-    }   
-
+        if (event.bettingOptions[i].result == 0) resolved = false;
+    } 
+    
     const renderBettingOptions = () => {
-        if (event.resolved == false) {
+        if (resolved == false) {
             if (event.bettingOptions.length == 1) {    
                 return (
                     <Box sx={{ height: 32, width: 1, gap: 0.125, display: 'flex'}}>
-                        <Box sx={{ background: 'rgba(39, 174, 96, 0.1)',width: '50%', display: 'flex', justifyContent: 'left' }}>
-                            <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Yes 50¢</Typography>
-                        </Box>
-                        <Box sx={{ background: 'rgba(235, 87, 87, 0.1)',width: '50%', display: 'flex', justifyContent: 'right' }}>
-                            <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>No 50¢</Typography>
-                        </Box>
+                        <BettingOptionPrices ipfsUrl={event.bettingOptions[0].ipfsUrl} />
                     </Box>
                 )
             } else {
@@ -43,12 +71,7 @@ export default function PublishedEvent({event}: {event: PublishedEventInfo}) {
                                         
                                     </Box>
                                     <Box sx={{ width: '140px', gap: 0.125, display: 'flex' }}>
-                                        <Box sx={{ background: 'rgba(39, 174, 96, 0.1)',width: `50%`, display: 'flex', justifyContent: 'left' }}>
-                                            <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Yes 50¢</Typography>
-                                        </Box>
-                                        <Box sx={{ background: 'rgba(235, 87, 87, 0.1)',width: `50%`, display: 'flex', justifyContent: 'right' }}>
-                                            <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>No 50¢</Typography>
-                                        </Box>
+                                        <BettingOptionPrices ipfsUrl={bettingOption.ipfsUrl} />
                                     </Box>
                                 </Box>
                             ) 
@@ -57,61 +80,60 @@ export default function PublishedEvent({event}: {event: PublishedEventInfo}) {
                 )
             }    
         } else {
-            // if (event.bettingOptions.length == 1) {
-            //     // how to get
-            //     let yes_or_no = event.bettingOptions[0].result;
+            if (event.bettingOptions.length == 1) {
+                // how to get
+                let yes_or_no = event.bettingOptions[0].result;
     
-            //     return (
-            //         <Box sx={{ height: 32, width: 1}}>
-            //             {yes_or_no == 0 ? (
-            //                 <Box sx={{ background: 'rgba(39, 174, 96, 0.1)',width: 1, display: 'flex', justifyContent: 'left' }}>
-            //                 <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Resolved: {event.bettingOptions[0].yes_no ? event.bettingOptions[0].yes_no.yes : "Yes"}</Typography>
-            //             </Box>
-            //             ) : (
-            //                 <Box sx={{ background: 'rgba(235, 87, 87, 0.1)',width:1, display: 'flex', justifyContent: 'right' }}>
-            //                 <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Resolved: {event.bettingOptions[0].yes_no ? event.bettingOptions[0].yes_no.no : "No"}</Typography>
-            //             </Box>
-            //             )}
-            //         </Box>
-            //     )
-            // } else {
+                return (
+                    <Box sx={{ height: 32, width: 1}}>
+                        {yes_or_no == 1 ? (
+                            <Box sx={{ background: 'rgba(39, 174, 96, 0.1)',width: 1, display: 'flex', justifyContent: 'left' }}>
+                            <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Resolved: Yes</Typography>
+                        </Box>
+                        ) : (
+                            <Box sx={{ background: 'rgba(235, 87, 87, 0.1)',width:1, display: 'flex', justifyContent: 'right' }}>
+                            <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Resolved: No</Typography>
+                        </Box>
+                        )}
+                    </Box>
+                )
+            } else {
 
-            //     return (
-            //         <Box sx={{ height: '80px', overflowY: 'hidden', WebkitMaskImage: 'linear-gradient(white 65%, transparent 100%)'}} >
-            //             {event.bettingOptions.map((bettingOption, index) => {
-            //                 let yes_or_no = bettingOption.result;
+                return (
+                    <Box sx={{ height: '80px', overflowY: 'hidden', WebkitMaskImage: 'linear-gradient(white 65%, transparent 100%)'}} >
+                        {event.bettingOptions.map((bettingOption, index) => {
+                            let yes_or_no = bettingOption.result;
     
-            //                 return (
-            //                     <Box sx={{ display: 'flex', mt: 0.5, justifyContent: 'space-between' }} key={index}>
-            //                         <Box sx={{ display: 'flex', gap: '0.5rem'}}>
-            //                             {bettingOption.image ? (<CardMedia
-            //                                 sx={{ height: 24, width:24, minWidth: 24 }}
-            //                                 image={bettingOption.image}
-            //                                 title={bettingOption.title}
-            //                             />) : null }
-            //                             <Typography sx={{padding: '5px', whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis', maxWidth: '120px'}}>
-            //                                 {bettingOption.title}
-            //                             </Typography>
+                            return (
+                                <Box sx={{ display: 'flex', mt: 0.5, justifyContent: 'space-between' }} key={index}>
+                                    <Box sx={{ display: 'flex', gap: '0.5rem'}}>
+                                        {bettingOption.image ? (<CardMedia
+                                            sx={{ height: 24, width:24, minWidth: 24 }}
+                                            image={bettingOption.image}
+                                            title={bettingOption.title}
+                                        />) : null }
+                                        <Typography sx={{padding: '5px', whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis', maxWidth: '120px'}}>
+                                            {bettingOption.title}
+                                        </Typography>
                                         
-            //                         </Box>
-            //                         <Box sx={{ width: '140px', gap: 0.125, display: 'flex' }}>
-            //                             {yes_or_no == 0 ? (
-            //                                 <Box sx={{ background: 'rgba(39, 174, 96, 0.1)',width: 1, display: 'flex', justifyContent: 'left', overflow: 'hidden' }}>
-            //                                     <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Resolved: {bettingOption.yes_no ? bettingOption.yes_no.yes : "Yes"}</Typography>
-            //                                 </Box>
-            //                             ) : (
-            //                                 <Box sx={{ background: 'rgba(235, 87, 87, 0.1)',width: 1, display: 'flex', justifyContent: 'left', overflow: 'hidden' }}>
-            //                                     <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Resolved: {bettingOption.yes_no ? bettingOption.yes_no.no : "No"}</Typography>
-            //                                 </Box>
-            //                             )}
-            //                         </Box>
-            //                     </Box>
-            //                 ) 
-            //             })}
-            //         </Box>
-            //     )
-            // }
-            return null
+                                    </Box>
+                                    <Box sx={{ width: '140px', gap: 0.125, display: 'flex' }}>
+                                        {yes_or_no == 1 ? (
+                                            <Box sx={{ background: 'rgba(39, 174, 96, 0.1)',width: 1, display: 'flex', justifyContent: 'left', overflow: 'hidden' }}>
+                                                <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Resolved: Yes</Typography>
+                                            </Box>
+                                        ) : (
+                                            <Box sx={{ background: 'rgba(235, 87, 87, 0.1)',width: 1, display: 'flex', justifyContent: 'left', overflow: 'hidden' }}>
+                                                <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Resolved: No</Typography>
+                                            </Box>
+                                        )}
+                                    </Box>
+                                </Box>
+                            ) 
+                        })}
+                    </Box>
+                )
+            }
         }
     };
   
