@@ -62,7 +62,7 @@ export default function PublishedEvent({event}: {event: PublishedEventInfo}) {
                                     <Box sx={{ display: 'flex', gap: '0.5rem'}}>
                                         {bettingOption.image ? (<CardMedia
                                             sx={{ height: 24, width:24, minWidth: 24 }}
-                                            image={bettingOption.image}
+                                            image={`https://gateway.pinata.cloud/ipfs/${bettingOption.image}`}
                                             title={bettingOption.title}
                                         />) : null }
                                         <Typography sx={{padding: '5px', whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis', maxWidth: '100px'}}>
@@ -109,7 +109,7 @@ export default function PublishedEvent({event}: {event: PublishedEventInfo}) {
                                     <Box sx={{ display: 'flex', gap: '0.5rem'}}>
                                         {bettingOption.image ? (<CardMedia
                                             sx={{ height: 24, width:24, minWidth: 24 }}
-                                            image={bettingOption.image}
+                                            image={`https://gateway.pinata.cloud/ipfs/${bettingOption.image}`}
                                             title={bettingOption.title}
                                         />) : null }
                                         <Typography sx={{padding: '5px', whiteSpace: 'nowrap', overflow:'hidden', textOverflow: 'ellipsis', maxWidth: '120px'}}>
@@ -143,7 +143,7 @@ export default function PublishedEvent({event}: {event: PublishedEventInfo}) {
                 <Box sx={{ display: 'flex', mb: 3}}>
                     <CardMedia
                         sx={{ height: 72, width:72, minWidth: 72 }}
-                        image={event.image}
+                        image={`https://gateway.pinata.cloud/ipfs/${event.image}`}
                         title={event.title}
                     />
                     <Box sx={{ p: 0.6, ml: 0.5 }}>

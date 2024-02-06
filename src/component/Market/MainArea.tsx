@@ -1,12 +1,13 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
+import { BigNumberish, formatUnits } from 'ethers'
 import { RootState } from "../../app/store";
 import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
 import { updatePublishedEvent } from "../../feature/slices/eventSlice";
 import { PublishedEventInfo } from "../../types";
 import PublishedEvent from "./PublishedEvent";
 import { config } from "../../wagmi";
-import { readContract } from "@wagmi/core";
+import { readContract, readContracts } from "@wagmi/core";
 import {
   Box,
   Grid
@@ -56,7 +57,7 @@ useEffect(() => {
               item.endDate = eventInfo.endDate
               let promises = [];
               for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
-                const contractPromise = readContract(config, {
+                const contractPromise = readContracts(config, {
                   contracts: [
                     {
                       abi: PLSpeakContract.abi,
@@ -73,8 +74,8 @@ useEffect(() => {
                   ]                  
                 }).then(res => ({
                   ipfsUrl: eventInfo.bettingOptions[i],
-                  bet: res[0],
-                  result: res[1]
+                  bet: Number(formatUnits(res[0].result as BigNumberish, 18)),
+                  result: Number(res[1].result)
                 }))
 
                 const ipfsPromise = fetch(`https://gateway.pinata.cloud/ipfs/${eventInfo.bettingOptions[i]}`).then((response) => response.json()).then(optionInfo => ({

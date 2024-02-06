@@ -6,7 +6,6 @@ import UnPublishedEvent from "../../component/Event/UnPublishedEvent"
 
 export default function Dashboard() {
     // first need to get all events. these events are from mongodb.
-    // 
     const [events, setEvents] = useState([])
     const getAllEvents = () => {
         fetch(`${import.meta.env.VITE_BACKEND_URL}/events`)
