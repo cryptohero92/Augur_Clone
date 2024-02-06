@@ -15,6 +15,7 @@ import Tab from '@mui/material/Tab';
 import ChartArea from "./ChartArea";
 import OrderBook from "./OrderBook";
 import MyOrders from './MyOrders';
+import { RootState } from "../../app/store";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -45,7 +46,7 @@ function a11yProps(index) {
 
 export default function MainPanel({eventInfo}: any) {
     const dispatch = useDispatch();
-    const { selectedBettingOption } = useSelector((state) => state.eventKey);
+    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
 
     const [moreOrLessSwitch, setMoreOrLessSwitch] = useState(true);
     const [choice, setChoice] = useState(0);

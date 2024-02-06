@@ -13,7 +13,13 @@ function BettingOptionPrices({ipfsUrl}) {
     useEffect(() => {
         if (ipfsUrl) {
             fetch(`${import.meta.env.VITE_BACKEND_URL}/prices?ipfsUrl=${ipfsUrl}`)
-                .then((response) => response.json())
+                .then((response) => {
+                    if (response.status != 200) {
+                        throw new Error('Error happened')
+                    } else {
+                        return response.json()
+                    }
+                })
                 // If yes, retrieve it. If no, create it.
                 .then((prices) => {
                     setPrices(prices)

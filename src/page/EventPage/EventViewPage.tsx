@@ -4,12 +4,15 @@ import { useParams } from "react-router-dom";
 
 import MainPanel from "../../component/Event/MainPanel";
 import RightPanel from "../../component/Event/RightPanel";
-import { fetchOrders, createOrder, updateOrder, removeOrder } from "../feature/Slices/orderSlice";
+import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
+import { readContracts } from '@wagmi/core'
+import { config } from "../../wagmi"
+import { BigNumberish, formatUnits } from 'ethers'
 
 export default function EventView() {
     const { ipfsUrl } = useParams(); 
 
-    [eventInfo,setEventInfo] = useState(null);
+    const [eventInfo,setEventInfo] = useState(null);
 
     useEffect(() => {
         if (ipfsUrl) {
@@ -27,7 +30,7 @@ export default function EventView() {
               item.endDate = eventInfo.endDate
               let promises = [];
               for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
-                const contractPromise = readContract(config, {
+                const contractPromise = readContracts(config, {
                   contracts: [
                     {
                       abi: PLSpeakContract.abi,
@@ -43,8 +46,9 @@ export default function EventView() {
                     }
                   ]                  
                 }).then(res => ({
-                  bet: res[0],
-                  result: res[1]
+                  ipfsUrl: eventInfo.bettingOptions[i],
+                  bet: Number(formatUnits(res[0].result as BigNumberish, 18)),
+                  result: Number(res[1].result)
                 }))
 
                 const ipfsPromise = fetch(`https://gateway.pinata.cloud/ipfs/${eventInfo.bettingOptions[i]}`).then((response) => response.json()).then(optionInfo => ({
