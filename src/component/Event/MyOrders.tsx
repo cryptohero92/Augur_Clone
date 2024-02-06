@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { DialogContent, DialogContentText, DialogActions, Dialog, Button } from '@mui/material';
-import { deleteAllOrdersFor, deleteOrder} from '../Slices/orderSlice';
+import { deleteAllOrdersFor, deleteOrder } from '../../feature/slices/orderSlice';
+import { RootState } from '../../app/store';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
@@ -10,9 +11,9 @@ import { deleteAllOrdersFor, deleteOrder} from '../Slices/orderSlice';
 
 export default function MyOrders() {
     const dispatch = useDispatch();
-    const { orders } = useSelector((state) => state.orderKey);
+    const { orders } = useSelector((state: RootState) => state.orderKey);
     const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
-    const { selectedEvent, selectedBettingOption } = useSelector((state) => state.eventKey);
+    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
 
     const [myOrders, setMyOrders] = useState([]);
     const [openCancelAll, setOpenCancelAll] = useState(false);

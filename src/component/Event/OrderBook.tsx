@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { BUY, SELL, mergeElements } from '../../app/constant';
-import { setShowNo } from '../Slices/orderSlice';
+import { setShowNo } from '../../feature/slices/orderSlice';
 
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';

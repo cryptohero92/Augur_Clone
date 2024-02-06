@@ -3,14 +3,14 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { Box, Typography, Button } from "@mui/material"
 import QuantityInput from "./QuantityInput"
-import ConnectKitCustomButton from "./ConnectKitCustomButton";
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { BettingStyle } from "../../Const";
-import { sendOrderRequest } from '../Slices/orderSlice';
-import { fetchUserTokens } from '../Slices/eventSlice';
+import { BettingStyle } from "../../types";
+import { sendOrderRequest, setShowNo } from "../../feature/slices/orderSlice";
 import { BUY, SELL, mergeElements } from "../../app/constant";
-import { setShowNo } from '../Slices/orderSlice';
+import { useLocalStorage } from "usehooks-ts";
+import { RootState } from "../../app/store";
+import { Auth } from "../../types";
 
 export default function RightPanel() {
     const dispatch = useDispatch();
@@ -18,8 +18,8 @@ export default function RightPanel() {
 
     const [currentMoney] = useLocalStorage<number>('currentMoney', 0)
 
-    const { orders, showNo } = useSelector((state) => state.orderKey);
-    const { selectedBettingOption } = useSelector((state) => state.eventKey);
+    const { orders, showNo } = useSelector((state: RootState) => state.orderKey);
+    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
     const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
 
     const [bettingStyle, setBettingStyle] = useState(BettingStyle.Limit);

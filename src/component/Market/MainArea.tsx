@@ -72,7 +72,7 @@ useEffect(() => {
                     }
                   ]                  
                 }).then(res => ({
-                  ipfsUrl: eventInfo.bettingOptions[i]
+                  ipfsUrl: eventInfo.bettingOptions[i],
                   bet: res[0],
                   result: res[1]
                 }))
