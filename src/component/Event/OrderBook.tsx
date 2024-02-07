@@ -6,6 +6,7 @@ import { setShowNo } from '../../feature/slices/orderSlice';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import { RootState } from '../../app/store';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
@@ -39,7 +40,7 @@ function CustomTabPanel(props) {
 
 export default function OrderBook() {
   const dispatch = useDispatch();
-  const { orders, showNo } = useSelector((state) => state.orderKey);
+  const { orders, showNo } = useSelector((state: RootState) => state.orderKey);
   const [buyOrders, setBuyOrders] = useState([]);
   const [sellOrders, setSellOrders] = useState([]);
   const [spread, setSpread] = useState(0); 

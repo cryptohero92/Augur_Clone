@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { PublishedEventInfo } from "../../types";
+import { BettingOptionInfo, PublishedEventInfo } from "../../types";
 
 export const eventSlice = createSlice({
   name: "event",
   initialState: {
     publishedEvents: [] as PublishedEventInfo[],
-    selectedBettingOption: null
+    selectedBettingOption: null as BettingOptionInfo | null
   },
   reducers: {
     setPublishedEvents: (state, action) => {

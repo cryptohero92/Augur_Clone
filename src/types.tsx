@@ -38,13 +38,15 @@ export interface PublishedEventInfo {
         content: string,
         writer: `0x${string}`
     }[],
-    bettingOptions: {
-        ipfsUrl: string,
-        title: string,
-        image: string,
-        bet: number,
-        result: number
-    }[]
+    bettingOptions: BettingOptionInfo[]
+}
+
+export interface BettingOptionInfo {
+    ipfsUrl: string,
+    title: string,
+    image: string,
+    bet: number,
+    result: number
 }
 
 export enum Status {

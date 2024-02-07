@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { selectBettingOption } from "../../feature/slices/eventSlice";
 
 import { Box, Typography, CardMedia, Button } from "@mui/material"
@@ -16,6 +16,8 @@ import ChartArea from "./ChartArea";
 import OrderBook from "./OrderBook";
 import MyOrders from './MyOrders';
 import { RootState } from "../../app/store";
+import { fetchOrders } from "../../feature/slices/orderSlice";
+import { BettingOptionInfo, PublishedEventInfo } from "../../types";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -44,9 +46,42 @@ function a11yProps(index) {
   };
 }
 
-export default function MainPanel({eventInfo}: any) {
+function BettingOptionButtons({ipfsUrl}: {ipfsUrl: string}) {
+    const [prices, setPrices] = useState({
+        yes: 50,
+        no: 50
+    });
+    useEffect(() => {
+        if (ipfsUrl) {
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/prices?ipfsUrl=${ipfsUrl}`)
+                .then((response) => {
+                    if (response.status != 200) {
+                        throw new Error('Error happened')
+                    } else {
+                        return response.json()
+                    }
+                })
+                // If yes, retrieve it. If no, create it.
+                .then((prices) => {
+                    setPrices(prices)
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        }
+    }, [ipfsUrl])
+
+    return (
+        <>
+            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center', alignItems: 'center', backgroundColor: '#27ae601a', color: 'green'}}>Buy Yes {prices.yes}¢</Box>
+            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center',alignItems: 'center', backgroundColor: '#eb57571a', color: 'red'}}>Buy No {prices.no}¢</Box>
+        </>
+    )
+}
+
+export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) {
     const dispatch = useDispatch();
-    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
+    const { selectedBettingOption } : { selectedBettingOption: BettingOptionInfo | null } = useSelector((state: RootState) => state.eventKey);
 
     const [moreOrLessSwitch, setMoreOrLessSwitch] = useState(true);
     const [choice, setChoice] = useState(0);
@@ -58,15 +93,22 @@ export default function MainPanel({eventInfo}: any) {
     useEffect(() => {
         if (selectedBettingOption) {
             console.log(`fetch orders invoked`);
-            dispatch(fetchOrders({ bettingOptionIndex: selectedBettingOption.ipfsUrl }));
+            dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }));
         }
     }, [selectedBettingOption])
 
     useEffect(() => {
         if (eventInfo) {
+            debugger
             dispatch(selectBettingOption(eventInfo.bettingOptions[0]));
         }
     }, [eventInfo])
+
+    const [expanded, setExpanded] = useState<string | false>(false);
+
+    const handleExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+            setExpanded(isExpanded ? panel : false);
+        };
     
     return (
         <Box sx={{ maxWidth: '800px', width: 'calc(100vw - 420px)', marginTop: '2rem' }}>
@@ -90,11 +132,11 @@ export default function MainPanel({eventInfo}: any) {
             </Box>
 
             <Box>
-            {eventInfo.bettingOptions.length > 1 ? eventInfo.bettingOptions.map((bettingOption, index) => {
-                let isSelected = bettingOption.ipfsUrl == selectedBettingOption.ipfsUrl;
+            {eventInfo.bettingOptions.length > 1 ? eventInfo.bettingOptions.map((bettingOption) => {
+                let isSelected = selectedBettingOption && (bettingOption.ipfsUrl == selectedBettingOption.ipfsUrl);
 
                 return (
-                    <Accordion key={index} expanded={isSelected}>
+                    <Accordion key={bettingOption.ipfsUrl}  expanded={expanded === bettingOption.ipfsUrl} onChange={handleExpanded(bettingOption.ipfsUrl)}>
                         <AccordionSummary>
                             <Button sx={{ display: 'flex', backgroundColor: (isSelected ? '#faebd788' : 'transparent'), width: 1, paddingTop: '0.5rem', paddingBottom: '0.5rem', justifyContent: 'space-between', ":hover": {
                                 backgroundColor: '#faebd7cc'
@@ -112,8 +154,7 @@ export default function MainPanel({eventInfo}: any) {
                                 </Box>
                                 {bettingOption.result == 0 ? (
                                     <Box sx={{ display:'flex', alignItems: 'center', gap:'0.5rem', justifyContent:'flex-end' }}>
-                                        <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center', alignItems: 'center', backgroundColor: '#27ae601a', color: 'green'}}>Buy Yes {bettingOption.prices.yes}¢</Box>
-                                        <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center',alignItems: 'center', backgroundColor: '#eb57571a', color: 'red'}}>Buy No {bettingOption.prices.no}¢</Box>
+                                        <BettingOptionButtons ipfsUrl={bettingOption.ipfsUrl} />
                                     </Box>
                                 ) : (
                                     <Box sx={{ display:'flex', alignItems: 'center', gap:'0.5rem', justifyContent:'flex-end' }}>

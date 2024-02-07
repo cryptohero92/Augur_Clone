@@ -26,8 +26,7 @@ export default function RightPanel() {
     const [buyOrSell, setBuyOrSell] = useState(BUY);
     const [yesValue, setYesValue] = useState(50);
     const [noValue, setNoValue] = useState(50);
-    const [yesShares, setYesShares] = useState(0);
-    const [noShares, setNoShares] = useState(0);
+
     const [avgValue, setAvgValue] = useState(0.1);
     const [predictedShares, setPredictedShares] = useState(0);
     const [amount, setAmount] = useState(0);
@@ -78,18 +77,6 @@ export default function RightPanel() {
     function roundToTwo(num) {
         return +(Math.round(num + "e+2")  + "e-2");
     }
-
-    
-    useEffect(() => {
-        if (tokens && tokens.length > 0) {
-            for (let i = 0; i < tokens.length; i++) {
-                if (tokens[i].yesOrNo)
-                    setYesShares(tokens[i].shares);
-                else
-                    setNoShares(tokens[i].shares);
-            }
-        }
-    }, [tokens]);
 
     useEffect(() => {
         if (!orders || !orders.length) return;
