@@ -4,10 +4,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { Box, Typography, Button } from "@mui/material"
 import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
+import { readContract } from "@wagmi/core";
+import { config } from "../../wagmi";
+import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
 import { sendOrderRequest, setShowNo } from "../../feature/slices/orderSlice";
 import { BUY, SELL, mergeElements } from "../../app/constant";
+import { BigNumberish, formatUnits } from 'ethers'
 import { useLocalStorage } from "usehooks-ts";
 import { RootState } from "../../app/store";
 import { Auth } from "../../types";
@@ -26,6 +30,8 @@ export default function RightPanel() {
     const [buyOrSell, setBuyOrSell] = useState(BUY);
     const [yesValue, setYesValue] = useState(50);
     const [noValue, setNoValue] = useState(50);
+    const [yesShares, setYesShares] = useState(0);
+    const [noShares, setNoShares] = useState(0);
 
     const [avgValue, setAvgValue] = useState(0.1);
     const [predictedShares, setPredictedShares] = useState(0);
@@ -34,13 +40,38 @@ export default function RightPanel() {
     const [limitPrice, setLimitPrice] = useState(0);
     const [shares, setShares] = useState(0);
 
+    // first, get yes and no token id based on bettingOption.
+    // from bettionOption's ipfsUrl, can get bettingOption's yes and no token ids.
+    // after getting yes and no token ids, on stakingcontract, by calling tokens[wallet]
+
+    useEffect(() => {
+        async function getResult() {
+            if (selectedBettingOption) {
+                const yesTokenId = await readContract(config, {
+                    abi: PLSpeakContract.abi,
+                    address: PLSpeakContract.address as `0x${string}`,
+                    functionName: 'getTokenIdOfBettingOption',
+                    args: [selectedBettingOption.ipfsUrl, true]
+                });
+                const yesTokenAmount = await readContract(config, {
+                    abi: PLSpeakContract.abi,
+                    address: PLSpeakContract.address as `0x${string}`,
+                    functionName: 'getTokenAmountForWallet',
+                    args: [correspondingAddress, yesTokenId]
+                });
+                setYesShares(Number(formatUnits(yesTokenAmount as BigNumberish, 18)));
+            }
+        }
+        getResult();
+        
+    }, [selectedBettingOption]);
+
     const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
     const handleLoggedIn = (auth: Auth) => {
         console.log(auth)
         const { accessToken } = auth;
         setAccessToken(accessToken);
     };
-    
 
     const handleBuySellClick = () => {
         dispatch(sendOrderRequest({
