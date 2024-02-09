@@ -99,7 +99,6 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
 
     useEffect(() => {
         if (eventInfo) {
-            debugger
             dispatch(selectBettingOption(eventInfo.bettingOptions[0]));
         }
     }, [eventInfo])

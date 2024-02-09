@@ -10,7 +10,7 @@ const orderBookState = {
 export const fetchOrders = createAsyncThunk(
     "order/fetchOrders",
     async ({bettingOptionUrl}: {bettingOptionUrl: string}) => {
-        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/orders?bettingOptionUrl=${bettingOptionUrl}`);
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/orders?bettingOptionUrl=${bettingOptionUrl}`);
         return response.data;
     }
 )
@@ -18,7 +18,7 @@ export const fetchOrders = createAsyncThunk(
 export const deleteOrder = createAsyncThunk(
     "order/cancel",
     async({_id}) => {
-        const response = await axios.delete(`${import.meta.env.VITE_SERVER_URL}/api/order/${_id}`);
+        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/order/${_id}`);
         return response.data;
     }
 )
@@ -26,7 +26,7 @@ export const deleteOrder = createAsyncThunk(
 export const deleteAllOrdersFor = createAsyncThunk(
     "order/cancelAll",
     async({wallet, bettingOptionUrl}) => {
-        const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/order/deleteAll`, {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/order/deleteAll`, {
             wallet,
             bettingOptionUrl
         });
@@ -37,7 +37,7 @@ export const deleteAllOrdersFor = createAsyncThunk(
 export const sendOrderRequest = createAsyncThunk(
     "order/sendRequest",
     async ({ selectedBettingOption, bettingStyle, buyOrSell, yesOrNo, amount, limitPrice, shares, wallet }) => {
-        const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/order`, {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/order`, {
             bettingOptionUrl: selectedBettingOption.ipfsUrl,
             bettingStyle,
             buyOrSell,
