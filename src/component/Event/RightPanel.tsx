@@ -75,7 +75,7 @@ export default function RightPanel() {
 
     const handleBuySellClick = () => {
         dispatch(sendOrderRequest({
-            selectedBettingOption, bettingStyle, buyOrSell, yesOrNo: !showNo, amount, limitPrice, shares, correspondingAddress
+            selectedBettingOption, bettingStyle, buyOrSell, yesOrNo: !showNo, amount, limitPrice, shares, accessToken
         }));
     }
 

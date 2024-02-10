@@ -36,17 +36,19 @@ export const deleteAllOrdersFor = createAsyncThunk(
 
 export const sendOrderRequest = createAsyncThunk(
     "order/sendRequest",
-    async ({ selectedBettingOption, bettingStyle, buyOrSell, yesOrNo, amount, limitPrice, shares, wallet }) => {
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/order`, {
+    async ({ selectedBettingOption, bettingStyle, buyOrSell, yesOrNo, amount, limitPrice, shares, accessToken }) => {
+        debugger
+        const headers = { Authorization: `Bearer ${accessToken}` };
+
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
             bettingOptionUrl: selectedBettingOption.ipfsUrl,
             bettingStyle,
             buyOrSell,
             yesOrNo,
             amount,
             limitPrice,
-            shares,
-            wallet
-        });
+            shares
+        }, { headers });
         return response.data;
     }
 )
