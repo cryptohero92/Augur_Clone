@@ -18,18 +18,20 @@ export const fetchOrders = createAsyncThunk(
 export const deleteOrder = createAsyncThunk(
     "order/cancel",
     async({_id}) => {
-        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/order/${_id}`);
+        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/orders/${_id}`, {
+            headers
+        });
         return response.data;
     }
 )
 
 export const deleteAllOrdersFor = createAsyncThunk(
     "order/cancelAll",
-    async({wallet, bettingOptionUrl}) => {
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/order/deleteAll`, {
-            wallet,
+    async({bettingOptionUrl}) => {
+        const headers = { Authorization: `Bearer ${accessToken}` };
+        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
             bettingOptionUrl
-        });
+        }, { headers });
         return response.data;
     }
 )
