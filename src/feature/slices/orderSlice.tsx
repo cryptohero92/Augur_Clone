@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { OrderRequestInfo } from "../../types";
 
 const orderBookState = {
     orders: [],
@@ -38,7 +39,7 @@ export const deleteAllOrdersFor = createAsyncThunk(
 
 export const sendOrderRequest = createAsyncThunk(
     "order/sendRequest",
-    async ({ selectedBettingOption, bettingStyle, buyOrSell, yesOrNo, amount, limitPrice, shares, accessToken }) => {
+    async ({ selectedBettingOption, bettingStyle, buyOrSell, yesOrNo, amount, limitPrice, shares, accessToken } : OrderRequestInfo) => {
         debugger
         const headers = { Authorization: `Bearer ${accessToken}` };
 

@@ -1,21 +1,15 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, ForwardRefRenderFunction, useEffect, useImperativeHandle, useState } from 'react';
 import { styled } from '@mui/system';
 
-const Child = forwardRef((props, ref) => {
-  useImperativeHandle(ref, () => ({
-    log() {
-      console.log("child function");
-    }
-  }));
+interface QuantityInputProps {
+  changeValue: (value: number) => void;
+}
 
-  return <h1>Child</h1>;
-});
-
-const QuantityInput = forwardRef(({changeValue}, ref) => {
-  const [inputValue, setInputValue] = useState(0);
+const QuantityInput: ForwardRefRenderFunction<any, QuantityInputProps> = ({ changeValue }, ref) => {
+  const [inputValue, setInputValue] = useState<number>(0);
 
   useImperativeHandle(ref, () => ({
-    updateInputValue(newValue) {
+    updateInputValue(newValue: number) {
       setInputValue(newValue);
     }
   }));
@@ -23,11 +17,12 @@ const QuantityInput = forwardRef(({changeValue}, ref) => {
   const incrementInputValue = () => {
     setInputValue((prev) => Math.max(Number(prev) + 25, 0));
   }
+
   const decrementInputValue = () => {
     setInputValue((prev) => Math.max(Number(prev) - 25, 0));
   }
 
-  const handleValue = (e) => {
+  const handleValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     // This regex allows numbers with decimal points
     const regex = /^[0-9]*\.?[0-9]*$/;
 
@@ -36,14 +31,13 @@ const QuantityInput = forwardRef(({changeValue}, ref) => {
 
     // If the current value passes the regex test or is empty, update the state
     if (regex.test(val) || val === '') {
-      setInputValue(val);
+      setInputValue(Number(val));
     }
   };
 
   useEffect(() => {
     changeValue(inputValue);
   }, [inputValue]);
-
 
   return (
     <StyledInputRoot>
@@ -60,10 +54,9 @@ const QuantityInput = forwardRef(({changeValue}, ref) => {
       </StyledRightButtonDiv>
     </StyledInputRoot>
   )
+};
 
-})
-
-export default QuantityInput;
+export default forwardRef(QuantityInput);
 
 const StyledInputRoot = styled('div')(
   ({ theme }) => `

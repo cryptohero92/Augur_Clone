@@ -8,7 +8,7 @@ import { readContract } from "@wagmi/core";
 import { config } from "../../wagmi";
 import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { BettingStyle } from "../../types";
+import { BettingStyle, OrderRequestInfo } from "../../types";
 import { sendOrderRequest, setShowNo } from "../../feature/slices/orderSlice";
 import { BUY, SELL, mergeElements } from "../../app/constant";
 import { BigNumberish, formatUnits } from 'ethers'
@@ -61,6 +61,20 @@ export default function RightPanel() {
                     args: [correspondingAddress, yesTokenId]
                 });
                 setYesShares(Number(formatUnits(yesTokenAmount as BigNumberish, 18)));
+
+                const noTokenId = await readContract(config, {
+                    abi: PLSpeakContract.abi,
+                    address: PLSpeakContract.address as `0x${string}`,
+                    functionName: 'getTokenIdOfBettingOption',
+                    args: [selectedBettingOption.ipfsUrl, false]
+                });
+                const noTokenAmount = await readContract(config, {
+                    abi: PLSpeakContract.abi,
+                    address: PLSpeakContract.address as `0x${string}`,
+                    functionName: 'getTokenAmountForWallet',
+                    args: [correspondingAddress, noTokenId]
+                });
+                setNoShares(Number(formatUnits(noTokenAmount as BigNumberish, 18)));
             }
         }
         getResult();
@@ -82,31 +96,31 @@ export default function RightPanel() {
 
     const onYesButtonClicked = () => {
         if (ref.current) {
-            ref.current.updateInputValue(yesValue);    
+            (ref.current as any).updateInputValue(yesValue);    
         }
         dispatch(setShowNo(false));
     }
 
     const onNoButtonClicked = () => {
         if (ref.current) {
-            ref.current.updateInputValue(noValue);    
+            (ref.current as any).updateInputValue(noValue);    
         }
         dispatch(setShowNo(true));   
     }
 
-    const handleAmountChange = (value) => {
+    const handleAmountChange = (value: number) => {
         setAmount(Number(value));
     }
 
-    const handleSharesChange = (value) => {
+    const handleSharesChange = (value: number) => {
         setShares(Number(value));
     }
 
-    const handleLimitPriceChange  = (value) => {
+    const handleLimitPriceChange  = (value: number) => {
         setLimitPrice(Number(value));
     }
 
-    function roundToTwo(num) {
+    function roundToTwo(num: any) {
         return +(Math.round(num + "e+2")  + "e-2");
     }
 

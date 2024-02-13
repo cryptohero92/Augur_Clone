@@ -8,7 +8,7 @@ import { BettingStyle } from '../../types';
 export default function BettingStyleSelectMenu({bettingStyle, setBettingStyle}) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event) => {
+  const handleClick = (event: { currentTarget: React.SetStateAction<null>; }) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = (_bettingStyle) => {

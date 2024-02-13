@@ -41,6 +41,17 @@ export interface PublishedEventInfo {
     bettingOptions: BettingOptionInfo[]
 }
 
+export interface OrderRequestInfo {
+    selectedBettingOption: BettingOptionInfo,
+    bettingStyle: string,
+    buyOrSell: boolean,
+    yesOrNo: boolean,
+    amount: number,
+    limitPrice: number,
+    shares: number,
+    accessToken: string
+}
+
 export interface BettingOptionInfo {
     ipfsUrl: string,
     title: string,
