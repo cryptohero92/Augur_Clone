@@ -15,6 +15,7 @@ import { BigNumberish, formatUnits } from 'ethers'
 import { useLocalStorage } from "usehooks-ts";
 import { RootState } from "../../app/store";
 import { Auth } from "../../types";
+import { Login } from "../header/Login/Login";
 
 export default function RightPanel() {
     const dispatch = useDispatch();
@@ -111,17 +112,21 @@ export default function RightPanel() {
 
     useEffect(() => {
         if (!orders || !orders.length) return;
-        let _orders = orders;
-        if (showNo) {
-          _orders = _orders.map(order => {
-            const {price, buyOrSell, ...rest} = order;
-            return {
-              price: 100 - price,
-              buyOrSell: !buyOrSell,
-              ...rest
-            };
-          });
-        }
+        let _orders = orders.map(order => {
+          const {price, buyOrSell, yesOrNo, ...rest} = order;
+          if (yesOrNo == showNo) return {
+            price: 100 - price,
+            buyOrSell: !buyOrSell,
+            yesOrNo: !yesOrNo,
+            ...rest
+          }
+          else return {
+            price,
+            buyOrSell,
+            yesOrNo,
+            ...rest
+          }
+        });
 
         const sellOrders = mergeElements(_orders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price));
         
@@ -152,17 +157,22 @@ export default function RightPanel() {
 
     useEffect(() => {
         if (!orders || !orders.length) return;
-        let _orders = orders;
-        if (showNo) {
-          _orders = _orders.map(order => {
-            const {price, buyOrSell, ...rest} = order;
-            return {
-              price: 100 - price,
-              buyOrSell: !buyOrSell,
-              ...rest
-            };
-          });
-        }
+        let _orders = orders.map(order => {
+          const {price, buyOrSell, yesOrNo, ...rest} = order;
+          if (yesOrNo == showNo) return {
+            price: 100 - price,
+            buyOrSell: !buyOrSell,
+            yesOrNo: !yesOrNo,
+            ...rest
+          }
+          else return {
+            price,
+            buyOrSell,
+            yesOrNo,
+            ...rest
+          }
+        });
+
         const buyOrders = mergeElements(_orders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price));
         let remainingShares = shares;
         let amountReceived = 0;
@@ -195,23 +205,32 @@ export default function RightPanel() {
             setNoValue(50);
             return;
         }
-        // if yes, then, show 
-        const buyOrders = mergeElements(orders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price)).reverse();
-        const sellOrders = mergeElements(orders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price));
 
-        if (buyOrders.length > 0) {
+        // when order arrives, first get yes 
+        let _yesOrders = orders.map(order => {
+            const {price, buyOrSell, yesOrNo, ...rest} = order;
+            if (yesOrNo == false) return {
+                price: 100 - price,
+                buyOrSell: !buyOrSell,
+                yesOrNo: true,
+                ...rest
+            }
+            else return {
+                price,
+                buyOrSell,
+                yesOrNo,
+                ...rest
+            }
+        });
+        const sellOrders = mergeElements(_yesOrders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price));
+        const buyOrders = mergeElements(_yesOrders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price)).reverse();
+
+        if (buyOrders.length > 0)
             setNoValue(100 - buyOrders.at(-1).price);
-        }
         if (sellOrders.length > 0)
             setYesValue(sellOrders[0].price);
-
-        // if (buyOrders.length == 0) {
-        //     setNoValue(100 - sellOrders.at(-1).price);
-        // } else if (sellOrders.length == 0) {
-        //     setYesValue(buyOrders[0].price);
-        // }
         
-      }, [orders]);
+    }, [orders]);
 
     const styles = {
         panel: {

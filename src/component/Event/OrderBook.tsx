@@ -52,17 +52,22 @@ export default function OrderBook() {
       setSellOrders([]);
       return;
     }
-    let _orders = orders;
-    if (showNo) {
-      _orders = _orders.map(order => {
-        const {price, buyOrSell, ...rest} = order;
-        return {
-          price: 100 - price,
-          buyOrSell: !buyOrSell,
-          ...rest
-        };
-      });
-    }
+    let _orders = orders.map(order => {
+      const {price, buyOrSell, yesOrNo, ...rest} = order;
+      if (yesOrNo == showNo) return {
+        price: 100 - price,
+        buyOrSell: !buyOrSell,
+        yesOrNo: !yesOrNo,
+        ...rest
+      }
+      else return {
+        price,
+        buyOrSell,
+        yesOrNo,
+        ...rest
+      }
+    });
+    
     const buyOrders = mergeElements(_orders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price));
     setBuyOrders(buyOrders);
     const sellOrders = mergeElements(_orders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price)).reverse();
