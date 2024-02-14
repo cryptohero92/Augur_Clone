@@ -75,7 +75,7 @@ export default function MyOrders() {
                     <td>{order.yesOrNo ? 'Yes' : 'No'}</td>
                     <td>{order.price}c</td>
                     <td>{order.total - order.shares}/{order.total}</td>
-                    <td>${order.price * order.total}</td>
+                    <td>${order.price * order.total / 100}</td>
                     <td onClick={() => cancelOrder(order._id)}>X</td>
                 </tr>
             ))}

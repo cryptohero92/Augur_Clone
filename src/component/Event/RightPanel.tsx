@@ -10,7 +10,7 @@ import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.j
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
 import { fetchOrders, setShowNo } from "../../feature/slices/orderSlice";
-import { BUY, SELL, mergeElements } from "../../app/constant";
+import { BUY, SELL, mergeElements, roundToTwo } from "../../app/constant";
 import { BigNumberish, formatUnits } from 'ethers'
 import { useLocalStorage } from "usehooks-ts";
 import { RootState } from "../../app/store";
@@ -128,10 +128,6 @@ export default function RightPanel() {
 
     const handleLimitPriceChange  = (value: number) => {
         setLimitPrice(Number(value));
-    }
-
-    function roundToTwo(num: number) {
-        return +(Math.round(Number(num + "e+2"))  + "e-2");
     }
 
     useEffect(() => {

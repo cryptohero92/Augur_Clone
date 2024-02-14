@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { BUY, SELL, mergeElements } from '../../app/constant';
+import { BUY, SELL, mergeElements, roundToTwo } from '../../app/constant';
 import { setShowNo } from '../../feature/slices/orderSlice';
 
 import Box from '@mui/material/Box';
@@ -107,7 +107,7 @@ export default function OrderBook() {
                   <tr key={index}>
                     <td>{order.price}c</td>
                     <td>{order.shares}</td>
-                    <td>${order.total}</td>
+                    <td>${roundToTwo(order.total / 100)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -133,7 +133,7 @@ export default function OrderBook() {
                   <tr key={index}>
                     <td>{order.price}c</td>
                     <td>{order.shares}</td>
-                    <td>${order.total}</td>
+                    <td>${roundToTwo(order.total / 100)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -155,7 +155,7 @@ export default function OrderBook() {
                   <tr key={index}>
                     <td>{order.price}c</td>
                     <td>{order.shares}</td>
-                    <td>${order.total}</td>
+                    <td>${roundToTwo(order.total / 100)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -181,7 +181,7 @@ export default function OrderBook() {
                   <tr key={index}>
                     <td>{order.price}c</td>
                     <td>{order.shares}</td>
-                    <td>${order.total}</td>
+                    <td>${roundToTwo(order.total / 100)}</td>
                   </tr>
                 ))}
               </tbody>
