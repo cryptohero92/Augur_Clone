@@ -17,7 +17,8 @@ import OrderBook from "./OrderBook";
 import MyOrders from './MyOrders';
 import { RootState } from "../../app/store";
 import { fetchOrders } from "../../feature/slices/orderSlice";
-import { BettingOptionInfo, PublishedEventInfo } from "../../types";
+import { BettingOptionInfo, OrderInfo, PublishedEventInfo } from "../../types";
+import { BUY, SELL } from "../../app/constant";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -47,13 +48,14 @@ function a11yProps(index) {
 }
 
 function BettingOptionButtons({ipfsUrl}: {ipfsUrl: string}) {
-    const [prices, setPrices] = useState({
-        yes: 50,
-        no: 50
-    });
+    const [yesValue, setYesValue] = useState(50);
+    const [noValue, setNoValue] = useState(50);
+
+    const { orders } = useSelector((state: RootState) => state.orderKey);
+
     useEffect(() => {
         if (ipfsUrl) {
-            fetch(`${import.meta.env.VITE_BACKEND_URL}/prices?ipfsUrl=${ipfsUrl}`)
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/orders?bettingOptionUrl=${ipfsUrl}`)
                 .then((response) => {
                     if (response.status != 200) {
                         throw new Error('Error happened')
@@ -62,19 +64,48 @@ function BettingOptionButtons({ipfsUrl}: {ipfsUrl: string}) {
                     }
                 })
                 // If yes, retrieve it. If no, create it.
-                .then((prices) => {
-                    setPrices(prices)
+                .then((res) => {
+                    let orders = res.orders as OrderInfo[];
+                    if (!orders || !orders.length) {
+                        setYesValue(50);
+                        setNoValue(50);
+                        return;
+                    }
+            
+                    // when order arrives, first get yes 
+                    let _yesOrders = orders.map(order => {
+                        const {price, buyOrSell, yesOrNo, ...rest} = order;
+                        if (yesOrNo == false) return {
+                            price: 100 - price,
+                            buyOrSell: !buyOrSell,
+                            yesOrNo: true,
+                            ...rest
+                        }
+                        else return {
+                            price,
+                            buyOrSell,
+                            yesOrNo,
+                            ...rest
+                        }
+                    });
+                    const sellOrders = _yesOrders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price);
+                    const buyOrders = _yesOrders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price);
+            
+                    if (buyOrders.length > 0)
+                        setNoValue(100 - buyOrders[0].price);
+                    if (sellOrders.length > 0)
+                        setYesValue(sellOrders[0].price);
                 })
                 .catch((err) => {
                     console.log(err);
                 });
         }
-    }, [ipfsUrl])
+    }, [ipfsUrl, orders])
 
     return (
         <>
-            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center', alignItems: 'center', backgroundColor: '#27ae601a', color: 'green'}}>Buy Yes {prices.yes}¢</Box>
-            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center',alignItems: 'center', backgroundColor: '#eb57571a', color: 'red'}}>Buy No {prices.no}¢</Box>
+            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center', alignItems: 'center', backgroundColor: '#27ae601a', color: 'green'}}>Buy Yes {yesValue}¢</Box>
+            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center',alignItems: 'center', backgroundColor: '#eb57571a', color: 'red'}}>Buy No {noValue}¢</Box>
         </>
     )
 }

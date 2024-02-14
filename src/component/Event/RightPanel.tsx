@@ -243,10 +243,10 @@ export default function RightPanel() {
             }
         });
         const sellOrders = mergeElements(_yesOrders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price));
-        const buyOrders = mergeElements(_yesOrders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price)).reverse();
+        const buyOrders = mergeElements(_yesOrders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price));
 
         if (buyOrders.length > 0)
-            setNoValue(100 - buyOrders.at(-1).price);
+            setNoValue(100 - buyOrders[0].price);
         if (sellOrders.length > 0)
             setYesValue(sellOrders[0].price);
         
