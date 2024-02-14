@@ -41,6 +41,17 @@ export interface PublishedEventInfo {
     bettingOptions: BettingOptionInfo[]
 }
 
+export interface OrderInfo {
+    _id: string,
+    bettingOptionUrl: string,
+    buyOrSell: boolean,
+    yesOrNo: boolean,
+    price: number,
+    shares: number,
+    total: number,
+    wallet: string
+}
+
 export interface OrderRequestInfo {
     selectedBettingOption: BettingOptionInfo,
     bettingStyle: string,
@@ -49,16 +60,6 @@ export interface OrderRequestInfo {
     amount: number,
     limitPrice: number,
     shares: number,
-    accessToken: string
-}
-
-export interface OrderDeleteRequestInfo {
-    _id: string,
-    accessToken: string
-}
-
-export interface OrderDeleteAllRequestInfo {
-    bettingOptionUrl: string,
     accessToken: string
 }
 

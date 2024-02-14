@@ -9,13 +9,14 @@ import { config } from "../../wagmi";
 import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
-import { sendOrderRequest, setShowNo } from "../../feature/slices/orderSlice";
+import { setShowNo } from "../../feature/slices/orderSlice";
 import { BUY, SELL, mergeElements } from "../../app/constant";
 import { BigNumberish, formatUnits } from 'ethers'
 import { useLocalStorage } from "usehooks-ts";
 import { RootState } from "../../app/store";
 import { Auth } from "../../types";
 import { Login } from "../header/Login/Login";
+import axios from "axios";
 
 export default function RightPanel() {
     const dispatch = useDispatch();
@@ -88,10 +89,18 @@ export default function RightPanel() {
         setAccessToken(accessToken);
     };
 
-    const handleBuySellClick = () => {
-        dispatch(sendOrderRequest({
-            selectedBettingOption, bettingStyle, buyOrSell, yesOrNo: !showNo, amount, limitPrice, shares, accessToken
-        }));
+    const handleBuySellClick = async () => {
+        const headers = { Authorization: `Bearer ${accessToken}` };
+
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
+            bettingOptionUrl: selectedBettingOption?.ipfsUrl,
+            bettingStyle,
+            buyOrSell,
+            yesOrNo: !showNo,
+            amount,
+            limitPrice,
+            shares
+        }, { headers });
     }
 
     const onYesButtonClicked = () => {

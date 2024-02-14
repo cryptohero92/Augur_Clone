@@ -7,18 +7,19 @@ import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { RootState } from '../../app/store';
+import { OrderInfo } from '../../types';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
 */
-function a11yProps(index) {
+function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
 
-function CustomTabPanel(props) {
+function CustomTabPanel(props: any) {
   const { children, value, index, ...other } = props;
 
   return (
@@ -41,8 +42,8 @@ function CustomTabPanel(props) {
 export default function OrderBook() {
   const dispatch = useDispatch();
   const { orders, showNo } = useSelector((state: RootState) => state.orderKey);
-  const [buyOrders, setBuyOrders] = useState([]);
-  const [sellOrders, setSellOrders] = useState([]);
+  const [buyOrders, setBuyOrders] = useState<OrderInfo[]>([]);
+  const [sellOrders, setSellOrders] = useState<OrderInfo[]>([]);
   const [spread, setSpread] = useState(0); 
 
   useEffect(() => {
@@ -78,7 +79,7 @@ export default function OrderBook() {
     }
   }, [orders, showNo]);
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (_: any, newValue: number) => {
     dispatch(setShowNo(!!newValue));
   };
 

@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { OrderDeleteAllRequestInfo, OrderDeleteRequestInfo, OrderRequestInfo } from "../../types";
+import { OrderInfo } from "../../types";
 
 const orderBookState = {
-    orders: [],
+    orders: [] as OrderInfo[],
     loading: false,
     showNo: false
 };
@@ -12,51 +12,6 @@ export const fetchOrders = createAsyncThunk(
     "order/fetchOrders",
     async ({bettingOptionUrl}: {bettingOptionUrl: string}) => {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/orders?bettingOptionUrl=${bettingOptionUrl}`);
-        return response.data;
-    }
-)
-
-export const deleteOrder = createAsyncThunk(
-    "order/cancel",
-    async({_id, accessToken}: OrderDeleteRequestInfo) => {
-        const headers = { Authorization: `Bearer ${accessToken}` };
-        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/orders/${_id}`, {
-            headers
-        });
-        return response.data;
-    }
-)
-
-export const deleteAllOrdersFor = createAsyncThunk(
-    "order/cancelAll",
-    async({bettingOptionUrl, accessToken}: OrderDeleteAllRequestInfo) => {
-        const headers = { Authorization: `Bearer ${accessToken}` };
-        const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
-            headers,
-            data: { bettingOptionUrl }
-        });
-        return response.data;
-    }
-)
-
-export const sendOrderRequest = createAsyncThunk(
-    "order/sendRequest",
-    async ({ selectedBettingOption, bettingStyle, buyOrSell, yesOrNo, amount, limitPrice, shares, accessToken } : OrderRequestInfo) => {
-        debugger
-        const headers = { Authorization: `Bearer ${accessToken}` };
-
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
-            bettingOptionUrl: selectedBettingOption.ipfsUrl,
-            bettingStyle,
-            buyOrSell,
-            yesOrNo,
-            amount,
-            limitPrice,
-            shares
-        }, { headers });
-        // in backend, update orders table, and we can also get conditional tokens that wallet has.
-        // after update orders table, how to update frontend ?
-        // orderBook table, and 
         return response.data;
     }
 )

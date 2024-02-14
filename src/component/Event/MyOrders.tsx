@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { DialogContent, DialogContentText, DialogActions, Dialog, Button } from '@mui/material';
-import { deleteAllOrdersFor, deleteOrder } from '../../feature/slices/orderSlice';
+import { fetchOrders } from '../../feature/slices/orderSlice';
 import { RootState } from '../../app/store';
 import { useLocalStorage } from 'usehooks-ts';
+import axios from 'axios';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
@@ -23,23 +24,26 @@ export default function MyOrders() {
     const openCancelAllDialog = () => {
       setOpenCancelAll(true);
     }
-    const confirmCancelAll = () => {
+    const confirmCancelAll = async () => {
       setOpenCancelAll(false);
-      dispatch(deleteAllOrdersFor({
-        bettingOptionUrl: selectedBettingOption?.ipfsUrl,
-        accessToken
-      }));
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
+          headers,
+          data: { bettingOptionUrl: selectedBettingOption?.ipfsUrl }
+      });
+      dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
     }
 
     const handleClose = () => {
       setOpenCancelAll(false);
     }
 
-    const cancelOrder = (_id) => {
-      dispatch(deleteOrder({
-        _id,
-        accessToken
-      }));
+    const cancelOrder = async (_id: any) => {
+      const headers = { Authorization: `Bearer ${accessToken}` };
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/orders/${_id}`, {
+          headers
+      });
+      dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
     }
 
     useEffect(() => {
@@ -76,25 +80,23 @@ export default function MyOrders() {
             ))}
           </tbody>
         </table>
-        {open && (
-            <Dialog
-                open={openCancelAll}
-                onClose={handleClose}
-                aria-labelledby="Cancel Orders"
-            >
-                <DialogContent style={{ width: 300 }}>
-                    <DialogContentText>Are you sure you want to cancel all open orders?</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button autoFocus onClick={handleClose} color="primary">
-                    Never mind
-                    </Button>
-                    <Button onClick={confirmCancelAll} color="primary" autoFocus>
-                    Confirm
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        )}
+        <Dialog
+            open={openCancelAll}
+            onClose={handleClose}
+            aria-labelledby="Cancel Orders"
+        >
+            <DialogContent style={{ width: 300 }}>
+                <DialogContentText>Are you sure you want to cancel all open orders?</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button autoFocus onClick={handleClose} color="primary">
+                Never mind
+                </Button>
+                <Button onClick={confirmCancelAll} color="primary" autoFocus>
+                Confirm
+                </Button>
+            </DialogActions>
+        </Dialog>
       </>
       
     ) : null;
