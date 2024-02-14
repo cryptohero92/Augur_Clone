@@ -115,7 +115,7 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                 <Box sx={{ display: 'flex' }}>
                     <CardMedia
                         sx={{ height: {md: 90, xs:48}, width: {md: 90, xs: 48}, minWidth: {md: 90, xs: 48}, mr: 1}}
-                        image={eventInfo.image}
+                        image={`https://gateway.pinata.cloud/ipfs/${eventInfo.image}`}
                         title={eventInfo.title}
                     />
                     <Box sx={{ width: 1, rowGap: '0.75rem', flexDirection: 'column', display: 'flex' }}>
@@ -143,7 +143,7 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                                 <Box sx={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                                     {bettingOption.image ? (<CardMedia
                                         sx={{ height: 44, width:44, minWidth: 44, borderRadius: '100px' }}
-                                        image={bettingOption.image}
+                                        image={`https://gateway.pinata.cloud/ipfs/${bettingOption.image}`}
                                         title={bettingOption.title}
                                     />) : null }
                                     <Box sx={{textAlign:'left'}}>
