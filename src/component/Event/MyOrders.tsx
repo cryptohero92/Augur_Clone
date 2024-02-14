@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { DialogContent, DialogContentText, DialogActions, Dialog, Button } from '@mui/material';
 import { deleteAllOrdersFor, deleteOrder } from '../../feature/slices/orderSlice';
 import { RootState } from '../../app/store';
+import { useLocalStorage } from 'usehooks-ts';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
@@ -13,6 +14,7 @@ export default function MyOrders() {
     const dispatch = useDispatch();
     const { orders } = useSelector((state: RootState) => state.orderKey);
     const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
+    const [accessToken] = useLocalStorage<string>('accessToken', '')
     const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
 
     const [myOrders, setMyOrders] = useState([]);
@@ -24,8 +26,8 @@ export default function MyOrders() {
     const confirmCancelAll = () => {
       setOpenCancelAll(false);
       dispatch(deleteAllOrdersFor({
-        correspondingAddress, 
-        bettingOptionIndex: selectedBettingOption._id
+        bettingOptionUrl: selectedBettingOption?.ipfsUrl,
+        accessToken
       }));
     }
 
@@ -34,7 +36,10 @@ export default function MyOrders() {
     }
 
     const cancelOrder = (_id) => {
-      dispatch(deleteOrder({_id}));
+      dispatch(deleteOrder({
+        _id,
+        accessToken
+      }));
     }
 
     useEffect(() => {
@@ -61,11 +66,11 @@ export default function MyOrders() {
           <tbody>
             {myOrders.map((order) => (
                 <tr key={order._id}>
-                    <td>{order.realYesOrNo == order.buyOrSell ? 'Buy' : 'Sell'}</td>
-                    <td>{order.realYesOrNo ? 'Yes' : 'No'}</td>
-                    <td>{order.realYesOrNo? order.price : 100 - order.price}c</td>
+                    <td>{order.buyOrSell ? 'Buy' : 'Sell'}</td>
+                    <td>{order.yesOrNo ? 'Yes' : 'No'}</td>
+                    <td>{order.price}c</td>
                     <td>{order.total - order.shares}/{order.total}</td>
-                    <td>${(order.realYesOrNo? order.price : 100 - order.price) * order.shares/100}</td>
+                    <td>${order.price * order.total}</td>
                     <td onClick={() => cancelOrder(order._id)}>X</td>
                 </tr>
             ))}

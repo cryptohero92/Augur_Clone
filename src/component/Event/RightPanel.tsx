@@ -8,7 +8,7 @@ import { readContract } from "@wagmi/core";
 import { config } from "../../wagmi";
 import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { BettingStyle, OrderRequestInfo } from "../../types";
+import { BettingStyle } from "../../types";
 import { sendOrderRequest, setShowNo } from "../../feature/slices/orderSlice";
 import { BUY, SELL, mergeElements } from "../../app/constant";
 import { BigNumberish, formatUnits } from 'ethers'
@@ -120,8 +120,8 @@ export default function RightPanel() {
         setLimitPrice(Number(value));
     }
 
-    function roundToTwo(num: any) {
-        return +(Math.round(num + "e+2")  + "e-2");
+    function roundToTwo(num: number) {
+        return +(Math.round(Number(num + "e+2"))  + "e-2");
     }
 
     useEffect(() => {

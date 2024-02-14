@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 import { selectBettingOption } from "../../feature/slices/eventSlice";
 
 import { Box, Typography, CardMedia, Button } from "@mui/material"
@@ -86,7 +86,7 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
     const [moreOrLessSwitch, setMoreOrLessSwitch] = useState(true);
     const [choice, setChoice] = useState(0);
 
-    const handleChange = (event, newValue) => {
+    const handleChange = (_: any, newValue: SetStateAction<number>) => {
         setChoice(newValue);
     };
 

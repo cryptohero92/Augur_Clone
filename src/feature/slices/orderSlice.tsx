@@ -54,6 +54,9 @@ export const sendOrderRequest = createAsyncThunk(
             limitPrice,
             shares
         }, { headers });
+        // in backend, update orders table, and we can also get conditional tokens that wallet has.
+        // after update orders table, how to update frontend ?
+        // orderBook table, and 
         return response.data;
     }
 )
