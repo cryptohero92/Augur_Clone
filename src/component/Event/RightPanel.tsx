@@ -9,7 +9,7 @@ import { config } from "../../wagmi";
 import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
-import { setShowNo } from "../../feature/slices/orderSlice";
+import { fetchOrders, setShowNo } from "../../feature/slices/orderSlice";
 import { BUY, SELL, mergeElements } from "../../app/constant";
 import { BigNumberish, formatUnits } from 'ethers'
 import { useLocalStorage } from "usehooks-ts";
@@ -101,6 +101,7 @@ export default function RightPanel() {
             limitPrice,
             shares
         }, { headers });
+        dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
     }
 
     const onYesButtonClicked = () => {

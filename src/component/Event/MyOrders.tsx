@@ -6,6 +6,7 @@ import { fetchOrders } from '../../feature/slices/orderSlice';
 import { RootState } from '../../app/store';
 import { useLocalStorage } from 'usehooks-ts';
 import axios from 'axios';
+import { OrderInfo } from '../../types';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
@@ -18,7 +19,7 @@ export default function MyOrders() {
     const [accessToken] = useLocalStorage<string>('accessToken', '')
     const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
 
-    const [myOrders, setMyOrders] = useState([]);
+    const [myOrders, setMyOrders] = useState<OrderInfo[]>([]);
     const [openCancelAll, setOpenCancelAll] = useState(false);
 
     const openCancelAllDialog = () => {
