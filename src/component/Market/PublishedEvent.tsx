@@ -7,7 +7,6 @@ import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.j
 import { PublishedEventInfo } from '../../types';
 import { readContract } from "@wagmi/core";
 import { config } from '../../wagmi';
-import { BigNumberish, formatUnits } from 'ethers';
 
 function BettingOptionPrices({ipfsUrl}: {ipfsUrl: string}) {
     const [yesPrice, setYesPrice] = useState(50);
@@ -40,28 +39,12 @@ function BettingOptionPrices({ipfsUrl}: {ipfsUrl: string}) {
 }
 
 export default function PublishedEvent({event}: {event: PublishedEventInfo}) {
-    const [total, setTotal] = useState(0);
-    const [resolved, setResolved] = useState(false);
-
-    useEffect(() => {
-        async function updateTotal() {
-            if (event) {
-                let bettingOptionUrls = [];
-                for (let i = 0; i < event.bettingOptions.length; i++) {
-                    bettingOptionUrls.push(event.bettingOptions[i].ipfsUrl);
-                }
-
-                let total = await readContract(config, {
-                    abi: PLSpeakContract.abi,
-                    address: PLSpeakContract.address as `0x${string}`,
-                    functionName: 'getBetAmountOfEvent',
-                    args: [bettingOptionUrls]
-                });
-                setTotal(Number(formatUnits(total as BigNumberish, 18)));
-            }
-        }
-        updateTotal();
-    }, [event]);
+    let total = 0;
+    let resolved = true;
+    for (let i = 0; i < event.bettingOptions.length; i++) {
+        total += event.bettingOptions[i].bet;
+        if (event.bettingOptions[i].result == 0) resolved = false;
+    } 
     
     const renderBettingOptions = () => {
         if (resolved == false) {
