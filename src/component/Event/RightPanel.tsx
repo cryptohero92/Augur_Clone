@@ -151,7 +151,7 @@ export default function RightPanel() {
         const sellOrders = mergeElements(_orders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price));
         
         let predictedShares = 0;
-        let remain = amount;
+        let remain = amount * 100;
         let avgValue = 100;
 
         if (sellOrders.length > 0) {
@@ -168,7 +168,7 @@ export default function RightPanel() {
                 }
             }
             if (remain == 0) {
-                avgValue = amount / predictedShares;
+                avgValue = amount * 100 / predictedShares;
             }
         }
         setPredictedShares(predictedShares);
@@ -390,7 +390,7 @@ export default function RightPanel() {
                                         <Box sx={{display: 'flex', rowGap: '0.25rem', flexDirection: 'column'}}>
                                             <Box sx={{display: 'flex', width: 1, justifyContent: 'space-between'}}>
                                                 <Typography>Avg Price</Typography>
-                                                <Typography>{avgValue}¢</Typography>
+                                                <Typography>{roundToTwo(avgValue)}¢</Typography>
                                             </Box>
                                             { buyOrSell == BUY ? (
                                                 <>      
