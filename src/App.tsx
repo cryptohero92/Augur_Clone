@@ -75,7 +75,7 @@ function App() {
     onLogs(logs) {
       try {
         const { from, to } = (logs[0] as any).args;
-        if(from == correspondingAddress || to == correspondingAddress) {
+        if(from.toLowerCase() == correspondingAddress.toLowerCase() || to.toLowerCase() == correspondingAddress.toLowerCase()) {
           fetchBalance(correspondingAddress)
         }
       } catch (err) {
