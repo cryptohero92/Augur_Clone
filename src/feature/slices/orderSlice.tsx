@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { OrderRequestInfo } from "../../types";
+import { OrderDeleteAllRequestInfo, OrderDeleteRequestInfo, OrderRequestInfo } from "../../types";
 
 const orderBookState = {
     orders: [],
@@ -18,7 +18,8 @@ export const fetchOrders = createAsyncThunk(
 
 export const deleteOrder = createAsyncThunk(
     "order/cancel",
-    async({_id}) => {
+    async({_id, accessToken}: OrderDeleteRequestInfo) => {
+        const headers = { Authorization: `Bearer ${accessToken}` };
         const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/orders/${_id}`, {
             headers
         });
@@ -28,11 +29,12 @@ export const deleteOrder = createAsyncThunk(
 
 export const deleteAllOrdersFor = createAsyncThunk(
     "order/cancelAll",
-    async({bettingOptionUrl}) => {
+    async({bettingOptionUrl, accessToken}: OrderDeleteAllRequestInfo) => {
         const headers = { Authorization: `Bearer ${accessToken}` };
         const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
-            bettingOptionUrl
-        }, { headers });
+            headers,
+            data: { bettingOptionUrl }
+        });
         return response.data;
     }
 )
@@ -90,7 +92,7 @@ const orderSlice = createSlice({
                     state.orders = action.payload.orders;
                 }
             })
-            .addCase(fetchOrders.rejected, (state, action) => {
+            .addCase(fetchOrders.rejected, (state, _) => {
                 state.loading = false;
             })
     }

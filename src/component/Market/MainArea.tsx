@@ -42,7 +42,7 @@ useEffect(() => {
       functionName: 'getEventUrls',
     });
     if (eventUrls) {
-      eventUrls.forEach(ipfsUrl => {
+      (eventUrls as Array<any>).forEach(ipfsUrl => {
           let item: any = {
             ipfsUrl
           };

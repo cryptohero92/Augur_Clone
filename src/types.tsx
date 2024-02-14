@@ -52,6 +52,16 @@ export interface OrderRequestInfo {
     accessToken: string
 }
 
+export interface OrderDeleteRequestInfo {
+    _id: string,
+    accessToken: string
+}
+
+export interface OrderDeleteAllRequestInfo {
+    bettingOptionUrl: string,
+    accessToken: string
+}
+
 export interface BettingOptionInfo {
     ipfsUrl: string,
     title: string,

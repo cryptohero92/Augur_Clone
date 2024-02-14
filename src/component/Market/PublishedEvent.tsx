@@ -3,40 +3,36 @@ import { Link } from 'react-router-dom';
 import { Card, CardMedia, Box, Typography } from '@mui/material';
 import ModeCommentOutlinedIcon from '@mui/icons-material/ModeCommentOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
+import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
 import { PublishedEventInfo } from '../../types';
+import { readContract } from "@wagmi/core";
+import { config } from '../../wagmi';
+import { BigNumberish, formatUnits } from 'ethers';
 
-function BettingOptionPrices({ipfsUrl}) {
-    const [prices, setPrices] = useState({
-        yes: 50,
-        no: 50
-    });
+function BettingOptionPrices({ipfsUrl}: {ipfsUrl: string}) {
+    const [yesPrice, setYesPrice] = useState(50);
     useEffect(() => {
+        async function updateYesPrice() {
+            let yesPrice = await readContract(config, {
+                abi: PLSpeakContract.abi,
+                address: PLSpeakContract.address as `0x${string}`,
+                functionName: 'getYesPriceOfBettingOption',
+                args: [ipfsUrl]
+            });
+            setYesPrice(Number(yesPrice));
+        }
         if (ipfsUrl) {
-            fetch(`${import.meta.env.VITE_BACKEND_URL}/prices?ipfsUrl=${ipfsUrl}`)
-                .then((response) => {
-                    if (response.status != 200) {
-                        throw new Error('Error happened')
-                    } else {
-                        return response.json()
-                    }
-                })
-                // If yes, retrieve it. If no, create it.
-                .then((prices) => {
-                    setPrices(prices)
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
+            updateYesPrice();
         }
     }, [ipfsUrl])
 
     return (
         <>
-            <Box sx={{ background: 'rgba(39, 174, 96, 0.1)',width: `${prices.yes}%`, display: 'flex', justifyContent: 'left' }}>
-                <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Yes {prices.yes}¢</Typography>
+            <Box sx={{ background: 'rgba(39, 174, 96, 0.1)',width: `${yesPrice}%`, display: 'flex', justifyContent: 'left' }}>
+                <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>Yes {yesPrice}¢</Typography>
             </Box>
-            <Box sx={{ background: 'rgba(235, 87, 87, 0.1)',width: `${prices.no}%`, display: 'flex', justifyContent: 'right' }}>
-                <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>No {prices.no}¢</Typography>
+            <Box sx={{ background: 'rgba(235, 87, 87, 0.1)',width: `${100 - yesPrice}%`, display: 'flex', justifyContent: 'right' }}>
+                <Typography sx={{padding: '5px', whiteSpace: 'nowrap'}}>No {100 - yesPrice}¢</Typography>
             </Box>
         </>
     )
@@ -44,12 +40,28 @@ function BettingOptionPrices({ipfsUrl}) {
 }
 
 export default function PublishedEvent({event}: {event: PublishedEventInfo}) {
-    let total = 0;
-    let resolved = true;
-    for (let i = 0; i < event.bettingOptions.length; i++) {
-        total += event.bettingOptions[i].bet;
-        if (event.bettingOptions[i].result == 0) resolved = false;
-    } 
+    const [total, setTotal] = useState(0);
+    const [resolved, setResolved] = useState(false);
+
+    useEffect(() => {
+        async function updateTotal() {
+            if (event) {
+                let bettingOptionUrls = [];
+                for (let i = 0; i < event.bettingOptions.length; i++) {
+                    bettingOptionUrls.push(event.bettingOptions[i].ipfsUrl);
+                }
+
+                let total = await readContract(config, {
+                    abi: PLSpeakContract.abi,
+                    address: PLSpeakContract.address as `0x${string}`,
+                    functionName: 'getBetAmountOfEvent',
+                    args: [bettingOptionUrls]
+                });
+                setTotal(Number(formatUnits(total as BigNumberish, 18)));
+            }
+        }
+        updateTotal();
+    }, [event]);
     
     const renderBettingOptions = () => {
         if (resolved == false) {

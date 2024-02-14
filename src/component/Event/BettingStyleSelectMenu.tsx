@@ -11,7 +11,7 @@ export default function BettingStyleSelectMenu({bettingStyle, setBettingStyle}) 
   const handleClick = (event: { currentTarget: React.SetStateAction<null>; }) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = (_bettingStyle) => {
+  const handleClose = (_bettingStyle: string) => {
     setAnchorEl(null);
     setBettingStyle(_bettingStyle);
   };
