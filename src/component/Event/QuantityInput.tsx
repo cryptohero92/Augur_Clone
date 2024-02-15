@@ -6,7 +6,7 @@ interface QuantityInputProps {
 }
 
 const QuantityInput: ForwardRefRenderFunction<any, QuantityInputProps> = ({ changeValue }, ref) => {
-  const [inputValue, setInputValue] = useState<number>(0);
+  const [inputValue, setInputValue] = useState(0);
 
   useImperativeHandle(ref, () => ({
     updateInputValue(newValue: number) {
@@ -31,7 +31,7 @@ const QuantityInput: ForwardRefRenderFunction<any, QuantityInputProps> = ({ chan
 
     // If the current value passes the regex test or is empty, update the state
     if (regex.test(val) || val === '') {
-      setInputValue(Number(val));
+      setInputValue(val);
     }
   };
 
