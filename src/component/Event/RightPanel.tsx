@@ -49,38 +49,26 @@ export default function RightPanel() {
     useEffect(() => {
         async function getResult() {
             if (selectedBettingOption) {
-                const yesTokenId = await readContract(config, {
-                    abi: PLSpeakContract.abi,
-                    address: PLSpeakContract.address as `0x${string}`,
-                    functionName: 'getTokenIdOfBettingOption',
-                    args: [selectedBettingOption.ipfsUrl, true]
-                });
                 const yesTokenAmount = await readContract(config, {
                     abi: PLSpeakContract.abi,
                     address: PLSpeakContract.address as `0x${string}`,
-                    functionName: 'getTokenAmountForWallet',
-                    args: [correspondingAddress, yesTokenId]
+                    functionName: 'getConditionalTokenBalanceOf',
+                    args: [correspondingAddress, selectedBettingOption.ipfsUrl, true]
                 });
-                setYesShares(Number(formatUnits(yesTokenAmount as BigNumberish, 18)));
+                setYesShares(Number(formatUnits(yesTokenAmount as BigNumberish, 6)));
 
-                const noTokenId = await readContract(config, {
-                    abi: PLSpeakContract.abi,
-                    address: PLSpeakContract.address as `0x${string}`,
-                    functionName: 'getTokenIdOfBettingOption',
-                    args: [selectedBettingOption.ipfsUrl, false]
-                });
                 const noTokenAmount = await readContract(config, {
                     abi: PLSpeakContract.abi,
                     address: PLSpeakContract.address as `0x${string}`,
-                    functionName: 'getTokenAmountForWallet',
-                    args: [correspondingAddress, noTokenId]
+                    functionName: 'getConditionalTokenBalanceOf',
+                    args: [correspondingAddress, selectedBettingOption.ipfsUrl, false]
                 });
-                setNoShares(Number(formatUnits(noTokenAmount as BigNumberish, 18)));
+                setNoShares(Number(formatUnits(noTokenAmount as BigNumberish, 6)));
             }
         }
         getResult();
         
-    }, [selectedBettingOption]);
+    }, [selectedBettingOption, currentMoney]);
 
     const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
     const handleLoggedIn = (auth: Auth) => {
@@ -356,8 +344,8 @@ export default function RightPanel() {
                                         <Button sx={styles.noButton} onClick={() => onNoButtonClicked()}>No {noValue}¢</Button>
                                     </Box>
                                     <Box sx={{display: 'flex'}}>
-                                        <Box sx={{width: 1, color: 'green'}}>{yesShares} shares</Box>
-                                        <Box sx={{width: 1, color: 'orange'}}>{noShares} shares</Box>
+                                        <Box sx={{width: 1, color: 'green'}}>{roundToTwo(yesShares)} shares</Box>
+                                        <Box sx={{width: 1, color: 'orange'}}>{roundToTwo(noShares)} shares</Box>
                                     </Box>
                                 </Box>
                                 {bettingStyle == BettingStyle.Market && (
