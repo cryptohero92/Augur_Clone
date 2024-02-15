@@ -74,7 +74,7 @@ useEffect(() => {
                   ]                  
                 }).then(res => ({
                   ipfsUrl: eventInfo.bettingOptions[i],
-                  bet: Number(formatUnits(res[0].result as BigNumberish, 18)),
+                  bet: Number(formatUnits(res[0].result as BigNumberish, 6)),
                   result: Number(res[1].result)
                 }))
 

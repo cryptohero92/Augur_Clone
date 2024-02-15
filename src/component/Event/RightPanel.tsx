@@ -367,7 +367,7 @@ export default function RightPanel() {
                                                 <>
                                                     <Box sx={{display:'flex', justifyContent: 'space-between'}}>
                                                         <Typography>Amount($)</Typography>
-                                                        <Typography>Balance: ${currentMoney}</Typography>
+                                                        <Typography>Balance: ${roundToTwo(currentMoney)}</Typography>
                                                     </Box>
                                                     <QuantityInput ref={ref} changeValue={handleAmountChange} />
                                                 </>
@@ -420,7 +420,7 @@ export default function RightPanel() {
                                             <Box sx={{display:'flex', justifyContent: 'space-between'}}>
                                                 <Typography>Limit Price</Typography>
                                                 {buyOrSell == BUY && (
-                                                    <Typography>Balance: {currentMoney}</Typography>
+                                                    <Typography>Balance: {roundToTwo(currentMoney)}</Typography>
                                                 )}
                                             </Box>
                                             <QuantityInput ref={ref} changeValue={handleLimitPriceChange} />
