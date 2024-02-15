@@ -19,7 +19,6 @@ export function Login({handleLoggedIn}: Props) {
 	const { signMessageAsync } = useSignMessage()
 	const { address } = useAccount()
   	const { connectors, connect } = useConnect()
-	let previousAddress = '';
 
 	const style = {
 		position: 'absolute' as 'absolute',
@@ -128,8 +127,13 @@ export function Login({handleLoggedIn}: Props) {
 		}).then((response) => response.json());
 
 	useEffect(() => {
-		if (address && address != previousAddress) {
-			previousAddress = address;
+		localStorage.setItem("previousAddress", "");
+	}, [])
+
+	useEffect(() => {
+		if (address && address != localStorage.getItem("previousAddress")) {
+
+			localStorage.setItem("previousAddress", address);
 
 			fetch(`${import.meta.env.VITE_BACKEND_URL}/users?publicAddress=${address}`)
 			.then((response) => response.json())
