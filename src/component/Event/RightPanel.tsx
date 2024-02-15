@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { Box, Typography, Button } from "@mui/material"
+import { Box, Typography, Button, IconButton } from "@mui/material"
 import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
 import { readContract } from "@wagmi/core";
@@ -17,6 +17,7 @@ import { RootState } from "../../app/store";
 import { Auth } from "../../types";
 import { Login } from "../header/Login/Login";
 import axios from "axios";
+import CachedIcon from '@mui/icons-material/Cached';
 
 export default function RightPanel() {
     const dispatch = useDispatch();
@@ -76,6 +77,10 @@ export default function RightPanel() {
         const { accessToken } = auth;
         setAccessToken(accessToken);
     };
+
+    const refreshOrders = async () => {
+        dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
+    }
 
     const handleBuySellClick = async () => {
         const headers = { Authorization: `Bearer ${accessToken}` };
@@ -338,7 +343,12 @@ export default function RightPanel() {
                             
                             <Box sx={styles.amountBox}>
                                 <Box sx={{display: 'flex', flexDirection: 'column', rowGap: '0.5rem'}}>
-                                    <Box><Typography>Outcome</Typography></Box>
+                                    <Box sx={{display: 'flex'}}>
+                                        <Typography sx={{flex: 1}}>Outcome</Typography>
+                                        <IconButton sx={{height: '15px', width: '15px'}} onClick={refreshOrders}>
+                                            <CachedIcon />
+                                        </IconButton>
+                                    </Box>
                                     <Box sx={{display: 'flex'}}>
                                         <Button sx={styles.yesButton} onClick={() => onYesButtonClicked()}>Yes {yesValue}¢</Button>
                                         <Button sx={styles.noButton} onClick={() => onNoButtonClicked()}>No {noValue}¢</Button>

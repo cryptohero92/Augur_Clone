@@ -105,8 +105,8 @@ export default function OrderBook() {
               <tbody>
                 {sellOrders.map((order, index) => (
                   <tr key={index}>
-                    <td>{order.price}c</td>
-                    <td>{order.shares}</td>
+                    <td>{roundToTwo(order.price)}c</td>
+                    <td>{roundToTwo(order.shares)}</td>
                     <td>${roundToTwo(order.total / 100)}</td>
                   </tr>
                 ))}
@@ -131,8 +131,8 @@ export default function OrderBook() {
               <tbody>
                 {buyOrders.map((order, index) => (
                   <tr key={index}>
-                    <td>{order.price}c</td>
-                    <td>{order.shares}</td>
+                    <td>{roundToTwo(order.price)}c</td>
+                    <td>{roundToTwo(order.shares)}</td>
                     <td>${roundToTwo(order.total / 100)}</td>
                   </tr>
                 ))}
@@ -153,8 +153,8 @@ export default function OrderBook() {
               <tbody>
                 {sellOrders.map((order, index) => (
                   <tr key={index}>
-                    <td>{order.price}c</td>
-                    <td>{order.shares}</td>
+                    <td>{roundToTwo(order.price)}c</td>
+                    <td>{roundToTwo(order.shares)}</td>
                     <td>${roundToTwo(order.total / 100)}</td>
                   </tr>
                 ))}
@@ -179,8 +179,8 @@ export default function OrderBook() {
               <tbody>
                 {buyOrders.map((order, index) => (
                   <tr key={index}>
-                    <td>{order.price}c</td>
-                    <td>{order.shares}</td>
+                    <td>{roundToTwo(order.price)}c</td>
+                    <td>{roundToTwo(order.shares)}</td>
                     <td>${roundToTwo(order.total / 100)}</td>
                   </tr>
                 ))}
