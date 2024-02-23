@@ -23,7 +23,7 @@ import { useSignTypedData, useAccount } from 'wagmi'
 
 export default function RightPanel() {
 
-    const { signTypedData } = useSignTypedData()
+    const { signTypedDataAsync } = useSignTypedData()
     const { address: signerAddress } = useAccount()
 
     const dispatch = useDispatch();
@@ -106,7 +106,7 @@ export default function RightPanel() {
 
     const handleBuySellClick = async () => {
 
-        signTypedData({
+        const signature = await signTypedDataAsync({
             types: {
                 Order: [
                     {name: 'salt', type: 'string'},
@@ -128,20 +128,22 @@ export default function RightPanel() {
                 takerAmount: "11111100",
                 side: "0"
             }
-        })
+        });
 
-        // const headers = { Authorization: `Bearer ${accessToken}` };
+        const headers = { Authorization: `Bearer ${accessToken}` };
 
-        // await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
-        //     bettingOptionUrl: selectedBettingOption?.ipfsUrl,
-        //     bettingStyle,
-        //     buyOrSell,
-        //     yesOrNo: !showNo,
-        //     amount,
-        //     limitPrice,
-        //     shares
-        // }, { headers });
-        // dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
+        debugger
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
+            signature,
+            bettingOptionUrl: selectedBettingOption?.ipfsUrl,
+            bettingStyle,
+            buyOrSell,
+            yesOrNo: !showNo,
+            amount,
+            limitPrice,
+            shares
+        }, { headers });
+        dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
     }
 
     const onYesButtonClicked = () => {
