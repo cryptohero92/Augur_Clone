@@ -11,7 +11,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
 import { fetchOrders, setShowNo } from "../../feature/slices/orderSlice";
 import { BUY, SELL, mergeElements, roundToTwo } from "../../app/constant";
-import { BigNumberish, formatUnits } from 'ethers'
+import { BigNumberish, formatUnits, parseUnits } from 'ethers'
 import { useLocalStorage } from "usehooks-ts";
 import { RootState } from "../../app/store";
 import { Auth } from "../../types";
@@ -42,7 +42,7 @@ export default function RightPanel() {
     const [yesShares, setYesShares] = useState(0);
     const [noShares, setNoShares] = useState(0);
 
-    const [avgValue, setAvgValue] = useState(0.1);
+    const [avgValue, setAvgValue] = useState(50);
     const [predictedShares, setPredictedShares] = useState(0);
     const [amount, setAmount] = useState(0);
     const [estimatedAmountReceived, setEstimatedAmountReceived] = useState(0);
@@ -104,7 +104,33 @@ export default function RightPanel() {
         fetchBalance(correspondingAddress);
     }
 
+    const generateRandomSalt = () => {
+        // Create a typed array to store the salt (4 bytes for int64)
+        const saltArray = new Uint32Array(1);
+    
+        // Fill the typed array with random values
+        crypto.getRandomValues(saltArray);
+    
+        // Combine the two 32-bit integers into a single int64 value
+        return saltArray[0];
+    }
+
     const handleBuySellClick = async () => {
+
+        let collateralAmount, conditionalTokenAmount; 
+        
+        if (bettingStyle == BettingStyle.Market) {
+            if (buyOrSell == BUY) {
+                collateralAmount = amount;
+                conditionalTokenAmount = predictedShares;
+            } else {
+                collateralAmount = estimatedAmountReceived;
+                conditionalTokenAmount = shares;
+            }
+        } else { // limit
+            collateralAmount = roundToTwo(shares * limitPrice / 100);
+            conditionalTokenAmount = shares;
+        }
 
         const signature = await signTypedDataAsync({
             types: {
@@ -112,21 +138,23 @@ export default function RightPanel() {
                     {name: 'salt', type: 'string'},
                     {name: 'maker', type: 'address'},
                     {name: 'signer', type: 'address'},
-                    {name: 'tokenId', type: 'string'},
-                    {name: 'makerAmount', type: 'string'},
-                    {name: 'takerAmount', type: 'string'},
-                    {name: 'side', type: 'string'}
+                    {name: 'bettingOptionUrl', type: 'string'},
+                    {name: 'yesOrNo', type: 'string'},
+                    {name: 'collateralAmount', type: 'string'},
+                    {name: 'conditionalTokenAmount', type: 'string'},
+                    {name: 'buyOrSell', type: 'string'}
                 ]
             },
             primaryType: 'Order',
             message: {
-                salt: "1453748698939",
+                salt: `${generateRandomSalt()}`,
                 maker: correspondingAddress as `0x${string}`,
                 signer: signerAddress as `0x${string}`,
-                tokenId: "77388186162523430247013885567410421379561978665212558917136992458560483660506",
-                makerAmount: "1000000",
-                takerAmount: "11111100",
-                side: "0"
+                bettingOptionUrl: selectedBettingOption?.ipfsUrl as string,
+                yesOrNo: `${Number(!showNo)}`,
+                collateralAmount: parseUnits(`${collateralAmount}`, 6).toString(),
+                conditionalTokenAmount: parseUnits(`${conditionalTokenAmount}`, 6).toString(),
+                buyOrSell: `${Number(buyOrSell)}` // 0 - buy, 1 - sell
             }
         });
 
@@ -173,7 +201,7 @@ export default function RightPanel() {
     }
 
     useEffect(() => {
-        if (!orders || !orders.length) return;
+        // if (!orders || !orders.length) return;
         let _orders = orders.map(order => {
           const {price, buyOrSell, yesOrNo, ...rest} = order;
           if (yesOrNo == showNo) return {
@@ -212,13 +240,16 @@ export default function RightPanel() {
             if (remain == 0) {
                 avgValue = amount * 100 / predictedShares;
             }
+        } else {
+            predictedShares = amount * 2;
+            avgValue = 50;
         }
         setPredictedShares(predictedShares);
         setAvgValue(avgValue);
     }, [amount]);
 
     useEffect(() => {
-        if (!orders || !orders.length) return;
+        // if (!orders || !orders.length) return;
         let _orders = orders.map(order => {
           const {price, buyOrSell, yesOrNo, ...rest} = order;
           if (yesOrNo == showNo) return {
@@ -255,11 +286,24 @@ export default function RightPanel() {
             if (remainingShares == 0) {
                 avgValue = amountReceived / shares;
             }
+        } else {
+            avgValue = 50;
+            amountReceived = shares / 2;
         }
         
         setAvgValue(avgValue);
         setEstimatedAmountReceived(amountReceived);
     }, [shares]);
+
+    useEffect(() => {
+        if (bettingStyle == BettingStyle.Market) {
+            if (buyOrSell == BUY) {
+                setAmount(0);
+            } else {
+                setShares(0);
+            }
+        }
+    }, [buyOrSell]);
 
     useEffect(() => {
         if (!orders || !orders.length) {
