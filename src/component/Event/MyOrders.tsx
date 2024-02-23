@@ -7,6 +7,7 @@ import { RootState } from '../../app/store';
 import { useLocalStorage } from 'usehooks-ts';
 import axios from 'axios';
 import { OrderInfo } from '../../types';
+import { roundToTwo } from '../../app/constant';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
@@ -73,9 +74,9 @@ export default function MyOrders() {
                 <tr key={order._id}>
                     <td>{order.buyOrSell ? 'Buy' : 'Sell'}</td>
                     <td>{order.yesOrNo ? 'Yes' : 'No'}</td>
-                    <td>{order.price}c</td>
-                    <td>{order.total - order.shares}/{order.total}</td>
-                    <td>${order.price * order.total / 100}</td>
+                    <td>{roundToTwo(order.price)}c</td>
+                    <td>{roundToTwo(order.total - order.shares)}/{roundToTwo(order.total)}</td>
+                    <td>${roundToTwo(order.price * order.total / 100)}</td>
                     <td onClick={() => cancelOrder(order._id)}>X</td>
                 </tr>
             ))}

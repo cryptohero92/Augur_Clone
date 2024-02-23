@@ -19,11 +19,17 @@ import { Login } from "../header/Login/Login";
 import axios from "axios";
 import CachedIcon from '@mui/icons-material/Cached';
 
+import { useSignTypedData, useAccount } from 'wagmi'
+
 export default function RightPanel() {
+
+    const { signTypedData } = useSignTypedData()
+    const { address: signerAddress } = useAccount()
+
     const dispatch = useDispatch();
     const ref = useRef();
 
-    const [currentMoney] = useLocalStorage<number>('currentMoney', 0)
+    const [currentMoney, setCurrentMoney] = useLocalStorage<number>('currentMoney', 0)
 
     const { orders, showNo } = useSelector((state: RootState) => state.orderKey);
     const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
@@ -78,23 +84,64 @@ export default function RightPanel() {
         setAccessToken(accessToken);
     };
 
+    const fetchBalance = (address: string) => {
+        if (address && address != '') {
+          fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${address}`)
+                .then((response) => response.json())
+                .then(({balance, decimals}) => {
+                    setCurrentMoney(Number(formatUnits(balance, Number(decimals))));
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        } else {
+          setCurrentMoney(0);
+        }
+      }
+
     const refreshOrders = async () => {
         dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
+        fetchBalance(correspondingAddress);
     }
 
     const handleBuySellClick = async () => {
-        const headers = { Authorization: `Bearer ${accessToken}` };
 
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
-            bettingOptionUrl: selectedBettingOption?.ipfsUrl,
-            bettingStyle,
-            buyOrSell,
-            yesOrNo: !showNo,
-            amount,
-            limitPrice,
-            shares
-        }, { headers });
-        dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
+        signTypedData({
+            types: {
+                Order: [
+                    {name: 'salt', type: 'string'},
+                    {name: 'maker', type: 'address'},
+                    {name: 'signer', type: 'address'},
+                    {name: 'tokenId', type: 'string'},
+                    {name: 'makerAmount', type: 'string'},
+                    {name: 'takerAmount', type: 'string'},
+                    {name: 'side', type: 'string'}
+                ]
+            },
+            primaryType: 'Order',
+            message: {
+                salt: "1453748698939",
+                maker: correspondingAddress as `0x${string}`,
+                signer: signerAddress as `0x${string}`,
+                tokenId: "77388186162523430247013885567410421379561978665212558917136992458560483660506",
+                makerAmount: "1000000",
+                takerAmount: "11111100",
+                side: "0"
+            }
+        })
+
+        // const headers = { Authorization: `Bearer ${accessToken}` };
+
+        // await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
+        //     bettingOptionUrl: selectedBettingOption?.ipfsUrl,
+        //     bettingStyle,
+        //     buyOrSell,
+        //     yesOrNo: !showNo,
+        //     amount,
+        //     limitPrice,
+        //     shares
+        // }, { headers });
+        // dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
     }
 
     const onYesButtonClicked = () => {
