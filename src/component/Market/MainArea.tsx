@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { BigNumberish, formatUnits } from 'ethers'
 import { RootState } from "../../app/store";
-import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
+import CTFExchangeContract from "../../artifacts/contracts/papaya/CTFExchangeContract.json"
 import { updatePublishedEvent } from "../../feature/slices/eventSlice";
 import { PublishedEventInfo } from "../../types";
 import PublishedEvent from "./PublishedEvent";
@@ -37,8 +37,8 @@ function inRange(num: number, min: number, max: number): boolean {
 useEffect(() => {
   async function getResult() {
     const eventUrls = await readContract(config, {
-      abi: PLSpeakContract.abi,
-      address: PLSpeakContract.address as `0x${string}`,
+      abi: CTFExchangeContract.abi,
+      address: CTFExchangeContract.address as `0x${string}`,
       functionName: 'getEventUrls',
     });
     if (eventUrls) {
@@ -60,14 +60,14 @@ useEffect(() => {
                 const contractPromise = readContracts(config, {
                   contracts: [
                     {
-                      abi: PLSpeakContract.abi,
-                      address: PLSpeakContract.address as `0x${string}`,
+                      abi: CTFExchangeContract.abi,
+                      address: CTFExchangeContract.address as `0x${string}`,
                       functionName: 'getBetAmountOfBettingOption',
                       args: [eventInfo.bettingOptions[i]] 
                     },
                     {
-                      abi: PLSpeakContract.abi,
-                      address: PLSpeakContract.address as `0x${string}`,
+                      abi: CTFExchangeContract.abi,
+                      address: CTFExchangeContract.address as `0x${string}`,
                       functionName: 'getResultOfBettingOption',
                       args: [eventInfo.bettingOptions[i]]
                     }

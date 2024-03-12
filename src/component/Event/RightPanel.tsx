@@ -6,7 +6,7 @@ import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
 import { readContract } from "@wagmi/core";
 import { config } from "../../wagmi";
-import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
+import CTFExchangeContract from '../../artifacts/contracts/papaya/CTFExchangeContract.json'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
 import { fetchOrders, setShowNo } from "../../feature/slices/orderSlice";
@@ -57,16 +57,16 @@ export default function RightPanel() {
         async function getResult() {
             if (selectedBettingOption) {
                 const yesTokenAmount = await readContract(config, {
-                    abi: PLSpeakContract.abi,
-                    address: PLSpeakContract.address as `0x${string}`,
+                    abi: CTFExchangeContract.abi,
+                    address: CTFExchangeContract.address as `0x${string}`,
                     functionName: 'getConditionalTokenBalanceOf',
                     args: [correspondingAddress, selectedBettingOption.ipfsUrl, true]
                 });
                 setYesShares(Number(formatUnits(yesTokenAmount as BigNumberish, 6)));
 
                 const noTokenAmount = await readContract(config, {
-                    abi: PLSpeakContract.abi,
-                    address: PLSpeakContract.address as `0x${string}`,
+                    abi: CTFExchangeContract.abi,
+                    address: CTFExchangeContract.address as `0x${string}`,
                     functionName: 'getConditionalTokenBalanceOf',
                     args: [correspondingAddress, selectedBettingOption.ipfsUrl, false]
                 });
@@ -132,17 +132,23 @@ export default function RightPanel() {
             conditionalTokenAmount = shares;
         }
 
+        debugger
+
         const signature = await signTypedDataAsync({
             types: {
                 Order: [
                     {name: 'salt', type: 'string'},
                     {name: 'maker', type: 'address'},
                     {name: 'signer', type: 'address'},
-                    {name: 'bettingOptionUrl', type: 'string'},
-                    {name: 'yesOrNo', type: 'string'},
-                    {name: 'collateralAmount', type: 'string'},
-                    {name: 'conditionalTokenAmount', type: 'string'},
-                    {name: 'buyOrSell', type: 'string'}
+                    {name: 'taker', type: 'address'},
+                    {name: 'tokenId', type: 'string'},
+                    {name: 'makerAmount', type: 'string'},
+                    {name: 'takerAmount', type: 'string'},
+                    {name: 'expiration', type: 'string'},
+                    {name: 'nonce', type: 'string'},
+                    {name: 'feeRateBps', type: 'string'},
+                    {name: 'side', type: 'string'},
+                    {name: 'signatureType', type: 'string'}
                 ]
             },
             primaryType: 'Order',
@@ -150,17 +156,20 @@ export default function RightPanel() {
                 salt: `${generateRandomSalt()}`,
                 maker: correspondingAddress as `0x${string}`,
                 signer: signerAddress as `0x${string}`,
-                bettingOptionUrl: selectedBettingOption?.ipfsUrl as string,
-                yesOrNo: `${Number(!showNo)}`,
-                collateralAmount: parseUnits(`${collateralAmount}`, 6).toString(),
-                conditionalTokenAmount: parseUnits(`${conditionalTokenAmount}`, 6).toString(),
-                buyOrSell: `${Number(buyOrSell)}` // 0 - buy, 1 - sell
+                taker: `0x0000000000000000000000000000000000000000`,
+                tokenId: getTokenIdFrom(selectedBettingOption?.ipfsUrl, !showNo),
+                makerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ? collateralAmount : conditionalTokenAmount)}`, 6).toString(),
+                takerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ?  conditionalTokenAmount : collateralAmount)}`, 6).toString(),
+                expiration: '0',
+                nonce: '0',
+                feeRateBps: '0',
+                side: `${Number(buyOrSell)}`,
+                signatureType: '0'
             }
         });
 
         const headers = { Authorization: `Bearer ${accessToken}` };
 
-        debugger
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
             signature,
             bettingOptionUrl: selectedBettingOption?.ipfsUrl,
@@ -241,8 +250,8 @@ export default function RightPanel() {
                 avgValue = amount * 100 / predictedShares;
             }
         } else {
-            predictedShares = amount * 2;
-            avgValue = 50;
+            avgValue = 99;
+            predictedShares = roundToTwo(amount * 100 / 99);
         }
         setPredictedShares(predictedShares);
         setAvgValue(avgValue);
@@ -287,8 +296,8 @@ export default function RightPanel() {
                 avgValue = amountReceived / shares;
             }
         } else {
-            avgValue = 50;
-            amountReceived = shares / 2;
+            avgValue = 1;
+            amountReceived = shares / 100;
         }
         
         setAvgValue(avgValue);
@@ -460,7 +469,7 @@ export default function RightPanel() {
                                                         <Typography>Amount($)</Typography>
                                                         <Typography>Balance: ${roundToTwo(currentMoney)}</Typography>
                                                     </Box>
-                                                    <QuantityInput ref={ref} changeValue={handleAmountChange} />
+                                                    <QuantityInput changeValue={handleAmountChange} />
                                                 </>
                                             ) : (
                                                 <>

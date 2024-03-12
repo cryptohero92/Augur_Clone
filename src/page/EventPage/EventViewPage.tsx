@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 
 import MainPanel from "../../component/Event/MainPanel";
 import RightPanel from "../../component/Event/RightPanel";
-import PLSpeakContract from '../../artifacts/contracts/sepolia/PLSpeakContract.json'
+import CTFExchangeContract from '../../artifacts/contracts/papaya/CTFExchangeContract.json'
 import { readContracts } from '@wagmi/core'
 import { config } from "../../wagmi"
 import { BigNumberish, formatUnits } from 'ethers'
@@ -33,14 +33,14 @@ export default function EventView() {
                 const contractPromise = readContracts(config, {
                   contracts: [
                     {
-                      abi: PLSpeakContract.abi,
-                      address: PLSpeakContract.address as `0x${string}`,
+                      abi: CTFExchangeContract.abi,
+                      address: CTFExchangeContract.address as `0x${string}`,
                       functionName: 'getBetAmountOfBettingOption',
                       args: [eventInfo.bettingOptions[i]] 
                     },
                     {
-                      abi: PLSpeakContract.abi,
-                      address: PLSpeakContract.address as `0x${string}`,
+                      abi: CTFExchangeContract.abi,
+                      address: CTFExchangeContract.address as `0x${string}`,
                       functionName: 'getResultOfBettingOption',
                       args: [eventInfo.bettingOptions[i]]
                     }
