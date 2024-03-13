@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 
 import MainPanel from "../../component/Event/MainPanel";
 import RightPanel from "../../component/Event/RightPanel";
-import CTFExchangeContract from '../../artifacts/contracts/papaya/CTFExchangeContract.json'
+import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/papaya/CTFExchangeContract.json"
 import { readContracts } from '@wagmi/core'
 import { config } from "../../wagmi"
 import { BigNumberish, formatUnits } from 'ethers'

@@ -6,7 +6,7 @@ import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
 import { readContracts } from "@wagmi/core";
 import { config } from "../../wagmi";
-import CTFExchangeContract from '../../artifacts/contracts/papaya/CTFExchangeContract.json'
+import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/papaya/CTFExchangeContract.json"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
 import { fetchOrders, setShowNo } from "../../feature/slices/orderSlice";

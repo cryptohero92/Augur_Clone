@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { BigNumberish, formatUnits } from 'ethers'
 import { RootState } from "../../app/store";
-import CTFExchangeContract from "../../artifacts/contracts/papaya/CTFExchangeContract.json"
+import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/papaya/CTFExchangeContract.json"
 import { updatePublishedEvent } from "../../feature/slices/eventSlice";
 import { PublishedEventInfo } from "../../types";
 import PublishedEvent from "./PublishedEvent";
