@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Box, Typography, Button, IconButton } from "@mui/material"
 import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
-import { readContract } from "@wagmi/core";
+import { readContracts } from "@wagmi/core";
 import { config } from "../../wagmi";
 import CTFExchangeContract from '../../artifacts/contracts/papaya/CTFExchangeContract.json'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -41,6 +41,8 @@ export default function RightPanel() {
     const [noValue, setNoValue] = useState(50);
     const [yesShares, setYesShares] = useState(0);
     const [noShares, setNoShares] = useState(0);
+    const [yesTokenId, setYesTokenId] = useState(0);
+    const [noTokenId, setNoTokenId] = useState(0);
 
     const [avgValue, setAvgValue] = useState(50);
     const [predictedShares, setPredictedShares] = useState(0);
@@ -56,21 +58,41 @@ export default function RightPanel() {
     useEffect(() => {
         async function getResult() {
             if (selectedBettingOption) {
-                const yesTokenAmount = await readContract(config, {
-                    abi: CTFExchangeContract.abi,
-                    address: CTFExchangeContract.address as `0x${string}`,
-                    functionName: 'getConditionalTokenBalanceOf',
-                    args: [correspondingAddress, selectedBettingOption.ipfsUrl, true]
+                // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
+                readContracts(config, {
+                  contracts: [
+                    {
+                      abi: CTFExchangeContract.abi,
+                      address: CTFExchangeContract.address as `0x${string}`,
+                      functionName: 'getTokenIdFrom',
+                      args: [selectedBettingOption.ipfsUrl, true]
+                    },
+                    {
+                        abi: CTFExchangeContract.abi,
+                        address: CTFExchangeContract.address as `0x${string}`,
+                        functionName: 'getTokenIdFrom',
+                        args: [selectedBettingOption.ipfsUrl, false]
+                    },
+                    {
+                        abi: CTFExchangeContract.abi,
+                        address: CTFExchangeContract.address as `0x${string}`,
+                        functionName: 'getConditionalTokenBalanceOf',
+                        args: [correspondingAddress, selectedBettingOption.ipfsUrl, true]
+                    },
+                    {
+                        abi: CTFExchangeContract.abi,
+                        address: CTFExchangeContract.address as `0x${string}`,
+                        functionName: 'getConditionalTokenBalanceOf',
+                        args: [correspondingAddress, selectedBettingOption.ipfsUrl, false]
+                    }
+                  ]                  
+                }).then(res => {
+                    debugger
+                    setYesTokenId(Number(res[0].result as BigNumberish));
+                    setNoTokenId(Number(res[1].result as BigNumberish));
+                    setYesShares(Number(formatUnits(res[2].result as BigNumberish, 6)));
+                    setNoShares(Number(formatUnits(res[3].result as BigNumberish, 6)));
                 });
-                setYesShares(Number(formatUnits(yesTokenAmount as BigNumberish, 6)));
-
-                const noTokenAmount = await readContract(config, {
-                    abi: CTFExchangeContract.abi,
-                    address: CTFExchangeContract.address as `0x${string}`,
-                    functionName: 'getConditionalTokenBalanceOf',
-                    args: [correspondingAddress, selectedBettingOption.ipfsUrl, false]
-                });
-                setNoShares(Number(formatUnits(noTokenAmount as BigNumberish, 6)));
             }
         }
         getResult();
@@ -157,7 +179,7 @@ export default function RightPanel() {
                 maker: correspondingAddress as `0x${string}`,
                 signer: signerAddress as `0x${string}`,
                 taker: `0x0000000000000000000000000000000000000000`,
-                tokenId: getTokenIdFrom(selectedBettingOption?.ipfsUrl, !showNo),
+                tokenId: (showNo ? noTokenId : yesTokenId).toString(),
                 makerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ? collateralAmount : conditionalTokenAmount)}`, 6).toString(),
                 takerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ?  conditionalTokenAmount : collateralAmount)}`, 6).toString(),
                 expiration: '0',
