@@ -41,8 +41,8 @@ export default function RightPanel() {
     const [noValue, setNoValue] = useState(50);
     const [yesShares, setYesShares] = useState(0);
     const [noShares, setNoShares] = useState(0);
-    const [yesTokenId, setYesTokenId] = useState(0);
-    const [noTokenId, setNoTokenId] = useState(0);
+    const [yesTokenId, setYesTokenId] = useState('0');
+    const [noTokenId, setNoTokenId] = useState('0');
 
     const [avgValue, setAvgValue] = useState(50);
     const [predictedShares, setPredictedShares] = useState(0);
@@ -88,8 +88,8 @@ export default function RightPanel() {
                   ]                  
                 }).then(res => {
                     debugger
-                    setYesTokenId(Number(res[0].result as BigNumberish));
-                    setNoTokenId(Number(res[1].result as BigNumberish));
+                    setYesTokenId(res[0].result.toString());
+                    setNoTokenId(res[1].result.toString());
                     setYesShares(Number(formatUnits(res[2].result as BigNumberish, 6)));
                     setNoShares(Number(formatUnits(res[3].result as BigNumberish, 6)));
                 });
@@ -155,8 +155,22 @@ export default function RightPanel() {
         }
 
         debugger
+        let orderData = {
+            salt: `${generateRandomSalt()}`,
+            maker: correspondingAddress as `0x${string}`,
+            signer: signerAddress as `0x${string}`,
+            taker: `0x0000000000000000000000000000000000000000`,
+            tokenId: (showNo ? noTokenId : yesTokenId).toString(),
+            makerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ? collateralAmount : conditionalTokenAmount)}`, 6).toString(),
+            takerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ?  conditionalTokenAmount : collateralAmount)}`, 6).toString(),
+            expiration: '0',
+            nonce: '0',
+            feeRateBps: '0',
+            side: `${Number(buyOrSell)}`,
+            signatureType: '0'
+        };
 
-        const signature = await signTypedDataAsync({
+        orderData.signature = await signTypedDataAsync({
             types: {
                 Order: [
                     {name: 'salt', type: 'string'},
@@ -174,34 +188,12 @@ export default function RightPanel() {
                 ]
             },
             primaryType: 'Order',
-            message: {
-                salt: `${generateRandomSalt()}`,
-                maker: correspondingAddress as `0x${string}`,
-                signer: signerAddress as `0x${string}`,
-                taker: `0x0000000000000000000000000000000000000000`,
-                tokenId: (showNo ? noTokenId : yesTokenId).toString(),
-                makerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ? collateralAmount : conditionalTokenAmount)}`, 6).toString(),
-                takerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ?  conditionalTokenAmount : collateralAmount)}`, 6).toString(),
-                expiration: '0',
-                nonce: '0',
-                feeRateBps: '0',
-                side: `${Number(buyOrSell)}`,
-                signatureType: '0'
-            }
+            message: orderData
         });
 
         const headers = { Authorization: `Bearer ${accessToken}` };
 
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, {
-            signature,
-            bettingOptionUrl: selectedBettingOption?.ipfsUrl,
-            bettingStyle,
-            buyOrSell,
-            yesOrNo: !showNo,
-            amount,
-            limitPrice,
-            shares
-        }, { headers });
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, orderData, { headers });
         dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
     }
 
