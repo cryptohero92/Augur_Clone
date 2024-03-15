@@ -140,18 +140,185 @@ export default function RightPanel() {
     const handleBuySellClick = async () => {
 
         let collateralAmount, conditionalTokenAmount; 
+
+        let _yesOrders = orders.map(order => {
+            const { tokenId, makerAmount, takerAmount, status, side, bettingStyle } = order;
+            let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+            let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
+
+            if (tokenId == yesTokenId) return {
+                price,
+                isBuy: side == 0 ? true: false,
+                shares,
+                ...order
+            }
+            else return {
+                price: 100 - price,
+                isBuy: side == 1 ? true : false,
+                shares,
+                ...order
+            }
+        });
+
+        let _orders = _yesOrders;
+        if (showNo) {
+            _orders = _orders.map(order => {
+                const { price, isBuy, ...rest} = order;
+                return {
+                price: 100 - price,
+                isBuy: !isBuy,
+                ...rest
+                }
+            })
+        }
+
+        let makerOrders = [];
+        let takerFillAmount = 0;
+        let makerFillAmounts = [];
         
         if (bettingStyle == BettingStyle.Market) {
             if (buyOrSell == BUY) {
                 collateralAmount = amount;
                 conditionalTokenAmount = predictedShares;
-            } else {
+                // need to calculate takerFillAmount and makerFillAmounts, and pick makerOrders.
+                // first step is to sort orders 
+                let remain = amount * 100;
+                let newlyPredictedShares = 0;
+
+                const sortedOrders = _orders.filter(order => order.isBuy == false).sort((a, b) => a.price - b.price);
+                if (sortedOrders.length > 0) {
+                    for (let i = 0; i < sortedOrders.length; i++) {
+                        let order = sortedOrders[i];
+                        if (remain >= order.price * order.shares) {
+                            makerOrders.push(order);
+                            newlyPredictedShares += order.shares;
+
+                            if (order.side == 0) {
+                                makerFillAmounts.push((100 - order.price) * order.shares);
+                            } else { // this means sell token, so token count needed
+                                makerFillAmounts.push(order.shares);
+                            }
+                            remain -= order.price * order.shares;
+                        } else {
+                            makerOrders.push(order);
+                            newlyPredictedShares += remain / order.price;
+
+                            if (order.side == 0) {
+                                makerFillAmounts.push((100 - order.price) * remain / order.price);
+                            } else {
+                                makerFillAmounts.push(remain / order.price);
+                            }
+                            remain = 0;
+                            break;
+                        }
+                    }
+                    if (newlyPredictedShares != predictedShares) {
+                        console.error('prediction mismatch');
+                        debugger
+                    }
+                    takerFillAmount = amount - remain;
+                }
+
+            } else { // Sell Token
                 collateralAmount = estimatedAmountReceived;
                 conditionalTokenAmount = shares;
+
+                let remainingShares = shares;
+                const sortedOrders = _orders.filter(order => order.isBuy == true).sort((a, b) => a.price - b.price);
+
+                if (sortedOrders.length > 0) {
+                    for (let i = 0; i < sortedOrders.length; i++) {
+                        let order = sortedOrders[i];
+                        if (remainingShares >= order.shares) {
+                            makerOrders.push(order);
+
+                            if (order.side == 0) { // if buy order, then put collateral amount
+                                makerFillAmounts.push(order.price * order.shares);
+                            } else { // if sell order, then put complement 
+                                makerFillAmounts.push(order.shares);
+                            }
+                            remainingShares -= order.shares;
+                        } else {
+                            makerOrders.push(order);
+                            if (order.side == 0) {
+                                makerFillAmounts.push(order.price * remainingShares);
+                            } else {
+                                makerFillAmounts.push(remainingShares);
+                            }
+                            remainingShares = 0;
+                            break;
+                        }
+                    }
+                    takerFillAmount = shares - remainingShares;
+                }
             }
         } else { // limit
             collateralAmount = roundToTwo(shares * limitPrice / 100);
             conditionalTokenAmount = shares;
+            let remainingShares = shares;
+            if (buyOrSell == BUY) {
+                const sortedOrders = _orders.filter(order => order.isBuy == false).sort((a, b) => a.price - b.price);
+                if (sortedOrders.length > 0) {
+                    for (let i = 0; i < sortedOrders.length; i++) {
+                        let order = sortedOrders[i];
+                        if (order.price > limitPrice) break;
+                        
+                        if (remainingShares > order.shares) {
+                            makerOrders.push(order);
+
+                            if (order.side == 0) { // buy complement, need to register collateral amount.    
+                                makerFillAmounts.push((100 - order.price) * order.shares);
+                            } else { // sell token
+                                makerFillAmounts.push(order.shares);
+                            }
+                            takerFillAmount += order.price * order.shares;
+                            remainingShares -= order.shares;
+                        } else {
+                            makerOrders.push(order);
+
+                            if (order.side == 0) {
+                                makerFillAmounts.push((100 - order.price) * remainingShares);
+                            } else {
+                                makerFillAmounts.push(remainingShares);
+                            }
+                            takerFillAmount += order.price * remainingShares;
+                            remainingShares = 0;
+                            break;
+                        }
+                        
+                    }
+                }
+            } else { // sell token
+                const sortedOrders = _orders.filter(order => order.isBuy == true).sort((a, b) => a.price - b.price);
+                if (sortedOrders.length > 0) {
+                    for (let i = 0; i < sortedOrders.length; i++) {
+                        let order = sortedOrders[i];
+                        if (order.price < limitPrice) break;
+
+                        if (remainingShares > order.shares) {
+                            makerOrders.push(order);
+
+                            if (order.side == 0) { // buy token
+                                makerFillAmounts.push(order.price * order.shares);
+                            } else { // sell complement
+                                makerFillAmounts.push(order.shares);
+                            }
+                            remainingShares -= order.shares;
+                        } else {
+                            makerOrders.push(order);
+
+                            if (order.side == 0) {
+                                makerFillAmounts.push(order.price * remainingShares);
+                            } else {
+                                makerFillAmounts.push(remainingShares);
+                            }
+                            remainingShares = 0;
+                            break;
+                        }
+                    }
+                    takerFillAmount = shares - remainingShares;
+                }
+            }
         }
 
         debugger
