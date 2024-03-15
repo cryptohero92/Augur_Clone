@@ -193,6 +193,8 @@ export default function RightPanel() {
         orderData.bettingStyle = bettingStyle;
 
         const headers = { Authorization: `Bearer ${accessToken}` };
+        // we need to calculate takerFillAmount, makerFillAmounts and makerOrders here.
+
 
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, orderData, { headers });
         dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
@@ -226,23 +228,38 @@ export default function RightPanel() {
 
     useEffect(() => {
         // if (!orders || !orders.length) return;
-        let _orders = orders.map(order => {
-          const {price, buyOrSell, yesOrNo, ...rest} = order;
-          if (yesOrNo == showNo) return {
-            price: 100 - price,
-            buyOrSell: !buyOrSell,
-            yesOrNo: !yesOrNo,
-            ...rest
-          }
-          else return {
-            price,
-            buyOrSell,
-            yesOrNo,
-            ...rest
-          }
+        let _yesOrders = orders.map(order => {
+            const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
+            let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+            let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
+
+            if (tokenId == yesTokenId) return {
+                price,
+                side,
+                shares,
+                ...rest
+            }
+            else return {
+                price: 100 - price,
+                side: 1 - side,
+                shares,
+                ...rest
+            }
         });
 
-        const sellOrders = mergeElements(_orders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price));
+        let _orders = _yesOrders;
+        if (showNo) {
+            _orders = _orders.map(order => {
+                const { price, side, ...rest} = order;
+                return {
+                price: 100 - price,
+                side: 1 - side,
+                ...rest
+                }
+            })
+        }
+
+        const sellOrders = mergeElements(_orders.filter(order => order.side == 1).sort((a, b) => a.price - b.price));
         
         let predictedShares = 0;
         let remain = amount * 100;
@@ -274,23 +291,38 @@ export default function RightPanel() {
 
     useEffect(() => {
         // if (!orders || !orders.length) return;
-        let _orders = orders.map(order => {
-          const {price, buyOrSell, yesOrNo, ...rest} = order;
-          if (yesOrNo == showNo) return {
-            price: 100 - price,
-            buyOrSell: !buyOrSell,
-            yesOrNo: !yesOrNo,
-            ...rest
-          }
-          else return {
-            price,
-            buyOrSell,
-            yesOrNo,
-            ...rest
-          }
+        let _yesOrders = orders.map(order => {
+            const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
+            let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+            let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
+
+            if (tokenId == yesTokenId) return {
+                price,
+                side,
+                shares,
+                ...rest
+            }
+            else return {
+                price: 100 - price,
+                side: 1 - side,
+                shares,
+                ...rest
+            }
         });
 
-        const buyOrders = mergeElements(_orders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price));
+        let _orders = _yesOrders;
+        if (showNo) {
+            _orders = _orders.map(order => {
+                const { price, side, ...rest} = order;
+                return {
+                price: 100 - price,
+                side: 1 - side,
+                ...rest
+                }
+            })
+        }
+
+        const buyOrders = mergeElements(_orders.filter(order => order.side == 0).sort((a, b) => b.price - a.price));
         let remainingShares = shares;
         let amountReceived = 0;
         let avgValue = 0;
@@ -336,24 +368,24 @@ export default function RightPanel() {
             return;
         }
 
-        // when order arrives, first get yes 
         let _yesOrders = orders.map(order => {
-            const {price, buyOrSell, yesOrNo, ...rest} = order;
-            if (yesOrNo == false) return {
-                price: 100 - price,
-                buyOrSell: !buyOrSell,
-                yesOrNo: true,
+            const {tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
+            let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+
+            if (tokenId == yesTokenId) return {
+                price,
+                side,
                 ...rest
             }
             else return {
-                price,
-                buyOrSell,
-                yesOrNo,
+                price: 100 - price,
+                side: 1 - side,
                 ...rest
             }
         });
-        const sellOrders = mergeElements(_yesOrders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price));
-        const buyOrders = mergeElements(_yesOrders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price));
+
+        const sellOrders = _yesOrders.filter(order => order.side == 1).sort((a, b) => a.price - b.price);
+        const buyOrders = _yesOrders.filter(order => order.side == 0).sort((a, b) => b.price - a.price);
 
         if (buyOrders.length > 0)
             setNoValue(100 - buyOrders[0].price);
