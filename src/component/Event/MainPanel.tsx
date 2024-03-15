@@ -146,7 +146,6 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                   }
                 ]                  
               }).then(res => {
-                  debugger
                   setYesTokenId(res[0].result.toString());
                   setNoTokenId(res[1].result.toString());
               });

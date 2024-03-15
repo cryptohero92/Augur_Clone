@@ -14,6 +14,7 @@ export interface JwtDecoded {
 
 export interface UserInfo {
 	id: string;
+    publicAddress: string;
 	correspondingAddress: string;
 	isAdmin: boolean;
 }

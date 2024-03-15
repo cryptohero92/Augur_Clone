@@ -33,7 +33,7 @@ export default function RightPanel() {
 
     const { orders, showNo } = useSelector((state: RootState) => state.orderKey);
     const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
-    const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
+    const { correspondingAddress, publicAddress } = useSelector((state: RootState) => state.userKey);
 
     const [bettingStyle, setBettingStyle] = useState(BettingStyle.Limit);
     const [buyOrSell, setBuyOrSell] = useState(BUY);
@@ -87,7 +87,6 @@ export default function RightPanel() {
                     }
                   ]                  
                 }).then(res => {
-                    debugger
                     setYesTokenId(res[0].result.toString());
                     setNoTokenId(res[1].result.toString());
                     setYesShares(Number(formatUnits(res[2].result as BigNumberish, 6)));
@@ -325,7 +324,7 @@ export default function RightPanel() {
         let takerOrder = {
             salt: `${generateRandomSalt()}`,
             maker: correspondingAddress as `0x${string}`,
-            signer: signerAddress as `0x${string}`,
+            signer: signerAddress || publicAddress as `0x${string}`,
             taker: `0x0000000000000000000000000000000000000000`,
             tokenId: (showNo ? noTokenId : yesTokenId).toString(),
             makerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ? collateralAmount : conditionalTokenAmount)}`, 6).toString(),
