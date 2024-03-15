@@ -142,7 +142,7 @@ export default function RightPanel() {
 
         let _yesOrders = orders.map(order => {
             const { tokenId, makerAmount, takerAmount, status, side, bettingStyle } = order;
-            let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+            let price = bettingStyle == 'LIMITED' ? (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount));
             let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
 
             if (tokenId == yesTokenId) return {
@@ -332,7 +332,7 @@ export default function RightPanel() {
             expiration: '0',
             nonce: '0',
             feeRateBps: '0',
-            side: `${Number(buyOrSell)}`,
+            side: `${Number(!buyOrSell)}`,
             signatureType: '0'
         };
 
@@ -396,7 +396,7 @@ export default function RightPanel() {
         // if (!orders || !orders.length) return;
         let _yesOrders = orders.map(order => {
             const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
-            let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+            let price = bettingStyle == 'LIMITED' ? (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount));
             let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
 
             if (tokenId == yesTokenId) return {
@@ -459,7 +459,7 @@ export default function RightPanel() {
         // if (!orders || !orders.length) return;
         let _yesOrders = orders.map(order => {
             const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
-            let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+            let price = bettingStyle == 'LIMITED' ? (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount));
             let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
 
             if (tokenId == yesTokenId) return {
@@ -536,7 +536,7 @@ export default function RightPanel() {
 
         let _yesOrders = orders.map(order => {
             const {tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
-            let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+            let price = bettingStyle == 'LIMITED' ? (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount));
 
             if (tokenId == yesTokenId) return {
                 price,
