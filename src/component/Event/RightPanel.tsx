@@ -143,7 +143,8 @@ export default function RightPanel() {
         let _yesOrders = orders.map(order => {
             const { tokenId, makerAmount, takerAmount, status, side, bettingStyle } = order;
             let price = bettingStyle == 'LIMITED' ? (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount));
-            let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
+            let remaining = status.remaining == 0 ? makerAmount : status.remaining;
+            let shares = side == 0 ? remaining * 100 / price : remaining;
 
             if (tokenId == yesTokenId) return {
                 price,
@@ -397,7 +398,8 @@ export default function RightPanel() {
         let _yesOrders = orders.map(order => {
             const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
             let price = bettingStyle == 'LIMITED' ? (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount));
-            let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
+            let remaining = status.remaining == 0 ? makerAmount : status.remaining;
+            let shares = side == 0 ? remaining * 100 / price : remaining;
 
             if (tokenId == yesTokenId) return {
                 price,
@@ -460,7 +462,8 @@ export default function RightPanel() {
         let _yesOrders = orders.map(order => {
             const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
             let price = bettingStyle == 'LIMITED' ? (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount));
-            let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
+            let remaining = status.remaining == 0 ? makerAmount : status.remaining;
+            let shares = side == 0 ? remaining * 100 / price : remaining;
 
             if (tokenId == yesTokenId) return {
                 price,

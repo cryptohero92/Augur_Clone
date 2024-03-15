@@ -8,6 +8,7 @@ import { useLocalStorage } from 'usehooks-ts';
 import axios from 'axios';
 import { OrderInfo } from '../../types';
 import { roundToTwo } from '../../app/constant';
+import { formatUnits } from 'ethers';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
@@ -75,8 +76,8 @@ export default function MyOrders({yesTokenId}: {yesTokenId: string}) {
                     <td>{order.side == 0 ? 'Buy' : 'Sell'}</td>
                     <td>{order.tokenId == yesTokenId ? 'Yes' : 'No'}</td>
                     <td>{roundToTwo(order.side == 0 ? order.makerAmount * 100 / order.takerAmount : order.takerAmount * 100 / order.makerAmount)}c</td>
-                    <td>{roundToTwo(order.status.remaining)}/{roundToTwo(order.takerAmount)}</td>
-                    <td>{roundToTwo(order.makerAmount)}</td>
+                    <td>{roundToTwo(order.status.remaining)}/{roundToTwo(Number(formatUnits(order.side == 0 ? order.takerAmount : order.makerAmount, 6)))}</td>
+                    <td>${roundToTwo(Number(formatUnits(order.side == 0 ? order.makerAmount : order.takerAmount, 6)))}</td>
                     <td onClick={() => cancelOrder(order._id)}>X</td>
                 </tr>
             ))}
