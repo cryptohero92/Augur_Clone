@@ -322,7 +322,7 @@ export default function RightPanel() {
         }
 
         debugger
-        let orderData = {
+        let takerOrder = {
             salt: `${generateRandomSalt()}`,
             maker: correspondingAddress as `0x${string}`,
             signer: signerAddress as `0x${string}`,
@@ -337,7 +337,7 @@ export default function RightPanel() {
             signatureType: '0'
         };
 
-        orderData.signature = await signTypedDataAsync({
+        takerOrder.signature = await signTypedDataAsync({
             types: {
                 Order: [
                     {name: 'salt', type: 'string'},
@@ -355,15 +355,15 @@ export default function RightPanel() {
                 ]
             },
             primaryType: 'Order',
-            message: orderData
+            message: takerOrder
         });
-        orderData.bettingStyle = bettingStyle;
+        takerOrder.bettingStyle = bettingStyle;
 
         const headers = { Authorization: `Bearer ${accessToken}` };
         // we need to calculate takerFillAmount, makerFillAmounts and makerOrders here.
 
 
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders`, orderData, { headers });
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders/match`, {takerOrder, makerOrders, takerFillAmount, makerFillAmounts}, { headers });
         dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
     }
 
