@@ -43,13 +43,20 @@ export interface PublishedEventInfo {
 
 export interface OrderInfo {
     _id: string,
-    bettingOptionUrl: string,
-    buyOrSell: boolean,
-    yesOrNo: boolean,
-    price: number,
-    shares: number,
-    total: number,
-    wallet: string
+    salt: string,
+    maker: string,
+    signer: string,
+    taker: string,
+    tokenId: string,
+    makerAmount: number,
+    takerAmount: number,
+    expiration: number,
+    nonce: number,
+    feeRateBps: number,
+    side: number,
+    signatureType: number,
+    status: OrderStatus,
+    bettingStyle: string
 }
 
 export interface OrderRequestInfo {
@@ -61,6 +68,11 @@ export interface OrderRequestInfo {
     limitPrice: number,
     shares: number,
     accessToken: string
+}
+
+export interface OrderStatus {
+    isFilledOrCancelled: boolean,
+    remaining: number
 }
 
 export interface BettingOptionInfo {

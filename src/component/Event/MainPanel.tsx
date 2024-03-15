@@ -18,7 +18,9 @@ import MyOrders from './MyOrders';
 import { RootState } from "../../app/store";
 import { fetchOrders } from "../../feature/slices/orderSlice";
 import { BettingOptionInfo, OrderInfo, PublishedEventInfo } from "../../types";
-import { BUY, SELL } from "../../app/constant";
+import { readContracts } from "@wagmi/core";
+import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/papaya/CTFExchangeContract.json"
+import { config } from "../../wagmi";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -47,10 +49,10 @@ function a11yProps(index) {
   };
 }
 
-function BettingOptionButtons({ipfsUrl}: {ipfsUrl: string}) {
+function BettingOptionButtons({ipfsUrl, yesTokenId, noTokenId}: {ipfsUrl: string, yesTokenId: string, noTokenId: string}) {
     const [yesValue, setYesValue] = useState(50);
     const [noValue, setNoValue] = useState(50);
-
+    
     const { orders } = useSelector((state: RootState) => state.orderKey);
 
     useEffect(() => {
@@ -71,25 +73,25 @@ function BettingOptionButtons({ipfsUrl}: {ipfsUrl: string}) {
                         setNoValue(50);
                         return;
                     }
-            
-                    // when order arrives, first get yes 
+
                     let _yesOrders = orders.map(order => {
-                        const {price, buyOrSell, yesOrNo, ...rest} = order;
-                        if (yesOrNo == false) return {
-                            price: 100 - price,
-                            buyOrSell: !buyOrSell,
-                            yesOrNo: true,
+                        const {tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
+                        let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+
+                        if (tokenId == yesTokenId) return {
+                            price,
+                            side,
                             ...rest
                         }
                         else return {
-                            price,
-                            buyOrSell,
-                            yesOrNo,
+                            price: 100 - price,
+                            side: 1 - side,
                             ...rest
                         }
                     });
-                    const sellOrders = _yesOrders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price);
-                    const buyOrders = _yesOrders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price);
+
+                    const sellOrders = _yesOrders.filter(order => order.side == 1).sort((a, b) => a.price - b.price);
+                    const buyOrders = _yesOrders.filter(order => order.side == 0).sort((a, b) => b.price - a.price);
             
                     if (buyOrders.length > 0)
                         setNoValue(100 - buyOrders[0].price);
@@ -116,6 +118,8 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
 
     const [moreOrLessSwitch, setMoreOrLessSwitch] = useState(true);
     const [choice, setChoice] = useState(0);
+    const [yesTokenId, setYesTokenId] = useState('0');
+    const [noTokenId, setNoTokenId] = useState('0');
 
     const handleChange = (_: any, newValue: SetStateAction<number>) => {
         setChoice(newValue);
@@ -125,6 +129,27 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
         if (selectedBettingOption) {
             console.log(`fetch orders invoked`);
             dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }));
+
+            readContracts(config, {
+                contracts: [
+                  {
+                    abi: CTFExchangeContract.abi,
+                    address: CTFExchangeContract.address as `0x${string}`,
+                    functionName: 'getTokenIdFrom',
+                    args: [selectedBettingOption.ipfsUrl, true]
+                  },
+                  {
+                    abi: CTFExchangeContract.abi,
+                    address: CTFExchangeContract.address as `0x${string}`,
+                    functionName: 'getTokenIdFrom',
+                    args: [selectedBettingOption.ipfsUrl, false]
+                  }
+                ]                  
+              }).then(res => {
+                  debugger
+                  setYesTokenId(res[0].result.toString());
+                  setNoTokenId(res[1].result.toString());
+              });
         }
     }, [selectedBettingOption])
 
@@ -184,7 +209,7 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                                 </Box>
                                 {bettingOption.result == 0 ? (
                                     <Box sx={{ display:'flex', alignItems: 'center', gap:'0.5rem', justifyContent:'flex-end' }}>
-                                        <BettingOptionButtons ipfsUrl={bettingOption.ipfsUrl} />
+                                        <BettingOptionButtons ipfsUrl={bettingOption.ipfsUrl} yesTokenId={yesTokenId} noTokenId={noTokenId} />
                                     </Box>
                                 ) : (
                                     <Box sx={{ display:'flex', alignItems: 'center', gap:'0.5rem', justifyContent:'flex-end' }}>
@@ -204,13 +229,13 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                                 </Box>
                                 <Box sx={{ height: '300px', overflowY: 'scroll' }}>
                                     <CustomTabPanel value={choice} index={0}>
-                                        <OrderBook />
+                                        <OrderBook yesTokenId={yesTokenId} noTokenId={noTokenId} />
                                     </CustomTabPanel>
                                     <CustomTabPanel value={choice} index={1}>
                                         <ChartArea />
                                     </CustomTabPanel>
                                     <CustomTabPanel value={choice} index={2}>
-                                        <MyOrders />
+                                        <MyOrders yesTokenId={yesTokenId} />
                                     </CustomTabPanel>
                                 </Box>
                             </Box>
@@ -228,10 +253,10 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                           <Typography>Order Book</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <OrderBook />
+                            <OrderBook yesTokenId={yesTokenId} noTokenId={noTokenId} />
                         </AccordionDetails>
                     </Accordion>
-                    <MyOrders />
+                    <MyOrders yesTokenId={yesTokenId} />
                 </>
             )}
             </Box>

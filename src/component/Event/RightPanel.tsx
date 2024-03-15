@@ -190,6 +190,7 @@ export default function RightPanel() {
             primaryType: 'Order',
             message: orderData
         });
+        orderData.bettingStyle = bettingStyle;
 
         const headers = { Authorization: `Bearer ${accessToken}` };
 

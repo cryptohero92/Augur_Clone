@@ -1,12 +1,10 @@
-import { OrderInfo } from "../types";
-
 export const BUY = true;
 export const SELL = false;
 
 export const YES = true;
 export const NO = false;
 
-export const mergeElements = (arr: OrderInfo[]) => {
+export const mergeElements = (arr: any[]) => {
     const result: any = [];
     const map = new Map();
   

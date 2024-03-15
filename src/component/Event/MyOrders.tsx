@@ -13,7 +13,7 @@ import { roundToTwo } from '../../app/constant';
 	when user click buy, need to make order.
 */
 
-export default function MyOrders() {
+export default function MyOrders({yesTokenId}: {yesTokenId: string}) {
     const dispatch = useDispatch();
     const { orders } = useSelector((state: RootState) => state.orderKey);
     const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
@@ -51,7 +51,7 @@ export default function MyOrders() {
     useEffect(() => {
         if (orders && correspondingAddress) {
             setMyOrders(
-                orders.filter(order => order.wallet == correspondingAddress)
+                orders.filter(order => order.maker == correspondingAddress)
             );
         }
     }, [orders, correspondingAddress]);
@@ -72,11 +72,11 @@ export default function MyOrders() {
           <tbody>
             {myOrders.map((order) => (
                 <tr key={order._id}>
-                    <td>{order.buyOrSell ? 'Buy' : 'Sell'}</td>
-                    <td>{order.yesOrNo ? 'Yes' : 'No'}</td>
-                    <td>{roundToTwo(order.price)}c</td>
-                    <td>{roundToTwo(order.total - order.shares)}/{roundToTwo(order.total)}</td>
-                    <td>${roundToTwo(order.price * order.total / 100)}</td>
+                    <td>{order.side == 0 ? 'Buy' : 'Sell'}</td>
+                    <td>{order.tokenId == yesTokenId ? 'Yes' : 'No'}</td>
+                    <td>{roundToTwo(order.side == 0 ? order.makerAmount * 100 / order.takerAmount : order.takerAmount * 100 / order.makerAmount)}c</td>
+                    <td>{roundToTwo(order.status.remaining)}/{roundToTwo(order.takerAmount)}</td>
+                    <td>{roundToTwo(order.makerAmount)}</td>
                     <td onClick={() => cancelOrder(order._id)}>X</td>
                 </tr>
             ))}

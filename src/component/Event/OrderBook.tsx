@@ -39,11 +39,11 @@ function CustomTabPanel(props: any) {
   );
 }
 
-export default function OrderBook() {
+export default function OrderBook({yesTokenId, noTokenId}: {yesTokenId: string, noTokenId: string}) {
   const dispatch = useDispatch();
   const { orders, showNo } = useSelector((state: RootState) => state.orderKey);
-  const [buyOrders, setBuyOrders] = useState<OrderInfo[]>([]);
-  const [sellOrders, setSellOrders] = useState<OrderInfo[]>([]);
+  const [buyOrders, setBuyOrders] = useState<any[]>([]);
+  const [sellOrders, setSellOrders] = useState<any[]>([]);
   const [spread, setSpread] = useState(0); 
 
   useEffect(() => {
@@ -53,25 +53,40 @@ export default function OrderBook() {
       setSellOrders([]);
       return;
     }
-    let _orders = orders.map(order => {
-      const {price, buyOrSell, yesOrNo, ...rest} = order;
-      if (yesOrNo == showNo) return {
-        price: 100 - price,
-        buyOrSell: !buyOrSell,
-        yesOrNo: !yesOrNo,
+    let _yesOrders = orders.map(order => {
+      const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
+      let price = bettingStyle == 'LIMITED' ? (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? takerAmount * 100 / makerAmount : makerAmount * 100 / takerAmount));
+      let shares = side == 0 ? status.remaining : status.remaining * 100 / price;
+
+      if (tokenId == yesTokenId) return {
+        price,
+        side,
+        shares,
         ...rest
       }
       else return {
-        price,
-        buyOrSell,
-        yesOrNo,
+        price: 100 - price,
+        side: 1 - side,
+        shares,
         ...rest
       }
     });
+
+    let _orders = _yesOrders;
+    if (showNo) {
+      _orders = _orders.map(order => {
+        const { price, side, ...rest} = order;
+        return {
+          price: 100 - price,
+          side: 1 - side,
+          ...rest
+        }
+      })
+    }
     
-    const buyOrders = mergeElements(_orders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price));
+    const buyOrders = mergeElements(_orders.filter(order => order.side == 0).sort((a, b) => b.price - a.price));
     setBuyOrders(buyOrders);
-    const sellOrders = mergeElements(_orders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price)).reverse();
+    const sellOrders = mergeElements(_orders.filter(order => order.side == 1).sort((a, b) => a.price - b.price)).reverse();
     setSellOrders(sellOrders);
     if (sellOrders.length > 0 && buyOrders.length > 0) {
       const spread = sellOrders.at(-1).price - buyOrders[0].price;
