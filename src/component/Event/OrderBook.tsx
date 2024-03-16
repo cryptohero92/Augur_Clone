@@ -61,18 +61,20 @@ export default function OrderBook({yesTokenId, noTokenId}: {yesTokenId: string, 
       let shares = side == 0 ? remaining * 100 / price : remaining;
       
 
-      if (tokenId == yesTokenId) return {
-        price,
-        side,
-        shares,
-        ...rest
-      }
-      else return {
-        price: 100 - price,
-        side: 1 - side,
-        shares,
-        ...rest
-      }
+      if (tokenId == yesTokenId) 
+        return {
+          price,
+          side,
+          shares,
+          ...rest
+        }
+      else 
+        return {
+          price: 100 - price,
+          side: 1 - side,
+          shares,
+          ...rest
+        }
     });
 
     let _orders = _yesOrders;

@@ -182,41 +182,34 @@ export default function RightPanel() {
                 conditionalTokenAmount = predictedShares;
                 // need to calculate takerFillAmount and makerFillAmounts, and pick makerOrders.
                 // first step is to sort orders 
-                let remain = amount * 100;
-                let newlyPredictedShares = 0;
+                let remain = amount * 1000000;
 
                 const sortedOrders = _orders.filter(order => order.isBuy == false).sort((a, b) => a.price - b.price);
                 if (sortedOrders.length > 0) {
                     for (let i = 0; i < sortedOrders.length; i++) {
                         let order = sortedOrders[i];
-                        if (remain >= order.price * order.shares) {
+                        if (remain >= order.price * order.shares / 100) {
                             makerOrders.push(order);
-                            newlyPredictedShares += order.shares;
 
                             if (order.side == 0) {
-                                makerFillAmounts.push((100 - order.price) * order.shares);
+                                makerFillAmounts.push(Math.floor((100 - order.price) * order.shares / 100));
                             } else { // this means sell token, so token count needed
-                                makerFillAmounts.push(order.shares);
+                                makerFillAmounts.push(Math.floor(order.shares));
                             }
-                            remain -= order.price * order.shares;
+                            remain -= order.price * order.shares / 100;
                         } else {
                             makerOrders.push(order);
-                            newlyPredictedShares += remain / order.price;
 
                             if (order.side == 0) {
-                                makerFillAmounts.push((100 - order.price) * remain / order.price);
+                                makerFillAmounts.push(Math.floor((100 - order.price) * remain / order.price));
                             } else {
-                                makerFillAmounts.push(remain / order.price);
+                                makerFillAmounts.push(Math.floor(remain * 100 / order.price));
                             }
                             remain = 0;
                             break;
                         }
                     }
-                    if (newlyPredictedShares != predictedShares) {
-                        console.error('prediction mismatch');
-                        debugger
-                    }
-                    takerFillAmount = amount - remain;
+                    takerFillAmount = Math.floor(amount * 1000000 - remain);
                 }
 
             } else { // Sell Token
@@ -558,8 +551,12 @@ export default function RightPanel() {
 
         if (buyOrders.length > 0)
             setNoValue(100 - buyOrders[0].price);
+        else
+            setNoValue(50);
         if (sellOrders.length > 0)
             setYesValue(sellOrders[0].price);
+        else
+            setYesValue(50);
         
     }, [orders]);
 
