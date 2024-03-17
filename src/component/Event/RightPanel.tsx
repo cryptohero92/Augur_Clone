@@ -330,22 +330,37 @@ export default function RightPanel() {
             signatureType: '0'
         };
 
+        const domain = [
+            { name: "name", type: "string" },
+            { name: "version", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+        ];
+        const order = [
+            {name: 'salt', type: 'uint256'},
+            {name: 'maker', type: 'address'},
+            {name: 'signer', type: 'address'},
+            {name: 'taker', type: 'address'},
+            {name: 'tokenId', type: 'uint256'},
+            {name: 'makerAmount', type: 'uint256'},
+            {name: 'takerAmount', type: 'uint256'},
+            {name: 'expiration', type: 'uint256'},
+            {name: 'nonce', type: 'uint256'},
+            {name: 'feeRateBps', type: 'uint256'},
+            {name: 'side', type: 'uint8'},
+            {name: 'signatureType', type: 'uint8'}
+        ];
+
         takerOrder.signature = await signTypedDataAsync({
             types: {
-                Order: [
-                    {name: 'salt', type: 'string'},
-                    {name: 'maker', type: 'address'},
-                    {name: 'signer', type: 'address'},
-                    {name: 'taker', type: 'address'},
-                    {name: 'tokenId', type: 'string'},
-                    {name: 'makerAmount', type: 'string'},
-                    {name: 'takerAmount', type: 'string'},
-                    {name: 'expiration', type: 'string'},
-                    {name: 'nonce', type: 'string'},
-                    {name: 'feeRateBps', type: 'string'},
-                    {name: 'side', type: 'string'},
-                    {name: 'signatureType', type: 'string'}
-                ]
+                EIP712Domain: domain,
+                Order: order
+            },
+            domain: { 
+                name: 'PLSpeak CTF Exchange', 
+                version: '1',
+                chainId: 11155111,
+                verifyingContract: CTFExchangeContract.address
             },
             primaryType: 'Order',
             message: takerOrder
@@ -353,8 +368,6 @@ export default function RightPanel() {
         takerOrder.bettingStyle = bettingStyle;
 
         const headers = { Authorization: `Bearer ${accessToken}` };
-        // we need to calculate takerFillAmount, makerFillAmounts and makerOrders here.
-
 
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders/match`, {takerOrder, makerOrders, takerFillAmount, makerFillAmounts}, { headers });
         dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
