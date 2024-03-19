@@ -248,7 +248,7 @@ export default function RightPanel() {
         } else { // limit
             collateralAmount = roundToTwo(shares * limitPrice / 100);
             conditionalTokenAmount = shares;
-            let remainingShares = shares;
+            let remainingShares = shares * 1000000;
             if (buyOrSell == BUY) {
                 const sortedOrders = _orders.filter(order => order.isBuy == false).sort((a, b) => a.price - b.price);
                 if (sortedOrders.length > 0) {
@@ -260,21 +260,21 @@ export default function RightPanel() {
                             makerOrders.push(order);
 
                             if (order.side == 0) { // buy complement, need to register collateral amount.    
-                                makerFillAmounts.push((100 - order.price) * order.shares);
+                                makerFillAmounts.push((100 - order.price) * order.shares / 100);
                             } else { // sell token
                                 makerFillAmounts.push(order.shares);
                             }
-                            takerFillAmount += order.price * order.shares;
+                            takerFillAmount += order.price * order.shares / 100;
                             remainingShares -= order.shares;
                         } else {
                             makerOrders.push(order);
 
                             if (order.side == 0) {
-                                makerFillAmounts.push((100 - order.price) * remainingShares);
+                                makerFillAmounts.push((100 - order.price) * remainingShares / 100);
                             } else {
                                 makerFillAmounts.push(remainingShares);
                             }
-                            takerFillAmount += order.price * remainingShares;
+                            takerFillAmount += order.price * remainingShares / 100;
                             remainingShares = 0;
                             break;
                         }
@@ -292,7 +292,7 @@ export default function RightPanel() {
                             makerOrders.push(order);
 
                             if (order.side == 0) { // buy token
-                                makerFillAmounts.push(order.price * order.shares);
+                                makerFillAmounts.push(order.price * order.shares / 100);
                             } else { // sell complement
                                 makerFillAmounts.push(order.shares);
                             }
@@ -301,7 +301,7 @@ export default function RightPanel() {
                             makerOrders.push(order);
 
                             if (order.side == 0) {
-                                makerFillAmounts.push(order.price * remainingShares);
+                                makerFillAmounts.push(order.price * remainingShares / 100);
                             } else {
                                 makerFillAmounts.push(remainingShares);
                             }
@@ -309,7 +309,7 @@ export default function RightPanel() {
                             break;
                         }
                     }
-                    takerFillAmount = shares - remainingShares;
+                    takerFillAmount = Math.floor(shares * 1000000 - remainingShares);
                 }
             }
         }
