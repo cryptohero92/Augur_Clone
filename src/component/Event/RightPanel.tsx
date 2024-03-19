@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { Box, Typography, Button, IconButton, Divider, Grid } from "@mui/material"
+import { Box, Typography, Button, IconButton, Divider, Grid, CircularProgress } from "@mui/material"
 import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
 import { readContracts } from "@wagmi/core";
@@ -51,6 +51,7 @@ export default function RightPanel() {
     const [limitPrice, setLimitPrice] = useState(0);
     const [shares, setShares] = useState(0);
     const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
+    const [isProgressing, setIsProgressing] = useState(false);
 
     // first, get yes and no token id based on bettingOption.
     // from bettionOption's ipfsUrl, can get bettingOption's yes and no token ids.
@@ -133,6 +134,7 @@ export default function RightPanel() {
 
     const claimCollateralForSelectedBettingOption = () => {
         if (selectedBettingOption) {
+            setIsProgressing(true);
             fetch(`${import.meta.env.VITE_BACKEND_URL}/events/claim`, {
                 body: JSON.stringify({
                   ipfsUrl: selectedBettingOption.ipfsUrl
@@ -153,12 +155,13 @@ export default function RightPanel() {
               // If yes, retrieve it. If no, create it.
               .then((response) => response.json())
               .then(({hash}) => {
-                debugger
                 console.log(`hash is ${hash}`)
+                setIsProgressing(false);
               })
               .catch(err => {
                 debugger
                 console.error(err);
+                setIsProgressing(false);
               });
         }
     }
@@ -199,7 +202,7 @@ export default function RightPanel() {
         let collateralAmount, conditionalTokenAmount; 
 
         let _yesOrders = orders.map(order => {
-            const { tokenId, makerAmount, takerAmount, status, side, bettingStyle } = order;
+            const { tokenId, makerAmount, takerAmount, status, side } = order;
             let price = side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount;
             let remaining = status.remaining == 0 ? makerAmount : status.remaining;
             let shares = side == 0 ? remaining * 100 / price : remaining;
@@ -427,8 +430,17 @@ export default function RightPanel() {
 
         const headers = { Authorization: `Bearer ${accessToken}` };
 
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders/match`, {takerOrder, makerOrders, takerFillAmount, makerFillAmounts}, { headers });
-        dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
+        // show waiting...
+        setIsProgressing(true);
+
+        try {
+            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders/match`, {takerOrder, makerOrders, takerFillAmount, makerFillAmounts}, { headers });
+            dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
+        } catch (err) {
+            console.error(err);
+        }
+        // hide waiting...
+        setIsProgressing(false);
     }
 
     const onYesButtonClicked = () => {
@@ -794,11 +806,14 @@ export default function RightPanel() {
                                         </Box>
 
                                         {accessToken != undefined && accessToken != '' ? (
-                                            <Button sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
+                                            <Button disabled={isProgressing} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
                                         ) : (
                                             <Login handleLoggedIn={handleLoggedIn} />
+                                        )}
+                                        {isProgressing && (
+                                            <CircularProgress />
                                         )}
 
                                         <Box sx={{display: 'flex', rowGap: '0.25rem', flexDirection: 'column'}}>
@@ -843,12 +858,16 @@ export default function RightPanel() {
                                             <Typography>Shares</Typography>
                                             <QuantityInput changeValue={handleSharesChange} />
                                         </Box>
+
                                         {accessToken != undefined && accessToken != '' ? (
-                                            <Button sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
+                                            <Button disabled={isProgressing} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
                                         ) : (
                                             <Login handleLoggedIn={handleLoggedIn} />
+                                        )}
+                                        {isProgressing && (
+                                            <CircularProgress />
                                         )}
 
                                         <Box sx={{display: 'flex', rowGap: '0.25rem', flexDirection: 'column'}}>
@@ -904,7 +923,7 @@ export default function RightPanel() {
                                         </Box>
                                         
                                         <Box>
-                                            <Button disabled={yesShares * (selectedBettingOption.result == 1 ? 1 : 0) + noShares * (selectedBettingOption.result == 2 ? 1 : 0) == 0} sx={styles.claimButton} onClick={claimCollateralForSelectedBettingOption}>Claim Winning</Button>
+                                            <Button disabled={yesShares * (selectedBettingOption.result == 1 ? 1 : 0) + noShares * (selectedBettingOption.result == 2 ? 1 : 0) == 0 || isProcessing} sx={styles.claimButton} onClick={claimCollateralForSelectedBettingOption}>Claim Winning</Button>
                                         </Box>
                                     </Box>
                                 </>
