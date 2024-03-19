@@ -216,7 +216,7 @@ export default function RightPanel() {
                 collateralAmount = estimatedAmountReceived;
                 conditionalTokenAmount = shares;
 
-                let remainingShares = shares;
+                let remainingShares = shares * 1000000;
                 const sortedOrders = _orders.filter(order => order.isBuy == true).sort((a, b) => a.price - b.price);
 
                 if (sortedOrders.length > 0) {
@@ -242,7 +242,7 @@ export default function RightPanel() {
                             break;
                         }
                     }
-                    takerFillAmount = shares - remainingShares;
+                    takerFillAmount = Math.floor(shares * 1000000 - remainingShares);
                 }
             }
         } else { // limit
@@ -519,11 +519,11 @@ export default function RightPanel() {
             }
         } else {
             avgValue = 1;
-            amountReceived = shares / 100;
+            amountReceived = shares;
         }
         
         setAvgValue(avgValue);
-        setEstimatedAmountReceived(amountReceived);
+        setEstimatedAmountReceived(amountReceived / 100);
     }, [shares]);
 
     useEffect(() => {
