@@ -96,6 +96,7 @@ export default function RightPanel() {
                 })
                 .catch(err => {
                     console.error(err);
+                    setYesShares(0);
                 });
 
                 fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
@@ -114,8 +115,8 @@ export default function RightPanel() {
                     setNoShares(Number(formatUnits(balance as BigNumberish, 6)));
                 })
                 .catch(err => {
-                    debugger
                     console.error(err);
+                    setNoShares(0);
                 });
             }
         }
