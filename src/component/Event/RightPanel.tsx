@@ -152,11 +152,12 @@ export default function RightPanel() {
               // If yes, retrieve it. If no, create it.
               .then((response) => response.json())
               .then(({hash}) => {
-                  debugger
-                  console.log(`hash is ${hash}`)
+                debugger
+                console.log(`hash is ${hash}`)
               })
               .catch(err => {
-                  console.error(err);
+                debugger
+                console.error(err);
               });
         }
     }
@@ -718,6 +719,10 @@ export default function RightPanel() {
             marginTop: '1rem',
             '&:hover': {
                 backgroundColor: '#6347d0'
+            },
+            '&.Mui-disabled': { // Add styles for the disabled state
+                backgroundColor: 'darkgray', // Change the background color for disabled state
+                cursor: 'not-allowed' // Change cursor style for disabled state
             }
         }
     };
@@ -898,7 +903,7 @@ export default function RightPanel() {
                                         </Box>
                                         
                                         <Box>
-                                            <Button sx={styles.claimButton} onClick={claimCollateralForSelectedBettingOption}>Claim Winning</Button>
+                                            <Button disabled={yesShares * (selectedBettingOption.result == 1 ? 1 : 0) + noShares * (selectedBettingOption.result == 2 ? 1 : 0) == 0} sx={styles.claimButton} onClick={claimCollateralForSelectedBettingOption}>Claim Winning</Button>
                                         </Box>
                                     </Box>
                                 </>
