@@ -85,7 +85,7 @@ export default function MyOrders({yesTokenId}: {yesTokenId: string}) {
                     <td>{order.side == 0 ? 'Buy' : 'Sell'}</td>
                     <td>{order.tokenId == yesTokenId ? 'Yes' : 'No'}</td>
                     <td>{roundToTwo(order.side == 0 ? order.makerAmount * 100 / order.takerAmount : order.takerAmount * 100 / order.makerAmount)}c</td>
-                    <td>{ getFilledAmount(order) }/{roundToTwo(Number(formatUnits(order.side == 0 ? order.takerAmount : order.makerAmount, 6)))}</td>
+                    <td>{ roundToTwo(getFilledAmount(order)) }/{roundToTwo(Number(formatUnits(order.side == 0 ? order.takerAmount : order.makerAmount, 6)))}</td>
                     <td>${roundToTwo(Number(formatUnits(order.side == 0 ? order.makerAmount : order.takerAmount, 6)))}</td>
                     <td onClick={() => cancelOrder(order._id)}>X</td>
                 </tr>

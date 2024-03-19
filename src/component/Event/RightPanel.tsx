@@ -678,8 +678,8 @@ export default function RightPanel() {
                                         </IconButton>
                                     </Box>
                                     <Box sx={{display: 'flex'}}>
-                                        <Button sx={styles.yesButton} onClick={() => onYesButtonClicked()}>Yes {yesValue}¢</Button>
-                                        <Button sx={styles.noButton} onClick={() => onNoButtonClicked()}>No {noValue}¢</Button>
+                                        <Button sx={styles.yesButton} onClick={() => onYesButtonClicked()}>Yes {roundToTwo(yesValue)}¢</Button>
+                                        <Button sx={styles.noButton} onClick={() => onNoButtonClicked()}>No {roundToTwo(noValue)}¢</Button>
                                     </Box>
                                     <Box sx={{display: 'flex'}}>
                                         <Box sx={{width: 1, color: 'green'}}>{roundToTwo(yesShares)} shares</Box>
