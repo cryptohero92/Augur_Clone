@@ -14,7 +14,7 @@ export const eventSlice = createSlice({
     updatePublishedEvent: (state, action) => {
       state.publishedEvents = [...state.publishedEvents.filter(event => {
         return action.payload.ipfsUrl != event.ipfsUrl
-      }), action.payload as PublishedEventInfo]
+      }), action.payload as PublishedEventInfo].sort((a, b) => a.indexInArray - b.indexInArray);
     },
     selectBettingOption:(state, action) => {
       state.selectedBettingOption = action.payload;

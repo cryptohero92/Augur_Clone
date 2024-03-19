@@ -42,9 +42,10 @@ useEffect(() => {
       functionName: 'getEventUrls',
     });
     if (eventUrls) {
-      (eventUrls as Array<any>).forEach(ipfsUrl => {
+      (eventUrls as Array<any>).forEach((ipfsUrl, indexInArray) => {
           let item: any = {
-            ipfsUrl
+            ipfsUrl,
+            indexInArray
           };
 
           fetch(`https://gateway.pinata.cloud/ipfs/${ipfsUrl}`)

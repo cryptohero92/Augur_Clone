@@ -29,6 +29,7 @@ export interface InputState {
 }
 
 export interface PublishedEventInfo {
+    indexInArray: number,
     ipfsUrl: string,
     title: string,
     detail: string,
