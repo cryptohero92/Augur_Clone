@@ -35,14 +35,11 @@ function inRange(num: number, min: number, max: number): boolean {
 }
 
 useEffect(() => {
-  async function getResult() {
-    const eventUrls = await readContract(config, {
-      abi: CTFExchangeContract.abi,
-      address: CTFExchangeContract.address as `0x${string}`,
-      functionName: 'getEventUrls',
-    });
-    if (eventUrls) {
-      (eventUrls as Array<any>).forEach((ipfsUrl, indexInArray) => {
+  function getResult() {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/events/publishedUrls`)
+      .then(response => response.json())
+      .then(({eventUrls}) => {
+        (eventUrls as Array<any>).forEach((ipfsUrl, indexInArray) => {
           let item: any = {
             ipfsUrl,
             indexInArray
@@ -96,8 +93,12 @@ useEffect(() => {
             .catch(err => {
               console.error(err);
             })
-      });
-    }
+        });
+      })
+      .catch(err => {
+        debugger
+        console.error(err);
+      })
   } 
   getResult();
 }, [])

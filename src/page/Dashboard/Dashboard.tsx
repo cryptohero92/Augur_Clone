@@ -40,69 +40,70 @@ export default function Dashboard() {
         updatePublishedEventList();
     }
 
-    async function updatePublishedEventList() {
-        const eventUrls = await readContract(config, {
-          abi: CTFExchangeContract.abi,
-          address: CTFExchangeContract.address as `0x${string}`,
-          functionName: 'getEventUrls',
-        });
-        if (eventUrls) {
-          (eventUrls as Array<any>).forEach((ipfsUrl, indexInArray) => {
-              let item: any = {
-                ipfsUrl,
-                indexInArray
-              };
+    function updatePublishedEventList() {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/events/publishedUrls`)
+            .then(response => response.json())
+            .then(({eventUrls}) => {
+                (eventUrls as Array<any>).forEach((ipfsUrl, indexInArray) => {
+                  let item: any = {
+                    ipfsUrl,
+                    indexInArray
+                  };
 
-              fetch(`https://gateway.pinata.cloud/ipfs/${ipfsUrl}`)
-                .then((response) => response.json())
-                .then(eventInfo => {
-                  item.title = eventInfo.title
-                  item.detail = eventInfo.detail
-                  item.image = eventInfo.image
-                  item.category = eventInfo.category
-                  item.endDate = eventInfo.endDate
-                  let promises = [];
-                  for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
-                    const contractPromise = readContracts(config, {
-                      contracts: [
-                        {
-                          abi: CTFExchangeContract.abi,
-                          address: CTFExchangeContract.address as `0x${string}`,
-                          functionName: 'getBetAmountOfBettingOption',
-                          args: [eventInfo.bettingOptions[i]] 
-                        },
-                        {
-                          abi: CTFExchangeContract.abi,
-                          address: CTFExchangeContract.address as `0x${string}`,
-                          functionName: 'getResultOfBettingOption',
-                          args: [eventInfo.bettingOptions[i]]
-                        }
-                      ]                  
-                    }).then(res => ({
-                      ipfsUrl: eventInfo.bettingOptions[i],
-                      bet: Number(formatUnits(res[0].result as BigNumberish, 6)),
-                      result: Number(res[1].result)
-                    }))
+                  fetch(`https://gateway.pinata.cloud/ipfs/${ipfsUrl}`)
+                    .then((response) => response.json())
+                    .then(eventInfo => {
+                      item.title = eventInfo.title
+                      item.detail = eventInfo.detail
+                      item.image = eventInfo.image
+                      item.category = eventInfo.category
+                      item.endDate = eventInfo.endDate
+                      let promises = [];
+                      for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
+                        const contractPromise = readContracts(config, {
+                          contracts: [
+                            {
+                              abi: CTFExchangeContract.abi,
+                              address: CTFExchangeContract.address as `0x${string}`,
+                              functionName: 'getBetAmountOfBettingOption',
+                              args: [eventInfo.bettingOptions[i]] 
+                            },
+                            {
+                              abi: CTFExchangeContract.abi,
+                              address: CTFExchangeContract.address as `0x${string}`,
+                              functionName: 'getResultOfBettingOption',
+                              args: [eventInfo.bettingOptions[i]]
+                            }
+                          ]                  
+                        }).then(res => ({
+                          ipfsUrl: eventInfo.bettingOptions[i],
+                          bet: Number(formatUnits(res[0].result as BigNumberish, 6)),
+                          result: Number(res[1].result)
+                        }))
 
-                    const ipfsPromise = fetch(`https://gateway.pinata.cloud/ipfs/${eventInfo.bettingOptions[i]}`).then((response) => response.json()).then(optionInfo => ({
-                      title: optionInfo.title,
-                      image: optionInfo.image
-                    }));
+                        const ipfsPromise = fetch(`https://gateway.pinata.cloud/ipfs/${eventInfo.bettingOptions[i]}`).then((response) => response.json()).then(optionInfo => ({
+                          title: optionInfo.title,
+                          image: optionInfo.image
+                        }));
 
-                    promises.push(Promise.all([contractPromise, ipfsPromise])
-                      .then((results) => (Object.assign({}, ...results)))) 
-                  }
-                  Promise.all(promises)
-                    .then(bettingOptions => {
-                      item.bettingOptions = bettingOptions;
-                      dispatch(updatePublishedEvent(item as PublishedEventInfo))
+                        promises.push(Promise.all([contractPromise, ipfsPromise])
+                          .then((results) => (Object.assign({}, ...results)))) 
+                      }
+                      Promise.all(promises)
+                        .then(bettingOptions => {
+                          item.bettingOptions = bettingOptions;
+                          dispatch(updatePublishedEvent(item as PublishedEventInfo))
+                        })
                     })
-                })
-                .catch(err => {
-                  console.error(err);
-                })
-          });
-        }
+                    .catch(err => {
+                      console.error(err);
+                    })
+              });
+            })
+            .catch(err => {
+                debugger
+                console.error(err);
+            })
     }
 
     useEffect(() => {
