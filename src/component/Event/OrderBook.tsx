@@ -56,7 +56,7 @@ export default function OrderBook({yesTokenId, noTokenId}: {yesTokenId: string, 
     }
     let _yesOrders = orders.map(order => {
       const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
-      let price = bettingStyle == 'LIMITED' ? (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount) : (status.remaining > 0 && status.remaining < takerAmount ? (side == 0 ? 99.9 : 0.1) : (side == 0 ? makerAmount * 100 / takerAmount : takerAmount * 100 / makerAmount));
+      let price = (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount);
       let remaining = Number(formatUnits(status.remaining == 0 ? makerAmount : status.remaining, 6));
       let shares = side == 0 ? remaining * 100 / price : remaining;
       

@@ -121,7 +121,6 @@ export default function EventCreate() {
         if (handleValidate(inputs)) {
             setStatus(Status.LOADING);
             let image = inputs.image;
-            debugger
             if (imgFile) {
                 image = await uploadImage(imgFile);
             }
@@ -142,7 +141,6 @@ export default function EventCreate() {
                 method: 'POST',
             })
                 .then((response) => {
-                    debugger
                     if (response.status != 200) {
                         throw new Error('withdraw failed')
                     } else {
@@ -151,7 +149,6 @@ export default function EventCreate() {
                     }
                 })
                 .catch(err => {
-                    debugger
                     setStatus(Status.HAVERESULT)
                     setResult(Result.FAILURE)
                     console.error(err)
