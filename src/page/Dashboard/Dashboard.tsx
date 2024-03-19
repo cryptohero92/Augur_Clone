@@ -17,6 +17,7 @@ export default function Dashboard() {
     // first need to get all events. these events are from mongodb.
     const dispatch = useDispatch();
     const [events, setEvents] = useState([])
+    const [affairs, setAffairs] = useState([])
     const { publishedEvents } = useSelector((state: RootState) => state.eventKey)
 
     const getAllEvents = () => {
@@ -111,6 +112,10 @@ export default function Dashboard() {
         updatePublishedEventList();
     }, [])
 
+    useEffect(() => {
+        setAffairs(publishedEvents.filter(event => event.bettingOptions.reduce((resolved, item) => resolved * item.result, 1) == 0));
+    }, [publishedEvents])
+
     return (
         <Box>
             <Box>
@@ -156,11 +161,11 @@ export default function Dashboard() {
                 sx={{ flexGrow: 1 }}
             >
                 
-                {publishedEvents.length == 0 ? (
+                {affairs.length == 0 ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}><Typography>No Published Events</Typography></Box>
                 ): (
                     <Grid container spacing={2} sx={{p: 2}}>
-                        {publishedEvents.map((event, index) => (
+                        {affairs.map((event, index) => (
                             <Grid item key={index} xs={12} sm={6} lg={4} xl={3}>
                                 <EventReporter event={event} />
                             </Grid>
