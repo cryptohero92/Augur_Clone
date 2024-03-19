@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { Box, Typography, Button, IconButton } from "@mui/material"
+import { Box, Typography, Button, IconButton, Divider, Grid } from "@mui/material"
 import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
 import { readContracts } from "@wagmi/core";
@@ -650,8 +650,34 @@ export default function RightPanel() {
             alignItems: 'center',
             gap: '1.5rem',
             color: 'rgb(25, 118, 210)'
+        },
+        claimBox: {
+            padding: '1.5rem'
+        },
+        claimButton: {
+            color: 'white',
+            backgroundColor: 'blue',
+            borderRadius: '5px',
+            width: 1,
+            marginTop: '1rem',
+            '&:hover': {
+                backgroundColor: '#6347d0'
+            }
         }
     };
+
+    function renderLeftRightOneLine(leftText, rightText) {
+        return (
+          <Grid container justifyContent="space-between">
+            <Grid item>
+              <Typography variant="body1">{leftText}</Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="body1">{rightText}</Typography>
+            </Grid>
+          </Grid>
+        );
+      }
 
     return (
         <Box sx={styles.panel}>
@@ -789,10 +815,29 @@ export default function RightPanel() {
                             </Box>
                         </>
                     ) : (
-                        <Box sx={styles.checkCircleIconBox}>
-                            <CheckCircleIcon/>
-                            <Typography>Outcome: {selectedBettingOption.result == 1 ? "Yes" : "No" }</Typography>
+                        <Box>
+                            <Box sx={styles.checkCircleIconBox}>
+                                <CheckCircleIcon/>
+                                <Typography>Outcome: {selectedBettingOption.result == 1 ? "Yes" : "No" }</Typography>
+                            </Box>
+                            {accessToken != undefined && accessToken != '' && (
+                                <>
+                                    <Divider />
+                                    <Box sx={styles.claimBox}>
+                                        <Box sx={{textAlign: 'center'}}>Your Earning</Box>
+                                        <Box>
+                                            <Box>{renderLeftRightOneLine("Position", "10.00 Yes")}</Box>
+                                            <Box>{renderLeftRightOneLine("Value per Share", "$0.00")}</Box>
+                                            <Box>{renderLeftRightOneLine("Total", "$0.00")}</Box>
+                                        </Box>
+                                        <Box>
+                                            <Button sx={styles.claimButton}>Claim Winning</Button>
+                                        </Box>
+                                    </Box>
+                                </>
+                            )}
                         </Box>
+                        
                     )
                 ) : (
                     <>
