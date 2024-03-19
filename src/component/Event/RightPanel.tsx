@@ -826,10 +826,21 @@ export default function RightPanel() {
                                     <Box sx={styles.claimBox}>
                                         <Box sx={{textAlign: 'center'}}>Your Earning</Box>
                                         <Box>
-                                            <Box>{renderLeftRightOneLine("Position", "10.00 Yes")}</Box>
-                                            <Box>{renderLeftRightOneLine("Value per Share", "$0.00")}</Box>
-                                            <Box>{renderLeftRightOneLine("Total", "$0.00")}</Box>
+                                            {yesShares > 0 && (
+                                                <>
+                                                    <Box>{renderLeftRightOneLine("Position", `${yesShares} Yes`)}</Box>
+                                                    <Box>{renderLeftRightOneLine("Value per Share", selectedBettingOption.result == 1 ? "$1.00" : "$0.00")}</Box>
+                                                </>
+                                            )}
+                                            {noShares > 0 && (
+                                                <>
+                                                    <Box>{renderLeftRightOneLine("Position", `${noShares} No`)}</Box>
+                                                    <Box>{renderLeftRightOneLine("Value per Share", selectedBettingOption.result == 2 ? "$1.00" : "$0.00")}</Box>
+                                                </>
+                                            )}
+                                            <Box>{renderLeftRightOneLine("Total", `${yesShares * (selectedBettingOption.result == 1 ? 1 : 0) + noShares * (selectedBettingOption.result == 2 ? 1 : 0)}`)}</Box>
                                         </Box>
+                                        
                                         <Box>
                                             <Button sx={styles.claimButton}>Claim Winning</Button>
                                         </Box>
