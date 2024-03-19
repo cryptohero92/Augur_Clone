@@ -52,24 +52,27 @@ function BettingOption({bettingOption, setBettingOptionResult}: any) {
       )
     } else {
       return (
-        <Box sx={{display: 'flex'}}>
-          <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            name="radio-buttons-group"
-            onChange={(event) => setResultOption(event.target.value)}
-            value={resultOption}
-            row
-          >
-            <FormControlLabel value="1" control={<Radio />} label="YES" />
-            <FormControlLabel value="2" control={<Radio />} label="NO" />
-          </RadioGroup>
-          <Button
-            sx={{background: 'green', color: 'white'}}
-            onClick={reportResult}
-          >
-            Set Result
-          </Button>
-        </Box>
+        <Box>
+          <Typography>Set Result of Event</Typography>
+          <Box sx={{display: 'flex'}}>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              name="radio-buttons-group"
+              onChange={(event) => setResultOption(event.target.value)}
+              value={resultOption}
+              row
+            >
+              <FormControlLabel value="1" control={<Radio />} label="YES" />
+              <FormControlLabel value="2" control={<Radio />} label="NO" />
+            </RadioGroup>
+            <Button
+              sx={{background: 'green', color: 'white'}}
+              onClick={reportResult}
+            >
+              Set Result
+            </Button>
+          </Box>
+        </Box>        
       )
     }  
   }
@@ -83,7 +86,7 @@ function BettingOption({bettingOption, setBettingOptionResult}: any) {
         />
         <Typography>{bettingOption.title}</Typography>
       </>) : (<>
-        Set Result of Event
+        
       </>) }
       { renderResultPart() }
     </Box>
