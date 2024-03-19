@@ -226,17 +226,17 @@ export default function RightPanel() {
                             makerOrders.push(order);
 
                             if (order.side == 0) { // if buy order, then put collateral amount
-                                makerFillAmounts.push(order.price * order.shares);
+                                makerFillAmounts.push(Math.floor(order.price * order.shares));
                             } else { // if sell order, then put complement 
-                                makerFillAmounts.push(order.shares);
+                                makerFillAmounts.push(Math.floor(order.shares));
                             }
                             remainingShares -= order.shares;
                         } else {
                             makerOrders.push(order);
                             if (order.side == 0) {
-                                makerFillAmounts.push(order.price * remainingShares);
+                                makerFillAmounts.push(Math.floor(order.price * remainingShares));
                             } else {
-                                makerFillAmounts.push(remainingShares);
+                                makerFillAmounts.push(Math.floor(remainingShares));
                             }
                             remainingShares = 0;
                             break;
@@ -260,21 +260,21 @@ export default function RightPanel() {
                             makerOrders.push(order);
 
                             if (order.side == 0) { // buy complement, need to register collateral amount.    
-                                makerFillAmounts.push((100 - order.price) * order.shares / 100);
+                                makerFillAmounts.push(Math.floor((100 - order.price) * order.shares / 100));
                             } else { // sell token
-                                makerFillAmounts.push(order.shares);
+                                makerFillAmounts.push(Math.floor(order.shares));
                             }
-                            takerFillAmount += order.price * order.shares / 100;
+                            takerFillAmount += Math.floor(order.price * order.shares / 100);
                             remainingShares -= order.shares;
                         } else {
                             makerOrders.push(order);
 
                             if (order.side == 0) {
-                                makerFillAmounts.push((100 - order.price) * remainingShares / 100);
+                                makerFillAmounts.push(Math.floor((100 - order.price) * remainingShares / 100));
                             } else {
-                                makerFillAmounts.push(remainingShares);
+                                makerFillAmounts.push(Math.floor(remainingShares));
                             }
-                            takerFillAmount += order.price * remainingShares / 100;
+                            takerFillAmount += Math.floor(order.price * remainingShares / 100);
                             remainingShares = 0;
                             break;
                         }
@@ -292,18 +292,18 @@ export default function RightPanel() {
                             makerOrders.push(order);
 
                             if (order.side == 0) { // buy token
-                                makerFillAmounts.push(order.price * order.shares / 100);
+                                makerFillAmounts.push(Math.floor(order.price * order.shares / 100));
                             } else { // sell complement
-                                makerFillAmounts.push(order.shares);
+                                makerFillAmounts.push(Math.floor(order.shares));
                             }
                             remainingShares -= order.shares;
                         } else {
                             makerOrders.push(order);
 
                             if (order.side == 0) {
-                                makerFillAmounts.push(order.price * remainingShares / 100);
+                                makerFillAmounts.push(Math.floor(order.price * remainingShares / 100));
                             } else {
-                                makerFillAmounts.push(remainingShares);
+                                makerFillAmounts.push(Math.floor(remainingShares));
                             }
                             remainingShares = 0;
                             break;
