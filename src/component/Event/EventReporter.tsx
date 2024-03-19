@@ -18,7 +18,7 @@ export default function EventReporter({event}: {event: PublishedEventInfo}) {
                 </Typography>
             </Box>
             <Link to={`/dashboard/report/${event.ipfsUrl}`} style={{textDecoration: 'none'}}>
-                Report
+                View
             </Link>
         </Box>        
     )

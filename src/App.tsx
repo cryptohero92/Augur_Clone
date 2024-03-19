@@ -21,6 +21,7 @@ import { RootState } from './app/store';
 import Dashboard from './page/Dashboard/Dashboard';
 import EventCreatePage from './page/EventPage/EventCreatePage';
 import EventEditPage from './page/EventPage/EventEditPage';
+import EventReportPage from './page/EventPage/EventReportPage';
 import Markets from './page/Market/Market';
 import EventView from './page/EventPage/EventViewPage';
 
@@ -97,6 +98,7 @@ function App() {
         <Route path="dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
         <Route path="dashboard/create" element={<AdminRoute><EventCreatePage /></AdminRoute>} />
         <Route path="dashboard/update/:eventID" element={<AdminRoute><EventEditPage /></AdminRoute>} />
+        <Route path="dashboard/report/:ipfsUrl" element={<AdminRoute><EventReportPage /></AdminRoute>} />
       </Routes>
       <ToastContainer 
         position="top-right"

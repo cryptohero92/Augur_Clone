@@ -9,7 +9,7 @@ import { readContracts } from '@wagmi/core'
 import { config } from "../../wagmi"
 import { BigNumberish, formatUnits } from 'ethers'
 
-export default function EventView() {
+export default function EventReport() {
     const { ipfsUrl } = useParams(); 
 
     const [eventInfo,setEventInfo] = useState(null);
