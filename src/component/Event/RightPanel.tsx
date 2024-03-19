@@ -105,6 +105,37 @@ export default function RightPanel() {
         setAccessToken(accessToken);
     };
 
+    const claimCollateralForSelectedBettingOption = () => {
+        if (selectedBettingOption) {
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/events/claim`, {
+                body: JSON.stringify({
+                  ipfsUrl: selectedBettingOption.ipfsUrl
+                }),
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                  'Content-Type': 'application/json',
+                },
+                method: 'POST'
+              })
+              .then((response) => {
+                  if (response.status != 200) {
+                      throw new Error('Error happened')
+                  } else {
+                      return response.json()
+                  }
+              })
+              // If yes, retrieve it. If no, create it.
+              .then((response) => response.json())
+              .then(({hash}) => {
+                  debugger
+                  console.log(`hash is ${hash}`)
+              })
+              .catch(err => {
+                  console.error(err);
+              });
+        }
+    }
+
     const fetchBalance = (address: string) => {
         if (address && address != '') {
           fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/balance/${address}`)
@@ -842,7 +873,7 @@ export default function RightPanel() {
                                         </Box>
                                         
                                         <Box>
-                                            <Button sx={styles.claimButton}>Claim Winning</Button>
+                                            <Button sx={styles.claimButton} onClick={claimCollateralForSelectedBettingOption}>Claim Winning</Button>
                                         </Box>
                                     </Box>
                                 </>
