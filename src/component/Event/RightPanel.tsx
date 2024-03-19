@@ -50,6 +50,7 @@ export default function RightPanel() {
     const [estimatedAmountReceived, setEstimatedAmountReceived] = useState(0);
     const [limitPrice, setLimitPrice] = useState(0);
     const [shares, setShares] = useState(0);
+    const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
 
     // first, get yes and no token id based on bettingOption.
     // from bettionOption's ipfsUrl, can get bettingOption's yes and no token ids.
@@ -72,25 +73,49 @@ export default function RightPanel() {
                         address: CTFExchangeContract.address as `0x${string}`,
                         functionName: 'getTokenIdFrom',
                         args: [selectedBettingOption.ipfsUrl, false]
-                    },
-                    {
-                        abi: CTFExchangeContract.abi,
-                        address: CTFExchangeContract.address as `0x${string}`,
-                        functionName: 'getConditionalTokenBalanceOf',
-                        args: [correspondingAddress, selectedBettingOption.ipfsUrl, true]
-                    },
-                    {
-                        abi: CTFExchangeContract.abi,
-                        address: CTFExchangeContract.address as `0x${string}`,
-                        functionName: 'getConditionalTokenBalanceOf',
-                        args: [correspondingAddress, selectedBettingOption.ipfsUrl, false]
                     }
                   ]                  
                 }).then(res => {
                     setYesTokenId(res[0].result.toString());
                     setNoTokenId(res[1].result.toString());
-                    setYesShares(Number(formatUnits(res[2].result as BigNumberish, 6)));
-                    setNoShares(Number(formatUnits(res[3].result as BigNumberish, 6)));
+                });
+                fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
+                    body: JSON.stringify({
+                        ipfsUrl: selectedBettingOption.ipfsUrl,
+                        isYes: true
+                    }),
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    method: 'POST'
+                })
+                .then((response) => response.json())
+                .then(({balance}) => {
+                    setYesShares(Number(formatUnits(balance as BigNumberish, 6)));
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+
+                fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
+                    body: JSON.stringify({
+                        ipfsUrl: selectedBettingOption.ipfsUrl,
+                        isYes: false
+                    }),
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    method: 'POST'
+                })
+                .then((response) => response.json())
+                .then(({balance}) => {
+                    setNoShares(Number(formatUnits(balance as BigNumberish, 6)));
+                })
+                .catch(err => {
+                    debugger
+                    console.error(err);
                 });
             }
         }
@@ -98,7 +123,7 @@ export default function RightPanel() {
         
     }, [selectedBettingOption, currentMoney]);
 
-    const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
+    
     const handleLoggedIn = (auth: Auth) => {
         console.log(auth)
         const { accessToken } = auth;

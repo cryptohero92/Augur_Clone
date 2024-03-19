@@ -184,7 +184,7 @@ export default function OrderBook({yesTokenId, noTokenId}: {yesTokenId: string, 
           
           <hr/>
           <div >
-            <div>Spread: {spread}c</div>
+            <div>Spread: {roundToTwo(spread)}c</div>
           </div>
           <hr/>
           <Box sx={{backgroundColor: '#27ae60'}}>
