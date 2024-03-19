@@ -29,5 +29,5 @@ export const mergeElements = (arr: any[]) => {
   }
 
 export function roundToTwo(num: number) {
-  return +(Math.round(Number(num + "e+2"))  + "e-2");
+  return Number(num.toFixed(2));
 }
