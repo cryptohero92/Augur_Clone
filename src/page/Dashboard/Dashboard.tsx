@@ -113,7 +113,8 @@ export default function Dashboard() {
     }, [])
 
     useEffect(() => {
-        setAffairs(publishedEvents.filter(event => event.bettingOptions.reduce((resolved, item) => resolved * item.result, 1) == 0));
+        // setAffairs(publishedEvents.filter(event => event.bettingOptions.reduce((resolved, item) => resolved * item.result, 1) == 0));
+        setAffairs(publishedEvents);
     }, [publishedEvents])
 
     return (

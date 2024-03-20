@@ -5,14 +5,16 @@ import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/pap
 import { readContracts } from '@wagmi/core'
 import { config } from "../../wagmi"
 import { BigNumberish, formatUnits } from 'ethers'
-import { Box, Typography, CardMedia, Button, RadioGroup, Radio, FormControlLabel } from "@mui/material"
+import { Box, Typography, CardMedia, Button, RadioGroup, Radio, FormControlLabel, CircularProgress } from "@mui/material"
 import { useLocalStorage } from "usehooks-ts";
 
 function BettingOption({bettingOption, setBettingOptionResult}: any) {
   const [resultOption, setResultOption] = useState(0);
   const [accessToken] = useLocalStorage<string>('accessToken', '')
+  const [isProgressing, setIsProgressing] = useState(false);
 
   const reportResult = () => {
+    setIsProgressing(true)
     fetch(`${import.meta.env.VITE_BACKEND_URL}/events/report`, {
       body: JSON.stringify({
         ipfsUrl: bettingOption.ipfsUrl,
@@ -35,8 +37,10 @@ function BettingOption({bettingOption, setBettingOptionResult}: any) {
     .then((res) => {
         debugger
         setBettingOptionResult({ipfsUrl: bettingOption.ipfsUrl, result: res.result});
+        setIsProgressing(false)
     })
     .catch(err => {
+        setIsProgressing(false)
         console.error(err);
     });
   }
@@ -66,11 +70,13 @@ function BettingOption({bettingOption, setBettingOptionResult}: any) {
               <FormControlLabel value="2" control={<Radio />} label="NO" />
             </RadioGroup>
             <Button
+              disabled={isProgressing}
               sx={{background: 'green', color: 'white'}}
               onClick={reportResult}
             >
               Set Result
             </Button>
+            { isProgressing && (<CircularProgress />)}
           </Box>
         </Box>        
       )

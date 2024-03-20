@@ -923,7 +923,8 @@ export default function RightPanel() {
                                         </Box>
                                         
                                         <Box>
-                                            <Button disabled={yesShares * (selectedBettingOption.result == 1 ? 1 : 0) + noShares * (selectedBettingOption.result == 2 ? 1 : 0) == 0 || isProcessing} sx={styles.claimButton} onClick={claimCollateralForSelectedBettingOption}>Claim Winning</Button>
+                                            <Button disabled={yesShares * (selectedBettingOption.result == 1 ? 1 : 0) + noShares * (selectedBettingOption.result == 2 ? 1 : 0) == 0 || isProgressing} sx={styles.claimButton} onClick={claimCollateralForSelectedBettingOption}>Claim Winning</Button>
+                                            {isProgressing && (<CircularProgress />)}
                                         </Box>
                                     </Box>
                                 </>
