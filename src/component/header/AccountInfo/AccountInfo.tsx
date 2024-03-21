@@ -4,6 +4,7 @@ import { Box, Button, Menu, MenuItem } from '@mui/material';
 import { useLocalStorage } from 'usehooks-ts';
 import { RootState } from '../../../app/store';
 import { useSelector } from 'react-redux';
+import { roundToTwo } from '../../../app/constant';
 
 interface Props {
 	handleLogout: () => void
@@ -36,7 +37,7 @@ export const AccountInfo = ({handleLogout} : Props) : JSX.Element => {
 	return (
 		<div className="Account">
 			<Box>
-				Balance: ${currentMoney}
+				Balance: ${roundToTwo(currentMoney)}
 			</Box>
 			<Button
 				id="basic-button"

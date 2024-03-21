@@ -4,11 +4,12 @@ import Header from "./component/header/Index"
 import Home from "./page/Home"
 import Money from "./page/Money/Money"
 import ProtectedRoute from "./feature/protectedRoute";
+import AdminRoute from "./feature/adminRoute";
 import { ToastContainer } from 'react-toastify';
 import { useWatchContractEvent } from 'wagmi';
 
 import 'react-toastify/dist/ReactToastify.css';
-import CoastToken from './artifacts/contracts/sepolia/CST.json'
+import CoastToken from "../../backend/src/artifacts/contracts/papaya/CST.json";
 import { useLocalStorage } from 'usehooks-ts';
 import { useEffect } from 'react';
 import { JwtDecoded } from './types';
@@ -17,6 +18,12 @@ import { formatUnits } from 'ethers';
 import { useDispatch, useSelector } from "react-redux";
 import { setUserInfo } from './feature/slices/userSlice';
 import { RootState } from './app/store';
+import Dashboard from './page/Dashboard/Dashboard';
+import EventCreatePage from './page/EventPage/EventCreatePage';
+import EventEditPage from './page/EventPage/EventEditPage';
+import EventReportPage from './page/EventPage/EventReportPage';
+import Markets from './page/Market/Market';
+import EventView from './page/EventPage/EventViewPage';
 
 function App() {
   const dispatch = useDispatch();
@@ -42,18 +49,20 @@ function App() {
   }
 
   useEffect(() => {
-    if (accessToken == '') {
-      dispatch(setUserInfo({id: 0, correspondingAddress: ''}));
+    if (accessToken == undefined || accessToken == '') {
+      dispatch(setUserInfo({id: '', publicAddress: '', correspondingAddress: '', isAdmin: false}));
     }
     else if (accessToken != '' && accessToken != previousToken) {
       previousToken = accessToken;
       const {
 				payload: {
 					id,
-					correspondingAddress
+          publicAddress,
+					correspondingAddress,
+          isAdmin
 				}
 			} = jwtDecode<JwtDecoded>(accessToken)
-      dispatch(setUserInfo({id: Number(id), correspondingAddress}));
+      dispatch(setUserInfo({id, publicAddress, correspondingAddress, isAdmin}));
     }
   }, [accessToken])
 
@@ -68,7 +77,7 @@ function App() {
     onLogs(logs) {
       try {
         const { from, to } = (logs[0] as any).args;
-        if(from == correspondingAddress || to == correspondingAddress) {
+        if(from.toLowerCase() == correspondingAddress.toLowerCase() || to.toLowerCase() == correspondingAddress.toLowerCase()) {
           fetchBalance(correspondingAddress)
         }
       } catch (err) {
@@ -84,6 +93,12 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="money" element={<ProtectedRoute><Money /></ProtectedRoute>} />
+        <Route path="markets" element={<Markets />} />
+        <Route path="event/:ipfsUrl" element={<EventView />} />
+        <Route path="dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
+        <Route path="dashboard/create" element={<AdminRoute><EventCreatePage /></AdminRoute>} />
+        <Route path="dashboard/update/:eventID" element={<AdminRoute><EventEditPage /></AdminRoute>} />
+        <Route path="dashboard/report/:ipfsUrl" element={<AdminRoute><EventReportPage /></AdminRoute>} />
       </Routes>
       <ToastContainer 
         position="top-right"

@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { UserInfo } from "../../types";
 
-
 const initialState: UserInfo = {
-    id: 0,
-    correspondingAddress: ''
+    id: '',
+    publicAddress: '',
+    correspondingAddress: '',
+    isAdmin: false
 };
 
 const userSlice = createSlice({
@@ -13,7 +14,9 @@ const userSlice = createSlice({
     reducers: {
         setUserInfo: (state, action) => {
             state.id = action.payload.id;
+            state.publicAddress = action.payload.publicAddress
             state.correspondingAddress = action.payload.correspondingAddress
+            state.isAdmin = action.payload.isAdmin
         }
     }
 });
