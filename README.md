@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">Polymarket Clone</h1>
+  <h1 align="center">Augur Clone</h1>
 </p>
 
 ## About The Project
