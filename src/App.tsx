@@ -9,7 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import { useWatchContractEvent } from 'wagmi';
 
 import 'react-toastify/dist/ReactToastify.css';
-import CoastToken from "../../backend/src/artifacts/contracts/papaya/CST.json";
+import CoastToken from "../../backend/src/artifacts/contracts/sepolia/CST.json";
 import { useLocalStorage } from 'usehooks-ts';
 import { useEffect } from 'react';
 import { JwtDecoded } from './types';
@@ -24,6 +24,7 @@ import EventEditPage from './page/EventPage/EventEditPage';
 import EventReportPage from './page/EventPage/EventReportPage';
 import Markets from './page/Market/Market';
 import EventView from './page/EventPage/EventViewPage';
+import socket from "./app/socket";
 
 function App() {
   const dispatch = useDispatch();
@@ -65,6 +66,32 @@ function App() {
       dispatch(setUserInfo({id, publicAddress, correspondingAddress, isAdmin}));
     }
   }, [accessToken])
+
+  const onOrderCreated = (data) => {
+    debugger
+    console.log(`Order Created....`)
+  }
+
+  const onOrderUpdated = (data) => {
+    console.log(`Order Updated....`)
+  }
+
+  const onOrderRemoved = (data) => {
+    console.log(`Order Deleted....`)
+  }
+
+  useEffect(() => {
+    if (socket) {
+        socket.on('Order created', onOrderCreated);
+        socket.on('Order updated', onOrderUpdated);
+        socket.on('Order deleted', onOrderRemoved);
+    }
+    return () => {
+        socket.off('Order created', onOrderCreated);
+        socket.off('Order updated', onOrderUpdated);
+        socket.off('Order deleted', onOrderRemoved);
+    }
+}, [socket]);
 
   useEffect(() => {
 		fetchBalance(correspondingAddress)

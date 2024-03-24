@@ -9,7 +9,7 @@ import EventReporter from "../../component/Event/EventReporter";
 import { updatePublishedEvent } from "../../feature/slices/eventSlice";
 import { RootState } from "../../app/store";
 import { config } from "../../wagmi";
-import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/papaya/CTFExchangeContract.json"
+import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/sepolia/CTFExchangeContract.json"
 import { BigNumberish, formatUnits } from 'ethers'
 import { PublishedEventInfo } from "../../types";
 

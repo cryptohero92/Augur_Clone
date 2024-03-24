@@ -19,7 +19,7 @@ import { RootState } from "../../app/store";
 import { fetchOrders } from "../../feature/slices/orderSlice";
 import { BettingOptionInfo, OrderInfo, PublishedEventInfo } from "../../types";
 import { readContracts } from "@wagmi/core";
-import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/papaya/CTFExchangeContract.json"
+import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/sepolia/CTFExchangeContract.json"
 import { config } from "../../wagmi";
 
 function CustomTabPanel(props) {
