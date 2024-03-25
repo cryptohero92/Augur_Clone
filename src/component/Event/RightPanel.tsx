@@ -55,7 +55,7 @@ export default function RightPanel() {
 
     useEffect(() => {
         async function getResult() {
-            if (selectedBettingOption) {
+            if (selectedBettingOption && accessToken != '') {
                 // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
                 fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
                     body: JSON.stringify({
@@ -96,11 +96,14 @@ export default function RightPanel() {
                     console.error(err);
                     setNoShares(0);
                 });
+            } else {
+                setYesShares(0);
+                setNoShares(0);
             }
         }
         getResult();
         
-    }, [selectedBettingOption, currentMoney]);
+    }, [selectedBettingOption, accessToken]);
 
     
     const handleLoggedIn = (auth: Auth) => {
@@ -355,7 +358,7 @@ export default function RightPanel() {
 
         if (!selectedBettingOption)
             return;
-        let takerOrder = {
+        let takerOrder: any = {
             salt: `${generateRandomSalt()}`,
             maker: correspondingAddress as `0x${string}`,
             signer: signerAddress || publicAddress as `0x${string}`,
@@ -370,13 +373,13 @@ export default function RightPanel() {
             signatureType: '0'
         };
 
-        const domain = [
+        const domainType = [
             { name: "name", type: "string" },
             { name: "version", type: "string" },
             { name: "chainId", type: "uint256" },
             { name: "verifyingContract", type: "address" },
         ];
-        const order = [
+        const orderType = [
             {name: 'salt', type: 'uint256'},
             {name: 'maker', type: 'address'},
             {name: 'signer', type: 'address'},
@@ -391,17 +394,19 @@ export default function RightPanel() {
             {name: 'signatureType', type: 'uint8'}
         ];
 
+        const domain: any = { 
+            name: 'PLSpeak CTF Exchange', 
+            version: '1',
+            chainId: 11155111,
+            verifyingContract: CTFExchangeContract.address
+        }
+
         takerOrder.signature = await signTypedDataAsync({
             types: {
-                EIP712Domain: domain,
-                Order: order
+                EIP712Domain: domainType,
+                Order: orderType
             },
-            domain: { 
-                name: 'PLSpeak CTF Exchange', 
-                version: '1',
-                chainId: 11155111,
-                verifyingContract: CTFExchangeContract.address
-            },
+            domain: domain,
             primaryType: 'Order',
             message: takerOrder
         });
@@ -718,7 +723,7 @@ export default function RightPanel() {
         }
     };
 
-    function renderLeftRightOneLine(leftText, rightText) {
+    function renderLeftRightOneLine(leftText: string, rightText: string) {
         return (
           <Grid container justifyContent="space-between">
             <Grid item>

@@ -69,26 +69,26 @@ function App() {
     }
   }, [accessToken])
 
-  const onOrderCreated = (data: any) => {
-    debugger
-    if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
-      createOrder(data);
-    console.log(`Order Created....`)
-  }
-
-  const onOrderUpdated = (data: any) => {
-    if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
-      updateOrder(data);
-    console.log(`Order Updated....`)
-  }
-
-  const onOrderRemoved = (data: any) => {
-    if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
-      removeOrder(data);
-    console.log(`Order Deleted....`)
-  }
-
   useEffect(() => {
+    const onOrderCreated = (data: any) => {
+      debugger
+      if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
+        dispatch(createOrder(data));
+      console.log(`Order Created....`)
+    }
+  
+    const onOrderUpdated = (data: any) => {
+      if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
+        dispatch(updateOrder(data));
+      console.log(`Order Updated....`)
+    }
+  
+    const onOrderRemoved = (data: any) => {
+      if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
+        dispatch(removeOrder(data));
+      console.log(`Order Deleted....`)
+    }
+
     if (socket) {
         socket.on('Order created', onOrderCreated);
         socket.on('Order updated', onOrderUpdated);
@@ -99,7 +99,7 @@ function App() {
         socket.off('Order updated', onOrderUpdated);
         socket.off('Order deleted', onOrderRemoved);
     }
-}, [socket]);
+  }, [socket]);
 
   useEffect(() => {
 		fetchBalance(correspondingAddress)

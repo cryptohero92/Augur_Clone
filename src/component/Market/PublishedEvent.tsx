@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { Card, CardMedia, Box, Typography } from '@mui/material';
 import ModeCommentOutlinedIcon from '@mui/icons-material/ModeCommentOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
-import { OrderInfo, PublishedEventInfo } from '../../types';
+import { PublishedEventInfo } from '../../types';
 
 function BettingOptionPrices({ipfsUrl}: {ipfsUrl: string}) {
     const [yesPrice, setYesPrice] = useState(50);
     useEffect(() => {
         if (ipfsUrl) {
-            fetch(`${import.meta.env.VITE_BACKEND_URL}/orders?bettingOptionUrl=${ipfsUrl}`)
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/orders/price/${ipfsUrl}`)
                 .then((response) => {
                     if (response.status != 200) {
                         throw new Error('Error happened')
@@ -19,39 +19,11 @@ function BettingOptionPrices({ipfsUrl}: {ipfsUrl: string}) {
                 })
                 // If yes, retrieve it. If no, create it.
                 .then((res) => {
-                    let orders = res.orders as OrderInfo[];
-                    if (!orders || !orders.length) {
-                        setYesPrice(50);
-                        return;
-                    }
-            
-                    // when order arrives, first get yes 
-                    let _yesOrders = orders.map(order => {
-                        const {price, buyOrSell, yesOrNo, ...rest} = order;
-                        if (yesOrNo == false) return {
-                            price: 100 - price,
-                            buyOrSell: !buyOrSell,
-                            yesOrNo: true,
-                            ...rest
-                        }
-                        else return {
-                            price,
-                            buyOrSell,
-                            yesOrNo,
-                            ...rest
-                        }
-                    });
-                    const sellOrders = _yesOrders.filter(order => order.buyOrSell == SELL).sort((a, b) => a.price - b.price);
-                    const buyOrders = _yesOrders.filter(order => order.buyOrSell == BUY).sort((a, b) => b.price - a.price);
-            
-                    if (sellOrders.length > 0)
-                        setYesPrice(sellOrders[0].price);
-                    else if (buyOrders.length > 0)
-                        setYesPrice(buyOrders[0].price);
+                    setYesPrice(res.yesPrice);
                 })
-                .catch((err) => {
-                    console.log(err);
-                });
+                .catch(err => {
+                    console.error(err);
+                })
         }
     }, [ipfsUrl])
 
