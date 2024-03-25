@@ -4,9 +4,6 @@ import { useParams } from "react-router-dom";
 
 import MainPanel from "../../component/Event/MainPanel";
 import RightPanel from "../../component/Event/RightPanel";
-import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/sepolia/CTFExchangeContract.json"
-import { readContracts } from '@wagmi/core'
-import { config } from "../../wagmi"
 import { BigNumberish, formatUnits } from 'ethers'
 
 export default function EventView() {
@@ -30,34 +27,31 @@ export default function EventView() {
               item.endDate = eventInfo.endDate
               let promises = [];
               for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
-                const contractPromise = readContracts(config, {
-                  contracts: [
-                    {
-                      abi: CTFExchangeContract.abi,
-                      address: CTFExchangeContract.address as `0x${string}`,
-                      functionName: 'getBetAmountOfBettingOption',
-                      args: [eventInfo.bettingOptions[i]] 
-                    },
-                    {
-                      abi: CTFExchangeContract.abi,
-                      address: CTFExchangeContract.address as `0x${string}`,
-                      functionName: 'getResultOfBettingOption',
-                      args: [eventInfo.bettingOptions[i]]
-                    }
-                  ]                  
-                }).then(res => ({
-                  ipfsUrl: eventInfo.bettingOptions[i],
-                  bet: Number(formatUnits(res[0].result as BigNumberish, 6)),
-                  result: Number(res[1].result)
+                const contractPromise1 = fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getBetAmountOfBettingOption/${eventInfo.bettingOptions[i]}`)
+                .then((response) => response.json())
+                .then(({betAmount}) => ({
+                    bet: betAmount
                 }))
+                .catch((err) => {
+                    console.log(err);
+                });
+
+                const contractPromise2 = fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getResultOfBettingOption/${eventInfo.bettingOptions[i]}`)
+                .then((response) => response.json())
+                .then(({result}) => ({
+                    result
+                }))
+                .catch((err) => {
+                    console.log(err);
+                });
 
                 const ipfsPromise = fetch(`https://gateway.pinata.cloud/ipfs/${eventInfo.bettingOptions[i]}`).then((response) => response.json()).then(optionInfo => ({
                   title: optionInfo.title,
                   image: optionInfo.image
                 }));
 
-                promises.push(Promise.all([contractPromise, ipfsPromise])
-                  .then((results) => (Object.assign({}, ...results)))) 
+                promises.push(Promise.all([contractPromise1, contractPromise2, ipfsPromise])
+                  .then((results) => (Object.assign({ipfsUrl: eventInfo.bettingOptions[i]}, ...results)))) 
               }
               Promise.all(promises)
                 .then(bettingOptions => {

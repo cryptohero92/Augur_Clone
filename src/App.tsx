@@ -33,6 +33,7 @@ function App() {
   let previousToken = '';
 
   const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
+  const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
 
   const fetchBalance = (address: string) => {
     if (address && address != '') {
@@ -69,6 +70,15 @@ function App() {
 
   const onOrderCreated = (data) => {
     debugger
+    // whenever new order created, first check if there is selected betting option. 
+    // if I handle all orders in frontend, it will make lots of amount. 
+    // now each published event in Market fetches option data from backend, and based on returned orders info, display orders.
+    // if I extend orderSlice to include orders via betting option which order is belonged in, then, it will make lots of amount.
+    // so, i think it's better to check order's bettingOption first and if it's same with selectedBettingOption, then update orders.
+    // dashboard is no problem, and markets does not need to be responsive.
+    // so, it's okay if I handle only main Panel and right panel...?
+    // but instead of spliting socket handling logic, I think it's better to handle it on App.tsx.
+    
     console.log(`Order Created....`)
   }
 

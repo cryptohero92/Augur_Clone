@@ -4,8 +4,6 @@ import { Card, CardMedia, Box, Typography } from '@mui/material';
 import ModeCommentOutlinedIcon from '@mui/icons-material/ModeCommentOutlined';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import { OrderInfo, PublishedEventInfo } from '../../types';
-import { readContract } from "@wagmi/core";
-import { config } from '../../wagmi';
 
 function BettingOptionPrices({ipfsUrl}: {ipfsUrl: string}) {
     const [yesPrice, setYesPrice] = useState(50);

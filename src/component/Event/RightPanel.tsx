@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { Box, Typography, Button, IconButton, Divider, Grid, CircularProgress } from "@mui/material"
 import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
-import { readContracts } from "@wagmi/core";
 import { config } from "../../wagmi";
 import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/sepolia/CTFExchangeContract.json"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -61,25 +60,17 @@ export default function RightPanel() {
         async function getResult() {
             if (selectedBettingOption) {
                 // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
-                readContracts(config, {
-                  contracts: [
-                    {
-                      abi: CTFExchangeContract.abi,
-                      address: CTFExchangeContract.address as `0x${string}`,
-                      functionName: 'getTokenIdFrom',
-                      args: [selectedBettingOption.ipfsUrl, true]
-                    },
-                    {
-                        abi: CTFExchangeContract.abi,
-                        address: CTFExchangeContract.address as `0x${string}`,
-                        functionName: 'getTokenIdFrom',
-                        args: [selectedBettingOption.ipfsUrl, false]
-                    }
-                  ]                  
-                }).then(res => {
-                    setYesTokenId(res[0].result.toString());
-                    setNoTokenId(res[1].result.toString());
+
+                fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getTokenIds/${selectedBettingOption.ipfsUrl}`)
+                .then((response) => response.json())
+                .then(({yesTokenId, noTokenId}) => {
+                    setYesTokenId(yesTokenId);
+                    setNoTokenId(noTokenId);
+                })
+                .catch((err) => {
+                    console.log(err);
                 });
+
                 fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
                     body: JSON.stringify({
                         ipfsUrl: selectedBettingOption.ipfsUrl,
@@ -435,7 +426,6 @@ export default function RightPanel() {
 
         try {
             await axios.post(`${import.meta.env.VITE_BACKEND_URL}/orders/match`, {takerOrder, makerOrders, takerFillAmount, makerFillAmounts}, { headers });
-            dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
         } catch (err) {
             console.error(err);
         }

@@ -18,9 +18,6 @@ import MyOrders from './MyOrders';
 import { RootState } from "../../app/store";
 import { fetchOrders } from "../../feature/slices/orderSlice";
 import { BettingOptionInfo, OrderInfo, PublishedEventInfo } from "../../types";
-import { readContracts } from "@wagmi/core";
-import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/sepolia/CTFExchangeContract.json"
-import { config } from "../../wagmi";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -130,25 +127,15 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
             console.log(`fetch orders invoked`);
             dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }));
 
-            readContracts(config, {
-                contracts: [
-                  {
-                    abi: CTFExchangeContract.abi,
-                    address: CTFExchangeContract.address as `0x${string}`,
-                    functionName: 'getTokenIdFrom',
-                    args: [selectedBettingOption.ipfsUrl, true]
-                  },
-                  {
-                    abi: CTFExchangeContract.abi,
-                    address: CTFExchangeContract.address as `0x${string}`,
-                    functionName: 'getTokenIdFrom',
-                    args: [selectedBettingOption.ipfsUrl, false]
-                  }
-                ]                  
-              }).then(res => {
-                  setYesTokenId(res[0].result.toString());
-                  setNoTokenId(res[1].result.toString());
-              });
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getTokenIds/${selectedBettingOption.ipfsUrl}`)
+                .then((response) => response.json())
+                .then(({yesTokenId, noTokenId}) => {
+                    setYesTokenId(yesTokenId);
+                    setNoTokenId(noTokenId);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         }
     }, [selectedBettingOption])
 
