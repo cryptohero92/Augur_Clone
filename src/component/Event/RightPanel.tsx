@@ -183,21 +183,17 @@ export default function RightPanel() {
         let collateralAmount, conditionalTokenAmount; 
 
         let _yesOrders = orders.map(order => {
-            const { tokenId, makerAmount, takerAmount, status, side } = order;
+            const { tokenId, makerAmount, takerAmount, side } = order;
             let price = side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount;
-            let remaining = status.remaining == 0 ? makerAmount : status.remaining;
-            let shares = side == 0 ? remaining * 100 / price : remaining;
-
+            
             if (tokenId == selectedBettingOption?.yesTokenId) return {
                 price,
                 isBuy: side == 0 ? true: false,
-                shares,
                 ...order
             }
             else return {
                 price: 100 - price,
                 isBuy: side == 1 ? true : false,
-                shares,
                 ...order
             }
         });
@@ -458,19 +454,15 @@ export default function RightPanel() {
         let _yesOrders = orders.map(order => {
             const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
             let price = side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount;
-            let remaining = status.remaining == 0 ? makerAmount : status.remaining;
-            let shares = side == 0 ? remaining * 100 / price : remaining;
 
             if (tokenId == selectedBettingOption?.yesTokenId) return {
                 price,
                 side,
-                shares,
                 ...rest
             }
             else return {
                 price: 100 - price,
                 side: 1 - side,
-                shares,
                 ...rest
             }
         });
@@ -490,7 +482,7 @@ export default function RightPanel() {
         const sellOrders = mergeElements(_orders.filter(order => order.side == 1).sort((a, b) => a.price - b.price));
         
         let predictedShares = 0;
-        let remain = amount * 100;
+        let remain = amount * 1000000;
         let avgValue = 100;
 
         if (sellOrders.length > 0) {
@@ -507,11 +499,11 @@ export default function RightPanel() {
                 }
             }
             if (remain == 0) {
-                avgValue = amount * 100 / predictedShares;
+                avgValue = amount * 1000000 / predictedShares;
             }
         } else {
             avgValue = 99;
-            predictedShares = roundToTwo(amount * 100 / 99);
+            predictedShares = roundToTwo(amount * 1000000 / 99);
         }
         setPredictedShares(predictedShares);
         setAvgValue(avgValue);
@@ -522,19 +514,15 @@ export default function RightPanel() {
         let _yesOrders = orders.map(order => {
             const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
             let price = side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount;
-            let remaining = status.remaining == 0 ? makerAmount : status.remaining;
-            let shares = side == 0 ? remaining * 100 / price : remaining;
 
             if (tokenId == selectedBettingOption?.yesTokenId) return {
                 price,
                 side,
-                shares,
                 ...rest
             }
             else return {
                 price: 100 - price,
                 side: 1 - side,
-                shares,
                 ...rest
             }
         });
@@ -552,7 +540,7 @@ export default function RightPanel() {
         }
 
         const buyOrders = mergeElements(_orders.filter(order => order.side == 0).sort((a, b) => b.price - a.price));
-        let remainingShares = shares;
+        let remainingShares = shares * 1000000;
         let amountReceived = 0;
         let avgValue = 0;
 
@@ -577,7 +565,7 @@ export default function RightPanel() {
         }
         
         setAvgValue(avgValue);
-        setEstimatedAmountReceived(amountReceived / 100);
+        setEstimatedAmountReceived(amountReceived / 1000000);
     }, [shares]);
 
     useEffect(() => {
