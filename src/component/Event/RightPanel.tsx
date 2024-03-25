@@ -503,9 +503,9 @@ export default function RightPanel() {
             }
         } else {
             avgValue = 99;
-            predictedShares = roundToTwo(amount * 1000000 / 99);
+            predictedShares = amount * 1000000 * 100 / 99;
         }
-        setPredictedShares(predictedShares);
+        setPredictedShares(roundToTwo(Number(formatUnits(Math.floor(predictedShares), 6))));
         setAvgValue(avgValue);
     }, [amount]);
 
@@ -561,7 +561,7 @@ export default function RightPanel() {
             }
         } else {
             avgValue = 1;
-            amountReceived = shares;
+            amountReceived = shares * 1000000 * avgValue / 100;
         }
         
         setAvgValue(avgValue);
