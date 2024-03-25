@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { DialogContent, DialogContentText, DialogActions, Dialog, Button } from '@mui/material';
-import { fetchOrders } from '../../feature/slices/orderSlice';
 import { RootState } from '../../app/store';
 import { useLocalStorage } from 'usehooks-ts';
 import axios from 'axios';
@@ -14,12 +13,11 @@ import { formatUnits } from 'ethers';
 	when user click buy, need to make order.
 */
 
-export default function MyOrders({yesTokenId}: {yesTokenId: string}) {
-    const dispatch = useDispatch();
+export default function MyOrders() {
     const { orders } = useSelector((state: RootState) => state.orderKey);
     const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
+    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey)
     const [accessToken] = useLocalStorage<string>('accessToken', '')
-    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
 
     const [myOrders, setMyOrders] = useState<OrderInfo[]>([]);
     const [openCancelAll, setOpenCancelAll] = useState(false);
@@ -34,7 +32,6 @@ export default function MyOrders({yesTokenId}: {yesTokenId: string}) {
           headers,
           data: { bettingOptionUrl: selectedBettingOption?.ipfsUrl }
       });
-      dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
     }
 
     const handleClose = () => {
@@ -46,11 +43,10 @@ export default function MyOrders({yesTokenId}: {yesTokenId: string}) {
       await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/orders/${_id}`, {
           headers
       });
-      dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
     }
 
     const getFilledAmount = (order: OrderInfo) => {
-      const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
+      const { makerAmount, takerAmount, status, side } = order;
       let price = (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount);
       let remaining = Number(formatUnits(status.remaining == 0 ? makerAmount : status.remaining, 6));
       let shares = side == 0 ? remaining * 100 / price : remaining;
@@ -83,7 +79,7 @@ export default function MyOrders({yesTokenId}: {yesTokenId: string}) {
             {myOrders.map((order) => (
                 <tr key={order._id}>
                     <td>{order.side == 0 ? 'Buy' : 'Sell'}</td>
-                    <td>{order.tokenId == yesTokenId ? 'Yes' : 'No'}</td>
+                    <td>{order.tokenId == selectedBettingOption?.yesTokenId ? 'Yes' : 'No'}</td>
                     <td>{roundToTwo(order.side == 0 ? order.makerAmount * 100 / order.takerAmount : order.takerAmount * 100 / order.makerAmount)}c</td>
                     <td>{ roundToTwo(getFilledAmount(order)) }/{roundToTwo(Number(formatUnits(order.side == 0 ? order.takerAmount : order.makerAmount, 6)))}</td>
                     <td>${roundToTwo(Number(formatUnits(order.side == 0 ? order.makerAmount : order.takerAmount, 6)))}</td>

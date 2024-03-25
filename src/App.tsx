@@ -25,6 +25,7 @@ import EventReportPage from './page/EventPage/EventReportPage';
 import Markets from './page/Market/Market';
 import EventView from './page/EventPage/EventViewPage';
 import socket from "./app/socket";
+import { createOrder, removeOrder, updateOrder } from './feature/slices/orderSlice';
 
 function App() {
   const dispatch = useDispatch();
@@ -68,25 +69,22 @@ function App() {
     }
   }, [accessToken])
 
-  const onOrderCreated = (data) => {
+  const onOrderCreated = (data: any) => {
     debugger
-    // whenever new order created, first check if there is selected betting option. 
-    // if I handle all orders in frontend, it will make lots of amount. 
-    // now each published event in Market fetches option data from backend, and based on returned orders info, display orders.
-    // if I extend orderSlice to include orders via betting option which order is belonged in, then, it will make lots of amount.
-    // so, i think it's better to check order's bettingOption first and if it's same with selectedBettingOption, then update orders.
-    // dashboard is no problem, and markets does not need to be responsive.
-    // so, it's okay if I handle only main Panel and right panel...?
-    // but instead of spliting socket handling logic, I think it's better to handle it on App.tsx.
-    
+    if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
+      createOrder(data);
     console.log(`Order Created....`)
   }
 
-  const onOrderUpdated = (data) => {
+  const onOrderUpdated = (data: any) => {
+    if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
+      updateOrder(data);
     console.log(`Order Updated....`)
   }
 
-  const onOrderRemoved = (data) => {
+  const onOrderRemoved = (data: any) => {
+    if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
+      removeOrder(data);
     console.log(`Order Deleted....`)
   }
 

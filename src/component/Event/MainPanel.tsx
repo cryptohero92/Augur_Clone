@@ -14,12 +14,13 @@ import Tab from '@mui/material/Tab';
 
 import ChartArea from "./ChartArea";
 import OrderBook from "./OrderBook";
+import BettingOptionButtons from "./BettingOptionButtions";
 import MyOrders from './MyOrders';
 import { RootState } from "../../app/store";
 import { fetchOrders } from "../../feature/slices/orderSlice";
-import { BettingOptionInfo, OrderInfo, PublishedEventInfo } from "../../types";
+import { BettingOptionInfo, PublishedEventInfo } from "../../types";
 
-function CustomTabPanel(props) {
+function CustomTabPanel(props: any) {
   const { children, value, index, ...other } = props;
 
   return (
@@ -39,74 +40,11 @@ function CustomTabPanel(props) {
   );
 }
 
-function a11yProps(index) {
+function a11yProps(index: Number) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   };
-}
-
-function BettingOptionButtons({ipfsUrl, yesTokenId, noTokenId}: {ipfsUrl: string, yesTokenId: string, noTokenId: string}) {
-    const [yesValue, setYesValue] = useState(50);
-    const [noValue, setNoValue] = useState(50);
-    
-    const { orders } = useSelector((state: RootState) => state.orderKey);
-
-    useEffect(() => {
-        if (ipfsUrl) {
-            fetch(`${import.meta.env.VITE_BACKEND_URL}/orders?bettingOptionUrl=${ipfsUrl}`)
-                .then((response) => {
-                    if (response.status != 200) {
-                        throw new Error('Error happened')
-                    } else {
-                        return response.json()
-                    }
-                })
-                // If yes, retrieve it. If no, create it.
-                .then((res) => {
-                    let orders = res.orders as OrderInfo[];
-                    if (!orders || !orders.length) {
-                        setYesValue(50);
-                        setNoValue(50);
-                        return;
-                    }
-
-                    let _yesOrders = orders.map(order => {
-                        const {tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
-                        let price = side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount;
-
-                        if (tokenId == yesTokenId) return {
-                            price,
-                            side,
-                            ...rest
-                        }
-                        else return {
-                            price: 100 - price,
-                            side: 1 - side,
-                            ...rest
-                        }
-                    });
-
-                    const sellOrders = _yesOrders.filter(order => order.side == 1).sort((a, b) => a.price - b.price);
-                    const buyOrders = _yesOrders.filter(order => order.side == 0).sort((a, b) => b.price - a.price);
-            
-                    if (buyOrders.length > 0)
-                        setNoValue(100 - buyOrders[0].price);
-                    if (sellOrders.length > 0)
-                        setYesValue(sellOrders[0].price);
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-        }
-    }, [ipfsUrl, orders])
-
-    return (
-        <>
-            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center', alignItems: 'center', backgroundColor: '#27ae601a', color: 'green'}}>Buy Yes {yesValue}¢</Box>
-            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center',alignItems: 'center', backgroundColor: '#eb57571a', color: 'red'}}>Buy No {noValue}¢</Box>
-        </>
-    )
 }
 
 export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) {
@@ -115,8 +53,6 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
 
     const [moreOrLessSwitch, setMoreOrLessSwitch] = useState(true);
     const [choice, setChoice] = useState(0);
-    const [yesTokenId, setYesTokenId] = useState('0');
-    const [noTokenId, setNoTokenId] = useState('0');
 
     const handleChange = (_: any, newValue: SetStateAction<number>) => {
         setChoice(newValue);
@@ -125,29 +61,19 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
     useEffect(() => {
         if (selectedBettingOption) {
             console.log(`fetch orders invoked`);
-            dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }));
-
-            fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getTokenIds/${selectedBettingOption.ipfsUrl}`)
-                .then((response) => response.json())
-                .then(({yesTokenId, noTokenId}) => {
-                    setYesTokenId(yesTokenId);
-                    setNoTokenId(noTokenId);
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
+            dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }) as any);
         }
     }, [selectedBettingOption])
 
     useEffect(() => {
         if (eventInfo) {
-            dispatch(selectBettingOption(eventInfo.bettingOptions[0]));
+            dispatch(selectBettingOption(eventInfo.bettingOptions[0]) as any);
         }
     }, [eventInfo])
 
     const [expanded, setExpanded] = useState<string | false>(false);
 
-    const handleExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+    const handleExpanded = (panel: string) => (_: React.SyntheticEvent, isExpanded: boolean) => {
             setExpanded(isExpanded ? panel : false);
         };
     
@@ -181,7 +107,7 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                         <AccordionSummary>
                             <Button sx={{ display: 'flex', backgroundColor: (isSelected ? '#faebd788' : 'transparent'), width: 1, paddingTop: '0.5rem', paddingBottom: '0.5rem', justifyContent: 'space-between', ":hover": {
                                 backgroundColor: '#faebd7cc'
-                                }}}  onClick={() => dispatch(selectBettingOption(bettingOption))}>
+                                }}}  onClick={() => dispatch(selectBettingOption(bettingOption) as any)}>
                                 <Box sx={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                                     {bettingOption.image ? (<CardMedia
                                         sx={{ height: 44, width:44, minWidth: 44, borderRadius: '100px' }}
@@ -195,7 +121,7 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                                 </Box>
                                 {bettingOption.result == 0 ? (
                                     <Box sx={{ display:'flex', alignItems: 'center', gap:'0.5rem', justifyContent:'flex-end' }}>
-                                        <BettingOptionButtons ipfsUrl={bettingOption.ipfsUrl} yesTokenId={yesTokenId} noTokenId={noTokenId} />
+                                        <BettingOptionButtons ipfsUrl={bettingOption.ipfsUrl} />
                                     </Box>
                                 ) : (
                                     <Box sx={{ display:'flex', alignItems: 'center', gap:'0.5rem', justifyContent:'flex-end' }}>
@@ -215,13 +141,13 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                                 </Box>
                                 <Box sx={{ height: '300px', overflowY: 'scroll' }}>
                                     <CustomTabPanel value={choice} index={0}>
-                                        <OrderBook yesTokenId={yesTokenId} noTokenId={noTokenId} />
+                                        <OrderBook />
                                     </CustomTabPanel>
                                     <CustomTabPanel value={choice} index={1}>
                                         <ChartArea />
                                     </CustomTabPanel>
                                     <CustomTabPanel value={choice} index={2}>
-                                        <MyOrders yesTokenId={yesTokenId} />
+                                        <MyOrders />
                                     </CustomTabPanel>
                                 </Box>
                             </Box>
@@ -239,10 +165,10 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                           <Typography>Order Book</Typography>
                         </AccordionSummary>
                         <AccordionDetails>
-                            <OrderBook yesTokenId={yesTokenId} noTokenId={noTokenId} />
+                            <OrderBook />
                         </AccordionDetails>
                     </Accordion>
-                    <MyOrders yesTokenId={yesTokenId} />
+                    <MyOrders />
                 </>
             )}
             </Box>

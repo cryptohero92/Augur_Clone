@@ -61,17 +61,6 @@ export interface OrderInfo {
     bettingStyle: string
 }
 
-export interface OrderRequestInfo {
-    selectedBettingOption: BettingOptionInfo,
-    bettingStyle: string,
-    buyOrSell: boolean,
-    yesOrNo: boolean,
-    amount: number,
-    limitPrice: number,
-    shares: number,
-    accessToken: string
-}
-
 export interface OrderStatus {
     isFilledOrCancelled: boolean,
     remaining: number
@@ -79,6 +68,8 @@ export interface OrderStatus {
 
 export interface BettingOptionInfo {
     ipfsUrl: string,
+    yesTokenId: string | null,
+    noTokenId: string | null,
     title: string,
     image: string,
     bet: number,

@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { Box, Typography, Button, IconButton, Divider, Grid, CircularProgress } from "@mui/material"
 import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
-import { config } from "../../wagmi";
 import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/sepolia/CTFExchangeContract.json"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
@@ -40,8 +39,6 @@ export default function RightPanel() {
     const [noValue, setNoValue] = useState(50);
     const [yesShares, setYesShares] = useState(0);
     const [noShares, setNoShares] = useState(0);
-    const [yesTokenId, setYesTokenId] = useState('0');
-    const [noTokenId, setNoTokenId] = useState('0');
 
     const [avgValue, setAvgValue] = useState(50);
     const [predictedShares, setPredictedShares] = useState(0);
@@ -60,17 +57,6 @@ export default function RightPanel() {
         async function getResult() {
             if (selectedBettingOption) {
                 // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
-
-                fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getTokenIds/${selectedBettingOption.ipfsUrl}`)
-                .then((response) => response.json())
-                .then(({yesTokenId, noTokenId}) => {
-                    setYesTokenId(yesTokenId);
-                    setNoTokenId(noTokenId);
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-
                 fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
                     body: JSON.stringify({
                         ipfsUrl: selectedBettingOption.ipfsUrl,
@@ -173,7 +159,8 @@ export default function RightPanel() {
       }
 
     const refreshOrders = async () => {
-        dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption?.ipfsUrl }));
+        if (selectedBettingOption)
+            dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }) as any);
         fetchBalance(correspondingAddress);
     }
 
@@ -198,7 +185,7 @@ export default function RightPanel() {
             let remaining = status.remaining == 0 ? makerAmount : status.remaining;
             let shares = side == 0 ? remaining * 100 / price : remaining;
 
-            if (tokenId == yesTokenId) return {
+            if (tokenId == selectedBettingOption?.yesTokenId) return {
                 price,
                 isBuy: side == 0 ? true: false,
                 shares,
@@ -366,13 +353,14 @@ export default function RightPanel() {
             }
         }
 
-        debugger
+        if (!selectedBettingOption)
+            return;
         let takerOrder = {
             salt: `${generateRandomSalt()}`,
             maker: correspondingAddress as `0x${string}`,
             signer: signerAddress || publicAddress as `0x${string}`,
             taker: `0x0000000000000000000000000000000000000000`,
-            tokenId: (showNo ? noTokenId : yesTokenId).toString(),
+            tokenId: ((showNo ? selectedBettingOption.noTokenId : selectedBettingOption.yesTokenId) || '').toString(),
             makerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ? collateralAmount : conditionalTokenAmount)}`, 6).toString(),
             takerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ?  conditionalTokenAmount : collateralAmount)}`, 6).toString(),
             expiration: '0',
@@ -467,7 +455,7 @@ export default function RightPanel() {
             let remaining = status.remaining == 0 ? makerAmount : status.remaining;
             let shares = side == 0 ? remaining * 100 / price : remaining;
 
-            if (tokenId == yesTokenId) return {
+            if (tokenId == selectedBettingOption?.yesTokenId) return {
                 price,
                 side,
                 shares,
@@ -531,7 +519,7 @@ export default function RightPanel() {
             let remaining = status.remaining == 0 ? makerAmount : status.remaining;
             let shares = side == 0 ? remaining * 100 / price : remaining;
 
-            if (tokenId == yesTokenId) return {
+            if (tokenId == selectedBettingOption?.yesTokenId) return {
                 price,
                 side,
                 shares,
@@ -607,7 +595,7 @@ export default function RightPanel() {
             const {tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
             let price = side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount;
 
-            if (tokenId == yesTokenId) return {
+            if (tokenId == selectedBettingOption?.yesTokenId) return {
                 price,
                 side,
                 ...rest

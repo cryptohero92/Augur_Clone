@@ -40,9 +40,10 @@ function CustomTabPanel(props: any) {
   );
 }
 
-export default function OrderBook({yesTokenId, noTokenId}: {yesTokenId: string, noTokenId: string}) {
+export default function OrderBook() {
   const dispatch = useDispatch();
   const { orders, showNo } = useSelector((state: RootState) => state.orderKey);
+  const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
   const [buyOrders, setBuyOrders] = useState<any[]>([]);
   const [sellOrders, setSellOrders] = useState<any[]>([]);
   const [spread, setSpread] = useState(0); 
@@ -61,7 +62,7 @@ export default function OrderBook({yesTokenId, noTokenId}: {yesTokenId: string, 
       let shares = side == 0 ? remaining * 100 / price : remaining;
       
 
-      if (tokenId == yesTokenId) 
+      if (tokenId == selectedBettingOption?.yesTokenId) 
         return {
           price,
           side,
