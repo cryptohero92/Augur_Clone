@@ -411,6 +411,7 @@ export default function RightPanel() {
             message: takerOrder
         });
         takerOrder.bettingStyle = bettingStyle;
+        takerOrder.shares = takerOrder.side == 0 ? takerOrder.takerAmount : takerOrder.makerAmount;
 
         const headers = { Authorization: `Bearer ${accessToken}` };
 

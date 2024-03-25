@@ -8,7 +8,6 @@ import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { RootState } from '../../app/store';
-import { OrderInfo } from '../../types';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
@@ -58,22 +57,18 @@ export default function OrderBook() {
     let _yesOrders = orders.map(order => {
       const { tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
       let price = (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount);
-      let remaining = Number(formatUnits(status.remaining == 0 ? makerAmount : status.remaining, 6));
-      let shares = side == 0 ? remaining * 100 / price : remaining;
       
 
       if (tokenId == selectedBettingOption?.yesTokenId) 
         return {
           price,
           side,
-          shares,
           ...rest
         }
       else 
         return {
           price: 100 - price,
           side: 1 - side,
-          shares,
           ...rest
         }
     });
@@ -104,6 +99,23 @@ export default function OrderBook() {
     dispatch(setShowNo(!!newValue));
   };
 
+  const renderOrders = (orders: any) => {
+    let previousTotal = 0; // Variable to store the previous orders' total
+
+    return orders.map((order: any, index: number) => {
+      const total = order.price * order.shares + previousTotal; // Calculate the total
+      previousTotal = total; // Update the previousTotal for the next iteration
+
+      return (
+        <tr key={index}>
+          <td>{roundToTwo(order.price)}c</td>
+          <td>{roundToTwo(Number(formatUnits(order.shares, 6)))}</td>
+          <td>${roundToTwo(Number(formatUnits(total / 100, 6)))}</td>
+        </tr>
+      );
+    })
+  }
+
   return (
     <Box sx={{ width: '100%'}}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -124,13 +136,7 @@ export default function OrderBook() {
                 </tr>
               </thead>
               <tbody>
-                {sellOrders.map((order, index) => (
-                  <tr key={index}>
-                    <td>{roundToTwo(order.price)}c</td>
-                    <td>{roundToTwo(order.shares)}</td>
-                    <td>${roundToTwo(order.total / 100)}</td>
-                  </tr>
-                ))}
+                { renderOrders(sellOrders) }
               </tbody>
             </table>
           </Box>
@@ -150,13 +156,7 @@ export default function OrderBook() {
                 </tr>
               </thead>
               <tbody>
-                {buyOrders.map((order, index) => (
-                  <tr key={index}>
-                    <td>{roundToTwo(order.price)}c</td>
-                    <td>{roundToTwo(order.shares)}</td>
-                    <td>${roundToTwo(order.total / 100)}</td>
-                  </tr>
-                ))}
+                { renderOrders(buyOrders) }
               </tbody>
             </table>
           </Box>
@@ -172,13 +172,7 @@ export default function OrderBook() {
                 </tr>
               </thead>
               <tbody>
-                {sellOrders.map((order, index) => (
-                  <tr key={index}>
-                    <td>{roundToTwo(order.price)}c</td>
-                    <td>{roundToTwo(order.shares)}</td>
-                    <td>${roundToTwo(order.total / 100)}</td>
-                  </tr>
-                ))}
+                { renderOrders(sellOrders) }
               </tbody>
             </table>
           </Box>
@@ -198,13 +192,7 @@ export default function OrderBook() {
                 </tr>
               </thead>
               <tbody>
-                {buyOrders.map((order, index) => (
-                  <tr key={index}>
-                    <td>{roundToTwo(order.price)}c</td>
-                    <td>{roundToTwo(order.shares)}</td>
-                    <td>${roundToTwo(order.total / 100)}</td>
-                  </tr>
-                ))}
+                { renderOrders(buyOrders) }
               </tbody>
             </table>
           </Box>

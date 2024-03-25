@@ -69,26 +69,26 @@ function App() {
     }
   }, [accessToken])
 
-  useEffect(() => {
-    const onOrderCreated = (data: any) => {
-      debugger
-      if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
-        dispatch(createOrder(data));
-      console.log(`Order Created....`)
-    }
-  
-    const onOrderUpdated = (data: any) => {
-      if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
-        dispatch(updateOrder(data));
-      console.log(`Order Updated....`)
-    }
-  
-    const onOrderRemoved = (data: any) => {
-      if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
-        dispatch(removeOrder(data));
-      console.log(`Order Deleted....`)
-    }
+  const onOrderCreated = (data: any) => {
+    debugger
+    if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
+      dispatch(createOrder(data));
+    console.log(`Order Created....`)
+  }
 
+  const onOrderUpdated = (data: any) => {
+    if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
+      dispatch(updateOrder(data));
+    console.log(`Order Updated....`)
+  }
+
+  const onOrderRemoved = (data: any) => {
+    if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
+      dispatch(removeOrder(data));
+    console.log(`Order Deleted....`)
+  }
+  
+  useEffect(() => {
     if (socket) {
         socket.on('Order created', onOrderCreated);
         socket.on('Order updated', onOrderUpdated);
@@ -99,7 +99,7 @@ function App() {
         socket.off('Order updated', onOrderUpdated);
         socket.off('Order deleted', onOrderRemoved);
     }
-  }, [socket]);
+  }, [socket, selectedBettingOption]);
 
   useEffect(() => {
 		fetchBalance(correspondingAddress)
@@ -149,43 +149,6 @@ function App() {
       />
     </BrowserRouter>
   )
-
-  // return (
-  //   <>
-  //     <div>
-  //       <h2>Account</h2>
-
-  //       <div>
-  //         status: {account.status}
-  //         <br />
-  //         addresses: {JSON.stringify(account.addresses)}
-  //         <br />
-  //         chainId: {account.chainId}
-  //       </div>
-
-  //       {account.status === 'connected' && (
-  //         <button type="button" onClick={() => disconnect()}>
-  //           Disconnect
-  //         </button>
-  //       )}
-  //     </div>
-
-  //     <div>
-  //       <h2>Connect</h2>
-  //       {connectors.map((connector) => (
-  //         <button
-  //           key={connector.uid}
-  //           onClick={() => connect({ connector })}
-  //           type="button"
-  //         >
-  //           {connector.name}
-  //         </button>
-  //       ))}
-  //       <div>{status}</div>
-  //       <div>{error?.message}</div>
-  //     </div>
-  //   </>
-  // )
 }
 
 export default App

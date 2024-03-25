@@ -58,7 +58,8 @@ export interface OrderInfo {
     side: number,
     signatureType: number,
     status: OrderStatus,
-    bettingStyle: string
+    bettingStyle: string,
+    shares: number
 }
 
 export interface OrderStatus {

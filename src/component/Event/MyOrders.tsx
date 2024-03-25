@@ -45,15 +45,6 @@ export default function MyOrders() {
       });
     }
 
-    const getFilledAmount = (order: OrderInfo) => {
-      const { makerAmount, takerAmount, status, side } = order;
-      let price = (side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount);
-      let remaining = Number(formatUnits(status.remaining == 0 ? makerAmount : status.remaining, 6));
-      let shares = side == 0 ? remaining * 100 / price : remaining;
-      let total = Number(formatUnits(order.side == 0 ? order.takerAmount : order.makerAmount, 6));
-      return total - shares;
-    }
-
     useEffect(() => {
         if (orders && correspondingAddress) {
             setMyOrders(
@@ -81,7 +72,7 @@ export default function MyOrders() {
                     <td>{order.side == 0 ? 'Buy' : 'Sell'}</td>
                     <td>{order.tokenId == selectedBettingOption?.yesTokenId ? 'Yes' : 'No'}</td>
                     <td>{roundToTwo(order.side == 0 ? order.makerAmount * 100 / order.takerAmount : order.takerAmount * 100 / order.makerAmount)}c</td>
-                    <td>{ roundToTwo(getFilledAmount(order)) }/{roundToTwo(Number(formatUnits(order.side == 0 ? order.takerAmount : order.makerAmount, 6)))}</td>
+                    <td>{ roundToTwo(Number(formatUnits(Number(order.side == 0 ? order.takerAmount : order.makerAmount) - Number(order.shares), 6))) }/{roundToTwo(Number(formatUnits(order.side == 0 ? order.takerAmount : order.makerAmount, 6)))}</td>
                     <td>${roundToTwo(Number(formatUnits(order.side == 0 ? order.makerAmount : order.takerAmount, 6)))}</td>
                     <td onClick={() => cancelOrder(order._id)}>X</td>
                 </tr>
