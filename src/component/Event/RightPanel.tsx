@@ -294,7 +294,7 @@ export default function RightPanel() {
                         let order = sortedOrders[i];
                         if (order.price > limitPrice) break;
                         
-                        if (remainingShares > order.shares) {
+                        if (remainingShares >= order.shares) {
                             makerOrders.push(order);
 
                             if (order.side == 0) { // buy complement, need to register collateral amount.    
@@ -502,8 +502,8 @@ export default function RightPanel() {
                 avgValue = amount * 1000000 / predictedShares;
             }
         } else {
-            avgValue = 99;
-            predictedShares = amount * 1000000 * 100 / 99;
+            avgValue = 100;
+            predictedShares = 0;
         }
         setPredictedShares(roundToTwo(Number(formatUnits(Math.floor(predictedShares), 6))));
         setAvgValue(avgValue);
@@ -560,8 +560,8 @@ export default function RightPanel() {
                 avgValue = amountReceived / shares;
             }
         } else {
-            avgValue = 1;
-            amountReceived = shares * 1000000 * avgValue / 100;
+            avgValue = 0;
+            amountReceived = 0;
         }
         
         setAvgValue(avgValue);
@@ -768,17 +768,20 @@ export default function RightPanel() {
                                                         <Typography>Balance: ${roundToTwo(currentMoney)}</Typography>
                                                     </Box>
                                                     <QuantityInput changeValue={handleAmountChange} />
+                                                    { (amount > currentMoney) && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
                                                 </>
                                             ) : (
                                                 <>
                                                     <Typography>Shares</Typography>
                                                     <QuantityInput changeValue={handleSharesChange} />
+                                                    { (shares > (showNo ? noShares : yesShares)) && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
                                                 </>
                                             )}
+
                                         </Box>
 
                                         {accessToken != undefined && accessToken != '' ? (
-                                            <Button disabled={isProgressing} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
+                                            <Button disabled={isProgressing || (buyOrSell == BUY && (amount > currentMoney)) || (buyOrSell == SELL && (shares > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
                                         ) : (
@@ -829,10 +832,12 @@ export default function RightPanel() {
                                         <Box sx={{display: 'flex', flexDirection: 'column', rowGap:'0.5rem' }}>
                                             <Typography>Shares</Typography>
                                             <QuantityInput changeValue={handleSharesChange} />
+                                            { (buyOrSell == BUY && limitPrice * shares > currentMoney) && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
+                                            { (buyOrSell == SELL && shares > (showNo ? noShares : yesShares)) && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
                                         </Box>
 
                                         {accessToken != undefined && accessToken != '' ? (
-                                            <Button disabled={isProgressing} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
+                                            <Button disabled={isProgressing || (buyOrSell == BUY && limitPrice * shares > currentMoney) || (buyOrSell == SELL && shares > (showNo ? noShares : yesShares))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
                                         ) : (
