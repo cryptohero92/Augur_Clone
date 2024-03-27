@@ -43,7 +43,7 @@ export default function RightPanel() {
     const [yesShares, setYesShares] = useState(0);
     const [noShares, setNoShares] = useState(0);
     const [chainId, setChainId] = useState<number>(sepolia.id)
-    
+    const [insufficientBalance, setInsufficientBalance] = useState(false)
 
     const [avgValue, setAvgValue] = useState(50);
     const [predictedShares, setPredictedShares] = useState(0);
@@ -110,6 +110,16 @@ export default function RightPanel() {
         
     }, [selectedBettingOption, accessToken]);
 
+    useEffect(() => {
+        if (bettingStyle == BettingStyle.Market && buyOrSell == BUY) {
+            setInsufficientBalance(amount > currentMoney)
+        } else if (bettingStyle == BettingStyle.Limit && buyOrSell == BUY) {
+            setInsufficientBalance(limitPrice/100 * shares > currentMoney)
+        }
+        if (buyOrSell == SELL) {
+            setInsufficientBalance(shares > (showNo ? noShares : yesShares))
+        }
+    }, [buyOrSell, bettingStyle, amount, currentMoney, limitPrice, shares, showNo, noShares, yesShares])
     
     const handleLoggedIn = (auth: Auth) => {
         console.log(auth)
@@ -609,13 +619,13 @@ export default function RightPanel() {
     }, [shares]);
 
     useEffect(() => {
-        if (bettingStyle == BettingStyle.Market) {
-            if (buyOrSell == BUY) {
-                setAmount(0);
-            } else {
-                setShares(0);
-            }
-        }
+        // if (bettingStyle == BettingStyle.Market) {
+        //     if (buyOrSell == BUY) {
+        //         setAmount(0);
+        //     } else {
+        //         setShares(0);
+        //     }
+        // }
     }, [buyOrSell]);
 
     useEffect(() => {
@@ -807,14 +817,14 @@ export default function RightPanel() {
                                                         <Typography>Amount($)</Typography>
                                                         <Typography>Balance: ${roundToTwo(currentMoney)}</Typography>
                                                     </Box>
-                                                    <QuantityInput changeValue={handleAmountChange} />
-                                                    { (amount > currentMoney) && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
+                                                    <QuantityInput value={amount} setValue={handleAmountChange} />
+                                                    { insufficientBalance && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
                                                 </>
                                             ) : (
                                                 <>
                                                     <Typography>Shares</Typography>
-                                                    <QuantityInput changeValue={handleSharesChange} />
-                                                    { (shares > (showNo ? noShares : yesShares)) && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
+                                                    <QuantityInput value={shares} setValue={handleSharesChange} />
+                                                    { insufficientBalance && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
                                                 </>
                                             )}
 
@@ -867,13 +877,12 @@ export default function RightPanel() {
                                                     <Typography>Balance: {roundToTwo(currentMoney)}</Typography>
                                                 )}
                                             </Box>
-                                            <QuantityInput ref={ref} changeValue={handleLimitPriceChange} />
+                                            <QuantityInput ref={ref} value={limitPrice} setValue={handleLimitPriceChange} />
                                         </Box>
                                         <Box sx={{display: 'flex', flexDirection: 'column', rowGap:'0.5rem' }}>
                                             <Typography>Shares</Typography>
-                                            <QuantityInput changeValue={handleSharesChange} />
-                                            { (buyOrSell == BUY && limitPrice * shares > currentMoney) && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
-                                            { (buyOrSell == SELL && shares > (showNo ? noShares : yesShares)) && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
+                                            <QuantityInput value={shares} setValue={handleSharesChange} />
+                                            { insufficientBalance && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
                                         </Box>
 
                                         {accessToken != undefined && accessToken != '' ? (chainId == sepolia.id ? (

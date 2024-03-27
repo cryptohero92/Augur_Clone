@@ -1,28 +1,26 @@
-import { forwardRef, ForwardRefRenderFunction, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, ForwardRefRenderFunction, useImperativeHandle } from 'react';
 import { styled } from '@mui/system';
 
-interface QuantityInputProps {
-  changeValue: (value: number) => void;
-}
-
-const QuantityInput: ForwardRefRenderFunction<any, QuantityInputProps> = ({ changeValue }, ref) => {
-  const [inputValue, setInputValue] = useState(0);
+const QuantityInput: ForwardRefRenderFunction = ({ value, setValue, step = 25 }, ref) => {
 
   useImperativeHandle(ref, () => ({
     updateInputValue(newValue: number) {
-      setInputValue(newValue);
+      setValue(newValue);
     }
   }));
 
   const incrementInputValue = () => {
-    setInputValue((prev) => Math.max(Number(prev) + 25, 0));
+    setValue((prev) => {
+      return Math.max(prev + step, 0)
+    });
   }
 
   const decrementInputValue = () => {
-    setInputValue((prev) => Math.max(Number(prev) - 25, 0));
+    setValue((prev) => Math.max(Number(prev) - step, 0));
   }
 
   const handleValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    /*
     // This regex allows numbers with decimal points
     const regex = /^[0-9]*\.?[0-9]*$/;
 
@@ -31,17 +29,15 @@ const QuantityInput: ForwardRefRenderFunction<any, QuantityInputProps> = ({ chan
 
     // If the current value passes the regex test or is empty, update the state
     if (regex.test(val) || val === '') {
-      setInputValue(val);
+      setValue(val);
     }
+    */
+    setValue(e.target.value);
   };
-
-  useEffect(() => {
-    changeValue(inputValue);
-  }, [inputValue]);
 
   return (
     <StyledInputRoot>
-      <StyledInput value={inputValue} onChange={handleValue} />
+      <StyledInput value={value} onChange={handleValue} />
       <StyledLeftButtonDiv>
         <StyledButton onClick={decrementInputValue}>
           <svg width="12" height="2" viewBox="0 0 12 2" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0.166672 0.166664H11.8333V1.83333H0.166672V0.166664Z" fill="#333333"></path></svg>
