@@ -7,6 +7,7 @@ export interface Auth {
 export interface JwtDecoded {
 	payload: {
 		id: string;
+        publicAddress: string;
 		correspondingAddress: string;
 		isAdmin: boolean;
 	};

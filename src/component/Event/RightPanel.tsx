@@ -17,7 +17,7 @@ import { Login } from "../header/Login/Login";
 import axios from "axios";
 import CachedIcon from '@mui/icons-material/Cached';
 
-import { useSignTypedData, useAccount, useReconnect } from 'wagmi'
+import { useSignTypedData, useAccount } from 'wagmi'
 import { switchChain } from '@wagmi/core'
 import { sepolia } from '@wagmi/core/chains'
 import { config } from "../../wagmi";
@@ -25,7 +25,7 @@ import { config } from "../../wagmi";
 export default function RightPanel() {
 
     const { signTypedDataAsync } = useSignTypedData()
-    const { address: signerAddress, isConnected } = useAccount()
+    const { address: signerAddress } = useAccount()
 
     const dispatch = useDispatch();
     const ref = useRef();
@@ -148,14 +148,6 @@ export default function RightPanel() {
         
         getChainId();
     }, [])
-
-    const { reconnect } = useReconnect()
-
-    useEffect(() => {
-        if (accessToken != undefined && accessToken != '' && isConnected == false) {
-            reconnect();
-        }
-    }, [accessToken, isConnected])
 
     window.ethereum.on('chainChanged', (chainId: number) => {
         console.log("Chain switched to:", chainId);

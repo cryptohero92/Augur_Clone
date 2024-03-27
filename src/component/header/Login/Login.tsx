@@ -1,6 +1,6 @@
 import { Box, Button, Modal, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
-import { useAccount, useConnect, useSignMessage } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useSignMessage } from "wagmi";
 import "./Login.scss"
 import { Auth } from "../../../types";
 
@@ -17,8 +17,9 @@ export function Login({handleLoggedIn}: Props) {
 	const [email, setEmail] = useState('');
 	
 	const { signMessageAsync } = useSignMessage()
-	const { address } = useAccount()
+	const { address, isConnected } = useAccount()
   	const { connectors, connect } = useConnect()
+	const { disconnect } = useDisconnect();
 
 	const style = {
 		position: 'absolute' as 'absolute',
@@ -111,6 +112,7 @@ export function Login({handleLoggedIn}: Props) {
 				return { publicAddress, signature };
 			}
 		} catch (err) {
+			debugger
 			throw new Error(
 				'You need to sign the message to be able to log in.'
 			);
@@ -126,15 +128,11 @@ export function Login({handleLoggedIn}: Props) {
 			method: 'POST'
 		}).then((response) => response.json());
 
-	useEffect(() => {
-		localStorage.setItem("previousAddress", "");
-	}, [])
+	const [tryLogin, setTryLogin] = useState(false)
 
 	useEffect(() => {
-		if (address && address != localStorage.getItem("previousAddress")) {
-
-			localStorage.setItem("previousAddress", address);
-
+		if (address && isConnected && tryLogin) {
+			setTryLogin(false);
 			fetch(`${import.meta.env.VITE_BACKEND_URL}/users?publicAddress=${address}`)
 			.then((response) => response.json())
 			// If yes, retrieve it. If no, create it.
@@ -148,10 +146,12 @@ export function Login({handleLoggedIn}: Props) {
 			.then(handleLoggedIn)
 			.catch((err) => {
 				window.alert(err);
+				debugger
+				disconnect();
 			});
 
 		}
-	}, [address])
+	}, [address, isConnected, tryLogin])
 
 	return (
 		<>
@@ -188,7 +188,9 @@ export function Login({handleLoggedIn}: Props) {
 							<button
 								className="connector-button"
 								key={connector.uid}
-								onClick={() => connect({ connector })}
+								onClick={() => connect({ connector }, {onSuccess: () => {
+									setTryLogin(true);
+								}})}
 								type="button"
 							>
 								{connector.name}

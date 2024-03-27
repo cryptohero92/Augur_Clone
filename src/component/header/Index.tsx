@@ -2,7 +2,7 @@ import { useLocalStorage } from 'usehooks-ts'
 import { AccountInfo } from './AccountInfo/AccountInfo'
 import { Login } from './Login/Login'
 import { Auth } from '../../types'
-import { useDisconnect } from 'wagmi'
+import { useAccount, useDisconnect, useReconnect } from 'wagmi'
 import { AppBar, Box, Button, Container, Menu, MenuItem, Toolbar, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import logo from "../../assets/logo.png"
@@ -12,6 +12,7 @@ import { RootState } from '../../app/store'
 
 export default function Header() {
 	const { disconnectAsync } = useDisconnect()
+	const { isConnected } = useAccount();
 	const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
 	const isAdmin = useSelector((state: RootState) => state.userKey.isAdmin)
 
@@ -24,9 +25,38 @@ export default function Header() {
 	};
 
 	const handleLogout = async () => {
-		await disconnectAsync();
 		setAccessToken('');
+		await disconnectAsync();
 	}
+
+	const { reconnect } = useReconnect()
+
+	const [recheckFlag, setRecheckFlag] = useState(false)
+
+	useEffect(() => {
+		if (recheckFlag == true) {
+			if (isConnected) {
+				console.log(`connected`);
+			} else {
+				console.log(`not connected`);
+				handleLogout();
+			}
+			setRecheckFlag(false)
+		}
+	}, [recheckFlag])
+
+	useEffect(() => {
+		const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+		const checkConnectionStatusAndPatch = async () => {
+		if (accessToken != undefined && accessToken != '' && isConnected == false) {
+			debugger
+			await reconnect();
+			await sleep(1000);
+			setRecheckFlag(true)
+		}
+		}
+		checkConnectionStatusAndPatch();
+	}, [accessToken, isConnected])
 
 	const [anchorElNav, setAnchorElNav] = useState(null);
 	const [pages, setPages] = useState(['Markets', 'Activity', 'Learn', 'LeaderBoard']);
