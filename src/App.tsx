@@ -77,12 +77,14 @@ function App() {
   }
 
   const onOrderUpdated = (data: any) => {
+    debugger
     if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
       dispatch(updateOrder(data));
     console.log(`Order Updated....`)
   }
 
   const onOrderRemoved = (data: any) => {
+    debugger
     if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
       dispatch(removeOrder(data));
     console.log(`Order Deleted....`)

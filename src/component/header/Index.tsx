@@ -49,9 +49,8 @@ export default function Header() {
 		const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 		const checkConnectionStatusAndPatch = async () => {
 		if (accessToken != undefined && accessToken != '' && isConnected == false) {
-			debugger
-			await reconnect();
-			await sleep(1000);
+			await reconnect()
+			await sleep(1000)
 			setRecheckFlag(true)
 		}
 		}

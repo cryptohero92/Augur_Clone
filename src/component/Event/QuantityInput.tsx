@@ -21,7 +21,8 @@ const QuantityInput: ForwardRefRenderFunction = ({ value, setValue, step = 10 },
 
   const handleValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     // This regex allows numbers with decimal points
-    const regex = /^[0-9]*\.?[0-9]*$/;
+    // const regex = /^[0-9]*\.?[0-9]*$/;
+    const regex = /^[0-9]+\.?[0-9]*$/;
 
     // Get current input value
     const val = e.target.value;

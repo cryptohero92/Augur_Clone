@@ -47,10 +47,10 @@ export default function RightPanel() {
 
     const [avgValue, setAvgValue] = useState(50);
     const [predictedShares, setPredictedShares] = useState(0);
-    const [amount, setAmount] = useState(0);
+    const [amount, setAmount] = useState('0');
     const [estimatedAmountReceived, setEstimatedAmountReceived] = useState(0);
-    const [limitPrice, setLimitPrice] = useState(0);
-    const [shares, setShares] = useState(0);
+    const [limitPrice, setLimitPrice] = useState('0');
+    const [shares, setShares] = useState('0');
     const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
     const [isProgressing, setIsProgressing] = useState(false);
 
@@ -112,12 +112,12 @@ export default function RightPanel() {
 
     useEffect(() => {
         if (bettingStyle == BettingStyle.Market && buyOrSell == BUY) {
-            setInsufficientBalance(amount > currentMoney)
+            setInsufficientBalance(Number(amount) > currentMoney)
         } else if (bettingStyle == BettingStyle.Limit && buyOrSell == BUY) {
-            setInsufficientBalance(limitPrice/100 * shares > currentMoney)
+            setInsufficientBalance(Number(limitPrice)/100 * Number(shares) > currentMoney)
         }
         if (buyOrSell == SELL) {
-            setInsufficientBalance(shares > (showNo ? noShares : yesShares))
+            setInsufficientBalance(Number(shares) > (showNo ? noShares : yesShares))
         }
     }, [buyOrSell, bettingStyle, amount, currentMoney, limitPrice, shares, showNo, noShares, yesShares])
     
@@ -258,11 +258,11 @@ export default function RightPanel() {
         
         if (bettingStyle == BettingStyle.Market) {
             if (buyOrSell == BUY) {
-                collateralAmount = amount;
+                collateralAmount = Number(amount);
                 conditionalTokenAmount = predictedShares;
                 // need to calculate takerFillAmount and makerFillAmounts, and pick makerOrders.
                 // first step is to sort orders 
-                let remain = amount * 1000000;
+                let remain = Number(amount) * 1000000;
 
                 const sortedOrders = _orders.filter(order => order.isBuy == false).sort((a, b) => a.price - b.price);
                 if (sortedOrders.length > 0) {
@@ -289,14 +289,14 @@ export default function RightPanel() {
                             break;
                         }
                     }
-                    takerFillAmount = Math.floor(amount * 1000000 - remain);
+                    takerFillAmount = Math.floor(Number(amount) * 1000000 - remain);
                 }
 
             } else { // Sell Token
                 collateralAmount = estimatedAmountReceived;
-                conditionalTokenAmount = shares;
+                conditionalTokenAmount = Number(shares);
 
-                let remainingShares = shares * 1000000;
+                let remainingShares = Number(shares) * 1000000;
                 const sortedOrders = _orders.filter(order => order.isBuy == true).sort((a, b) => a.price - b.price);
 
                 if (sortedOrders.length > 0) {
@@ -322,19 +322,19 @@ export default function RightPanel() {
                             break;
                         }
                     }
-                    takerFillAmount = Math.floor(shares * 1000000 - remainingShares);
+                    takerFillAmount = Math.floor(Number(shares) * 1000000 - remainingShares);
                 }
             }
         } else { // limit
-            collateralAmount = roundToTwo(shares * limitPrice / 100);
-            conditionalTokenAmount = shares;
-            let remainingShares = shares * 1000000;
+            collateralAmount = Number(shares) * Number(limitPrice) / 100;
+            conditionalTokenAmount = Number(shares);
+            let remainingShares = Number(shares) * 1000000;
             if (buyOrSell == BUY) {
                 const sortedOrders = _orders.filter(order => order.isBuy == false).sort((a, b) => a.price - b.price);
                 if (sortedOrders.length > 0) {
                     for (let i = 0; i < sortedOrders.length; i++) {
                         let order = sortedOrders[i];
-                        if (order.price > limitPrice) break;
+                        if (order.price > Number(limitPrice)) break;
                         
                         if (remainingShares >= order.shares) {
                             makerOrders.push(order);
@@ -366,7 +366,7 @@ export default function RightPanel() {
                 if (sortedOrders.length > 0) {
                     for (let i = 0; i < sortedOrders.length; i++) {
                         let order = sortedOrders[i];
-                        if (order.price < limitPrice) break;
+                        if (order.price < Number(limitPrice)) break;
 
                         if (remainingShares > order.shares) {
                             makerOrders.push(order);
@@ -389,7 +389,7 @@ export default function RightPanel() {
                             break;
                         }
                     }
-                    takerFillAmount = Math.floor(shares * 1000000 - remainingShares);
+                    takerFillAmount = Math.floor(Number(shares) * 1000000 - remainingShares);
                 }
             }
         }
@@ -402,8 +402,8 @@ export default function RightPanel() {
             signer: signerAddress || publicAddress as `0x${string}`,
             taker: `0x0000000000000000000000000000000000000000`,
             tokenId: ((showNo ? selectedBettingOption.noTokenId : selectedBettingOption.yesTokenId) || '').toString(),
-            makerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ? collateralAmount : conditionalTokenAmount)}`, 6).toString(),
-            takerAmount: parseUnits(`${roundToTwo(buyOrSell == BUY ?  conditionalTokenAmount : collateralAmount)}`, 6).toString(),
+            makerAmount: parseUnits(`${buyOrSell == BUY ? Math.ceil(collateralAmount * 1000000) / 1000000 : Math.ceil(conditionalTokenAmount * 1000000) / 1000000}`, 6).toString(),
+            takerAmount: parseUnits(`${buyOrSell == BUY ?  Math.floor(conditionalTokenAmount * 1000000) / 1000000 : Math.floor(collateralAmount * 1000000) / 1000000}`, 6).toString(),
             expiration: '0',
             nonce: '0',
             feeRateBps: '0',
@@ -479,16 +479,16 @@ export default function RightPanel() {
         dispatch(setShowNo(true));   
     }
 
-    const handleAmountChange = (value: number) => {
-        setAmount(Number(value));
+    const handleAmountChange = (value: string) => {
+        setAmount(value);
     }
 
-    const handleSharesChange = (value: number) => {
-        setShares(Number(value));
+    const handleSharesChange = (value: string) => {
+        setShares(value);
     }
 
-    const handleLimitPriceChange  = (value: number) => {
-        setLimitPrice(Number(value));
+    const handleLimitPriceChange  = (value: string) => {
+        setLimitPrice(value);
     }
 
     useEffect(() => {
@@ -524,7 +524,7 @@ export default function RightPanel() {
         const sellOrders = mergeElements(_orders.filter(order => order.side == 1).sort((a, b) => a.price - b.price));
         
         let predictedShares = 0;
-        let remain = amount * 1000000;
+        let remain = Number(amount) * 1000000;
         let avgValue = 100;
 
         if (sellOrders.length > 0) {
@@ -541,13 +541,13 @@ export default function RightPanel() {
                 }
             }
             if (remain == 0) {
-                avgValue = amount * 1000000 / predictedShares;
+                avgValue = Number(amount) * 1000000 / predictedShares;
             }
         } else {
             avgValue = 100;
             predictedShares = 0;
         }
-        setPredictedShares(roundToTwo(Number(formatUnits(Math.floor(predictedShares), 6))));
+        setPredictedShares(Number(formatUnits(Math.floor(predictedShares), 6)));
         setAvgValue(avgValue);
     }, [amount]);
 
@@ -582,7 +582,7 @@ export default function RightPanel() {
         }
 
         const buyOrders = mergeElements(_orders.filter(order => order.side == 0).sort((a, b) => b.price - a.price));
-        let remainingShares = shares * 1000000;
+        let remainingShares = Number(shares) * 1000000;
         let amountReceived = 0;
         let avgValue = 0;
 
@@ -599,7 +599,7 @@ export default function RightPanel() {
                 }
             }
             if (remainingShares == 0) {
-                avgValue = amountReceived / shares;
+                avgValue = amountReceived / Number(shares);
             }
         } else {
             avgValue = 0;
@@ -823,7 +823,7 @@ export default function RightPanel() {
                                         </Box>
 
                                         {accessToken != undefined && accessToken != '' ? (chainId == sepolia.id ? (
-                                            <Button disabled={isProgressing || (buyOrSell == BUY && (amount > currentMoney)) || (buyOrSell == SELL && (shares > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
+                                            <Button disabled={isProgressing || (buyOrSell == BUY && (Number(amount) > currentMoney)) || (buyOrSell == SELL && (Number(shares) > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
                                         ) : (<Button onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
@@ -846,7 +846,7 @@ export default function RightPanel() {
                                                     </Box>
                                                     <Box sx={{display: 'flex', width: 1, justifyContent: 'space-between'}}>
                                                         <Typography>Potential Return</Typography>
-                                                        <Typography>${roundToTwo(amount/avgValue * 100)}({ roundToTwo((100/avgValue - 1) * 100) }%)</Typography>
+                                                        <Typography>${roundToTwo(Number(amount)/avgValue * 100)}({ roundToTwo((100/avgValue - 1) * 100) }%)</Typography>
                                                     </Box>
                                                 </>
                                             ) : (
@@ -878,7 +878,7 @@ export default function RightPanel() {
                                         </Box>
 
                                         {accessToken != undefined && accessToken != '' ? (chainId == sepolia.id ? (
-                                            <Button disabled={isProgressing || (buyOrSell == BUY && (amount > currentMoney)) || (buyOrSell == SELL && (shares > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
+                                            <Button disabled={isProgressing || (buyOrSell == BUY && (Number(amount) > currentMoney)) || (buyOrSell == SELL && (Number(shares) > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
                                         ) : (<Button onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
@@ -891,17 +891,17 @@ export default function RightPanel() {
                                         <Box sx={{display: 'flex', rowGap: '0.25rem', flexDirection: 'column'}}>
                                             <Box sx={{display: 'flex', width: 1, justifyContent: 'space-between'}}>
                                                 <Typography>Total</Typography>
-                                                <Typography>${ roundToTwo(shares * limitPrice / 100) }</Typography>
+                                                <Typography>${ roundToTwo(Number(shares) * Number(limitPrice) / 100) }</Typography>
                                             </Box>
 
                                             { buyOrSell == BUY && (                                                
                                                 <Box sx={{display: 'flex', width: 1, justifyContent: 'space-between'}}>
                                                     <Typography>Potential Return</Typography>
                                                     {
-                                                        limitPrice == 0 ? (
+                                                        Number(limitPrice) == 0 ? (
                                                             <Typography>$0.00(0.00%)</Typography>        
                                                         ) : (
-                                                            <Typography>${roundToTwo(shares)}({ roundToTwo((shares/limitPrice) * 100) }%)</Typography>
+                                                            <Typography>${roundToTwo(Number(shares))}({ roundToTwo((Number(shares)/Number(limitPrice)) * 100) }%)</Typography>
                                                         )
                                                     }
                                                     
