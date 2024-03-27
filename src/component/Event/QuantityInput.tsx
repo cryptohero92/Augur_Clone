@@ -1,26 +1,25 @@
-import { forwardRef, ForwardRefRenderFunction, useImperativeHandle } from 'react';
+import { forwardRef, ForwardRefRenderFunction, useEffect, useImperativeHandle, useState } from 'react';
 import { styled } from '@mui/system';
 
-const QuantityInput: ForwardRefRenderFunction = ({ value, setValue, step = 25 }, ref) => {
+const QuantityInput: ForwardRefRenderFunction = ({ value, setValue, step = 10 }, ref) => {
+
+  const [inputValue, setInputValue] = useState('0');
 
   useImperativeHandle(ref, () => ({
-    updateInputValue(newValue: number) {
-      setValue(newValue);
+    updateInputValue(newValue: string) {
+      setInputValue(newValue);
     }
   }));
 
   const incrementInputValue = () => {
-    setValue((prev) => {
-      return Math.max(prev + step, 0)
-    });
+    setInputValue((prev) => Math.max(Number(prev) + step, 0).toString());
   }
 
   const decrementInputValue = () => {
-    setValue((prev) => Math.max(Number(prev) - step, 0));
+    setInputValue((prev) => Math.max(Number(prev) - step, 0).toString());
   }
 
   const handleValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    /*
     // This regex allows numbers with decimal points
     const regex = /^[0-9]*\.?[0-9]*$/;
 
@@ -29,11 +28,14 @@ const QuantityInput: ForwardRefRenderFunction = ({ value, setValue, step = 25 },
 
     // If the current value passes the regex test or is empty, update the state
     if (regex.test(val) || val === '') {
-      setValue(val);
+      setInputValue(val);
     }
-    */
-    setValue(e.target.value);
+    // setInputValue(e.target.value);
   };
+
+  useEffect(() => {
+    setValue(inputValue);
+  }, [inputValue])
 
   return (
     <StyledInputRoot>
