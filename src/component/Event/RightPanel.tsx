@@ -17,12 +17,15 @@ import { Login } from "../header/Login/Login";
 import axios from "axios";
 import CachedIcon from '@mui/icons-material/Cached';
 
-import { useSignTypedData, useAccount } from 'wagmi'
+import { useSignTypedData, useAccount, useReconnect } from 'wagmi'
+import { switchChain } from '@wagmi/core'
+import { sepolia } from '@wagmi/core/chains'
+import { config } from "../../wagmi";
 
 export default function RightPanel() {
 
     const { signTypedDataAsync } = useSignTypedData()
-    const { address: signerAddress } = useAccount()
+    const { address: signerAddress, isConnected } = useAccount()
 
     const dispatch = useDispatch();
     const ref = useRef();
@@ -39,6 +42,8 @@ export default function RightPanel() {
     const [noValue, setNoValue] = useState(50);
     const [yesShares, setYesShares] = useState(0);
     const [noShares, setNoShares] = useState(0);
+    const [chainId, setChainId] = useState<number>(sepolia.id)
+    
 
     const [avgValue, setAvgValue] = useState(50);
     const [predictedShares, setPredictedShares] = useState(0);
@@ -111,6 +116,41 @@ export default function RightPanel() {
         const { accessToken } = auth;
         setAccessToken(accessToken);
     };
+
+    const switchToChain = async (chainId: any) => {
+        try {
+          await switchChain(config, { chainId })
+          console.log('Switched to chain:', chainId);
+        } catch (error) {
+          console.error('Error switching chain:', error);
+        }
+    };
+
+    useEffect(() => {
+        const getChainId = async () => {
+            await window.ethereum.request({ method: 'eth_chainId' })
+            .then((chainId: number) => {
+                console.log("Connected chain ID:", chainId);
+                setChainId(chainId);
+            })
+            .catch((error: any) => console.error(error));
+        };
+        
+        getChainId();
+    }, [])
+
+    const { reconnect } = useReconnect()
+
+    useEffect(() => {
+        if (accessToken != undefined && accessToken != '' && isConnected == false) {
+            reconnect();
+        }
+    }, [accessToken, isConnected])
+
+    window.ethereum.on('chainChanged', (chainId: number) => {
+        console.log("Chain switched to:", chainId);
+        setChainId(chainId);
+    });
 
     const claimCollateralForSelectedBettingOption = () => {
         if (selectedBettingOption) {
@@ -780,11 +820,11 @@ export default function RightPanel() {
 
                                         </Box>
 
-                                        {accessToken != undefined && accessToken != '' ? (
+                                        {accessToken != undefined && accessToken != '' ? (chainId == sepolia.id ? (
                                             <Button disabled={isProgressing || (buyOrSell == BUY && (amount > currentMoney)) || (buyOrSell == SELL && (shares > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
-                                        ) : (
+                                        ) : (<Button onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
                                             <Login handleLoggedIn={handleLoggedIn} />
                                         )}
                                         {isProgressing && (
@@ -836,11 +876,11 @@ export default function RightPanel() {
                                             { (buyOrSell == SELL && shares > (showNo ? noShares : yesShares)) && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
                                         </Box>
 
-                                        {accessToken != undefined && accessToken != '' ? (
-                                            <Button disabled={isProgressing || (buyOrSell == BUY && limitPrice * shares > currentMoney) || (buyOrSell == SELL && shares > (showNo ? noShares : yesShares))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
+                                        {accessToken != undefined && accessToken != '' ? (chainId == sepolia.id ? (
+                                            <Button disabled={isProgressing || (buyOrSell == BUY && (amount > currentMoney)) || (buyOrSell == SELL && (shares > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
-                                        ) : (
+                                        ) : (<Button onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
                                             <Login handleLoggedIn={handleLoggedIn} />
                                         )}
                                         {isProgressing && (
