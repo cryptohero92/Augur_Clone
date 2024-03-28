@@ -87,11 +87,13 @@ export default function OrderBook() {
     
     const buyOrders = mergeElements(_orders.filter(order => order.side == 0).sort((a, b) => b.price - a.price));
     setBuyOrders(buyOrders);
-    const sellOrders = mergeElements(_orders.filter(order => order.side == 1).sort((a, b) => a.price - b.price)).reverse();
+    const sellOrders = mergeElements(_orders.filter(order => order.side == 1).sort((a, b) => a.price - b.price));
     setSellOrders(sellOrders);
     if (sellOrders.length > 0 && buyOrders.length > 0) {
       const spread = sellOrders.at(-1).price - buyOrders[0].price;
       setSpread(spread);
+    } else {
+      setSpread(0);
     }
   }, [orders, showNo]);
 
@@ -99,22 +101,26 @@ export default function OrderBook() {
     dispatch(setShowNo(!!newValue));
   };
 
-  const renderOrders = (orders: any) => {
+  const renderOrders = ({ orders, isBuy = true }: any) => {
     let previousTotal = 0; // Variable to store the previous orders' total
-
-    return orders.map((order: any, index: number) => {
+  
+    orders = orders.map((order: any) => {
       const total = order.price * order.shares + previousTotal; // Calculate the total
       previousTotal = total; // Update the previousTotal for the next iteration
-
+  
       return (
-        <tr key={index}>
+        <tr key={order._id}>
           <td>{roundToTwo(order.price)}c</td>
           <td>{roundToTwo(Number(formatUnits(order.shares, 6)))}</td>
           <td>${roundToTwo(Number(formatUnits(total / 100, 6)))}</td>
         </tr>
       );
-    })
-  }
+    });
+    if (!isBuy) {
+      orders = orders.reverse();
+    }
+    return orders;
+  };
 
   return (
     <Box sx={{ width: '100%'}}>
@@ -136,7 +142,7 @@ export default function OrderBook() {
                 </tr>
               </thead>
               <tbody>
-                { renderOrders(sellOrders) }
+                { renderOrders({orders: sellOrders, isBuy: false}) }
               </tbody>
             </table>
           </Box>
@@ -156,7 +162,7 @@ export default function OrderBook() {
                 </tr>
               </thead>
               <tbody>
-                { renderOrders(buyOrders) }
+                { renderOrders({orders: buyOrders}) }
               </tbody>
             </table>
           </Box>
@@ -172,7 +178,7 @@ export default function OrderBook() {
                 </tr>
               </thead>
               <tbody>
-                { renderOrders(sellOrders) }
+                { renderOrders({orders: sellOrders, isBuy: false}) }
               </tbody>
             </table>
           </Box>
@@ -192,7 +198,7 @@ export default function OrderBook() {
                 </tr>
               </thead>
               <tbody>
-                { renderOrders(buyOrders) }
+                { renderOrders({orders: buyOrders}) }
               </tbody>
             </table>
           </Box>

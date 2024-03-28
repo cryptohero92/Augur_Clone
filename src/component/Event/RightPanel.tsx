@@ -108,7 +108,7 @@ export default function RightPanel() {
         }
         getResult();
         
-    }, [selectedBettingOption, accessToken]);
+    }, [selectedBettingOption, accessToken, orders]);
 
     useEffect(() => {
         if (bettingStyle == BettingStyle.Market && buyOrSell == BUY) {
@@ -905,7 +905,7 @@ export default function RightPanel() {
                                                         Number(limitPrice) == 0 ? (
                                                             <Typography>$0.00(0.00%)</Typography>        
                                                         ) : (
-                                                            <Typography>${roundToTwo(Number(shares))}({ roundToTwo((Number(shares)/Number(limitPrice)) * 100) }%)</Typography>
+                                                            <Typography>${roundToTwo(Number(shares))}({ roundToTwo((Number(shares) / (Number(shares) * Number(limitPrice) / 100)) * 100) }%)</Typography>
                                                         )
                                                     }
                                                     
