@@ -138,6 +138,7 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                                     <Tab label="Order Book" {...a11yProps(0)} />
                                     <Tab label="Graph" {...a11yProps(1)} />
                                     <Tab label="My Orders" {...a11yProps(2)} />
+                                    <Tab label="Positions" {...a11yProps(3)} />
                                   </Tabs>
                                 </Box>
                                 <Box sx={{ height: '300px', overflowY: 'scroll' }}>
@@ -149,6 +150,9 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                                     </CustomTabPanel>
                                     <CustomTabPanel value={choice} index={2}>
                                         <MyOrders />
+                                    </CustomTabPanel>
+                                    <CustomTabPanel value={choice} index={3}>
+                                        <Positions />
                                     </CustomTabPanel>
                                 </Box>
                             </Box>

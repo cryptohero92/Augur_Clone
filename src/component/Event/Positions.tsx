@@ -65,7 +65,7 @@ export default function Positions() {
                         }
 
                         let logs = extractedLogs.filter(log => {
-                            return log.maker == correspondingAddress || log.taker == correspondingAddress
+                            return log.maker == correspondingAddress
                         });
                         positions[Number(YES)].currentPrice = getTokenPriceFromLastTransaction(yesTokenId);
                         positions[Number(NO)].currentPrice = getTokenPriceFromLastTransaction(noTokenId);
@@ -78,16 +78,16 @@ export default function Positions() {
                             if (log.makerAssetId == '0') { // collateral pay
                                 positions[indexInPositions].spentMoney += Number(log.makerAmountFilled);
                                 positions[indexInPositions].shares += Number(log.takerAmountFilled);
-                            } else if (log.takerAssetId == '0') {
+                            } else {
                                 positions[indexInPositions].spentMoney -= Number(log.takerAmountFilled);
                                 positions[indexInPositions].shares -= Number(log.makerAmountFilled);
                             }
                         }
-                        debugger
                         setPositions(positions)
                     })
                 } catch (err) {
                     debugger
+                    setPositions([]);
                     console.error(err);
                 }
                 
