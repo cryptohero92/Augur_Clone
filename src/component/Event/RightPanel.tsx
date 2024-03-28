@@ -527,21 +527,25 @@ export default function RightPanel() {
         let remain = Number(amount) * 1000000;
         let avgValue = 100;
 
-        if (sellOrders.length > 0) {
+        if (remain == 0) {
+            avgValue = 0;
+            predictedShares = 0;
+        }
+        else if (sellOrders.length > 0) {
             for (let i = 0; i < sellOrders.length; i++) {
                 let order = sellOrders[i];
-                if (remain >= order.price * order.shares) {
+                if (remain >= order.price * order.shares / 100) {
                     predictedShares += order.shares;
-                    remain -= order.price * order.shares;
+                    remain -= order.price * order.shares / 100;
                 } else {
                     // if have no sufficient money to get all, so need to get some parts only
-                    predictedShares += remain / order.price;
+                    predictedShares += remain * 100 / order.price;
                     remain = 0;
                     break;
                 }
             }
             if (remain == 0) {
-                avgValue = Number(amount) * 1000000 / predictedShares;
+                avgValue = Number(amount) * 1000000 * 100 / predictedShares;
             }
         } else {
             avgValue = 100;
@@ -823,10 +827,10 @@ export default function RightPanel() {
                                         </Box>
 
                                         {accessToken != undefined && accessToken != '' ? (chainId == sepolia.id ? (
-                                            <Button disabled={isProgressing || (buyOrSell == BUY && (Number(amount) > currentMoney)) || (buyOrSell == SELL && (Number(shares) > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
+                                            <Button disabled={isProgressing || (buyOrSell == BUY && (Number(amount) > currentMoney)) || (buyOrSell == SELL && (Number(shares) > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#1652f0', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
-                                        ) : (<Button onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
+                                        ) : (<Button sx={{ backgroundColor: '#D8E0FA', color: '#1652f0'}} onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
                                             <Login handleLoggedIn={handleLoggedIn} />
                                         )}
                                         {isProgressing && (
@@ -846,7 +850,7 @@ export default function RightPanel() {
                                                     </Box>
                                                     <Box sx={{display: 'flex', width: 1, justifyContent: 'space-between'}}>
                                                         <Typography>Potential Return</Typography>
-                                                        <Typography>${roundToTwo(Number(amount)/avgValue * 100)}({ roundToTwo((100/avgValue - 1) * 100) }%)</Typography>
+                                                        <Typography>${roundToTwo(predictedShares)}({ avgValue == 0 ? 0 : roundToTwo((100/avgValue - 1) * 100) }%)</Typography>
                                                     </Box>
                                                 </>
                                             ) : (
@@ -878,10 +882,10 @@ export default function RightPanel() {
                                         </Box>
 
                                         {accessToken != undefined && accessToken != '' ? (chainId == sepolia.id ? (
-                                            <Button disabled={isProgressing || (buyOrSell == BUY && (Number(amount) > currentMoney)) || (buyOrSell == SELL && (Number(shares) > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#ee001299', color: 'white', ":hover": {
+                                            <Button disabled={isProgressing || (buyOrSell == BUY && (Number(amount) > currentMoney)) || (buyOrSell == SELL && (Number(shares) > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#1652f0', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
-                                        ) : (<Button onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
+                                        ) : (<Button sx={{ backgroundColor: '#D8E0FA', color: '#1652f0'}} onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
                                             <Login handleLoggedIn={handleLoggedIn} />
                                         )}
                                         {isProgressing && (
