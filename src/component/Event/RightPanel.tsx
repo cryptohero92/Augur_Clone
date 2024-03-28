@@ -7,7 +7,7 @@ import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
 import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/sepolia/CTFExchangeContract.json"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
-import { fetchOrders, setShowNo } from "../../feature/slices/orderSlice";
+import { fetchOrders, setShowNo, setBuyOrSell } from "../../feature/slices/orderSlice";
 import { BUY, SELL, mergeElements, roundToTwo } from "../../app/constant";
 import { BigNumberish, formatUnits, parseUnits } from 'ethers'
 import { useLocalStorage } from "usehooks-ts";
@@ -32,12 +32,11 @@ export default function RightPanel() {
 
     const [currentMoney, setCurrentMoney] = useLocalStorage<number>('currentMoney', 0)
 
-    const { orders, showNo } = useSelector((state: RootState) => state.orderKey);
+    const { orders, showNo, buyOrSell } = useSelector((state: RootState) => state.orderKey);
     const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
     const { correspondingAddress, publicAddress } = useSelector((state: RootState) => state.userKey);
 
     const [bettingStyle, setBettingStyle] = useState(BettingStyle.Limit);
-    const [buyOrSell, setBuyOrSell] = useState(BUY);
     const [yesValue, setYesValue] = useState(50);
     const [noValue, setNoValue] = useState(50);
     const [yesShares, setYesShares] = useState(0);
@@ -780,8 +779,8 @@ export default function RightPanel() {
                             <Box sx={{borderBottom: '1px solid'}}>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
                                     <Box sx={styles.outcomeButtons}>
-                                        <Box sx={{ color: buyOrSell == BUY ? 'blue': 'gray'}} onClick={() => setBuyOrSell(BUY)} >Buy</Box>
-                                        <Box sx={{ color: buyOrSell == BUY ? 'gray': 'blue'}} onClick={() => setBuyOrSell(SELL)}>Sell</Box>
+                                        <Box sx={{ color: buyOrSell == BUY ? 'blue': 'gray'}} onClick={() => dispatch(setBuyOrSell(BUY))} >Buy</Box>
+                                        <Box sx={{ color: buyOrSell == BUY ? 'gray': 'blue'}} onClick={() => dispatch(setBuyOrSell(SELL))}>Sell</Box>
                                     </Box>
                                     <BettingStyleSelectMenu  bettingStyle={bettingStyle} setBettingStyle={setBettingStyle} />
                                 </Box>

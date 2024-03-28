@@ -14,6 +14,7 @@ import Tab from '@mui/material/Tab';
 
 import ChartArea from "./ChartArea";
 import OrderBook from "./OrderBook";
+import Positions from "./Positions";
 import BettingOptionButtons from "./BettingOptionButtions";
 import MyOrders from './MyOrders';
 import { RootState } from "../../app/store";
@@ -157,6 +158,7 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
             }) : (
                 <>
                     <ChartArea />
+                    <Positions />
                     <Accordion style={{border: '1px solid'}}>
                         <AccordionSummary
                           aria-controls="panel1a-content"

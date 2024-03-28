@@ -44,6 +44,12 @@ export interface PublishedEventInfo {
     bettingOptions: BettingOptionInfo[]
 }
 
+export interface PositionInfo {
+    shares: number,
+    spentMoney: number,
+    currentPrice: number
+}
+
 export interface OrderInfo {
     _id: string,
     salt: string,
