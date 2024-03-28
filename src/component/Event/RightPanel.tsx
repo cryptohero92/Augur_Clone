@@ -869,7 +869,7 @@ export default function RightPanel() {
                                                     <Typography>Balance: {roundToTwo(currentMoney)}</Typography>
                                                 )}
                                             </Box>
-                                            <QuantityInput ref={ref} value={limitPrice} step={1} setValue={handleLimitPriceChange} />
+                                            <QuantityInput ref={ref} value={limitPrice} step={1} isPrice={true} setValue={handleLimitPriceChange} />
                                         </Box>
                                         <Box sx={{display: 'flex', flexDirection: 'column', rowGap:'0.5rem' }}>
                                             <Typography>Shares</Typography>

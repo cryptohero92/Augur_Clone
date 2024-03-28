@@ -1,7 +1,8 @@
 import { forwardRef, ForwardRefRenderFunction, useEffect, useImperativeHandle, useState } from 'react';
 import { styled } from '@mui/system';
+import { roundToTwo } from '../../app/constant';
 
-const QuantityInput: ForwardRefRenderFunction = ({ value, setValue, step = 10 }, ref) => {
+const QuantityInput: ForwardRefRenderFunction = ({ value, setValue, step = 10, isPrice = false }, ref) => {
 
   const [inputValue, setInputValue] = useState('0');
 
@@ -12,26 +13,26 @@ const QuantityInput: ForwardRefRenderFunction = ({ value, setValue, step = 10 },
   }));
 
   const incrementInputValue = () => {
-    setInputValue((prev) => Math.max(Number(prev) + step, 0).toString());
+    setInputValue((prev) => roundToTwo(isPrice ? Math.min(Math.max(Number(prev) + step, 0), 99.9):  Math.max(Number(prev) + step, 0)).toString());
   }
 
   const decrementInputValue = () => {
-    setInputValue((prev) => Math.max(Number(prev) - step, 0).toString());
+    setInputValue((prev) => roundToTwo(Math.max(Number(prev) - step, 0)).toString());
   }
 
   const handleValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // This regex allows numbers with decimal points
-    // const regex = /^[0-9]*\.?[0-9]*$/;
-    const regex = /^[0-9]+\.?[0-9]*$/;
-
+    // This regex allows numbers with decimal points greater than or equal to 0.1
+    const regex = /^(0|[1-9][0-9]*)(\.[0-9]{0,2})?$/;
+  
     // Get current input value
     const val = e.target.value;
-
-    // If the current value passes the regex test or is empty, update the state
-    if (regex.test(val) || val === '') {
+  
+    // If the current value passes the regex test and is greater than or equal to 0.1, or if it is "0" or "0.", update the state
+    if (val == "") {
+      setInputValue('0');
+    } else if (regex.test(val) && (isPrice ? (parseFloat(val) >= 0.1 && parseFloat(val) <= 99.9 || val === "0" || val === "0.") : true)) {
       setInputValue(val);
     }
-    // setInputValue(e.target.value);
   };
 
   useEffect(() => {
