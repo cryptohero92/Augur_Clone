@@ -1,12 +1,13 @@
-import { useEffect, useRef  } from "react";
-// import { useSelector, useDispatch } from "react-redux";
-
-import { createChart, ColorType } from 'lightweight-charts';
+import { useEffect, useRef, useState  } from "react";
+import { createChart, ColorType, ISeriesApi } from 'lightweight-charts';
 import { Box } from "@mui/material";
-// import { RootState } from "../../app/store";
+import { useSelector } from "react-redux";
+import { RootState } from "../../app/store";
 
 export default function ChartArea() {
     const chartContainerRef = useRef();
+    const { bettingOptionLogs } = useSelector((state: RootState) => state.orderKey);
+    const [newSeries, setNewSeries] = useState<ISeriesApi<"Line", any>| null>(null)
 
     // useEffect(() => {
     //     if (selectedBettingOption) {
@@ -38,15 +39,14 @@ export default function ChartArea() {
 
         chart.timeScale().fitContent();
 
-        const newSeries = chart.addLineSeries({ 
+        let _newSeries = chart.addLineSeries({ 
             color: '#2962FF',
             lineWidth: 2,
             // disabling built-in price lines
             lastValueVisible: false,
             priceLineVisible: false,
         });
-
-        newSeries.setData([
+        _newSeries.setData([
             { time: '2019-04-11', value: 80.01 },
             { time: '2019-04-12', value: 96.63 },
             { time: '2019-04-13', value: 76.64 },
@@ -58,6 +58,7 @@ export default function ChartArea() {
             { time: '2019-04-19', value: 81.89 },
             { time: '2019-04-20', value: 74.43 },
         ]);
+        setNewSeries(_newSeries);
 
         window.addEventListener('resize', handleResize);
 
@@ -66,7 +67,22 @@ export default function ChartArea() {
 
             chart.remove();
         };
-    }, []);
+    }, [])
+
+    useEffect(() => {
+        newSeries?.setData([
+            { time: '2019-04-11', value: 90.01 },
+            { time: '2019-04-12', value: 96.63 },
+            { time: '2019-04-13', value: 76.64 },
+            { time: '2019-04-14', value: 81.89 },
+            { time: '2019-04-15', value: 74.43 },
+            { time: '2019-04-16', value: 80.01 },
+            { time: '2019-04-17', value: 96.63 },
+            { time: '2019-04-18', value: 76.64 },
+            { time: '2019-04-19', value: 81.89 },
+            { time: '2019-04-20', value: 74.43 },
+        ]);
+    }, [bettingOptionLogs, newSeries]);
 
     return (
         <Box ref={chartContainerRef} />
