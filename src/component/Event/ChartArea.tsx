@@ -2,6 +2,7 @@ import { useEffect, useRef, useState  } from "react";
 import { createChart, ColorType, ISeriesApi, UTCTimestamp } from 'lightweight-charts';
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
+import { format } from 'date-fns';
 import { RootState } from "../../app/store";
 import { LogInfo } from "../../types";
 import { roundToTwo } from "../../app/constant";
@@ -37,7 +38,7 @@ export default function ChartArea() {
             height: 300,
             timeScale: {
                 timeVisible: true,
-                secondsVisible: false
+                secondsVisible: true
             }
         });
 
@@ -47,32 +48,51 @@ export default function ChartArea() {
             color: '#2962FF',
             lineWidth: 2,
             // disabling built-in price lines
-            lastValueVisible: false,
-            priceLineVisible: false,
+            lastValueVisible: true,
+            priceLineVisible: true
         });
 
         let _noSeries = chart.addLineSeries({ 
             color: '#ff2345',
             lineWidth: 2,
             // disabling built-in price lines
-            lastValueVisible: false,
-            priceLineVisible: false,
+            lastValueVisible: true,
+            priceLineVisible: true,
         });
+
+        let _timeSeries = chart.addLineSeries({
+            color: 'green',
+            lineWidth: 2,
+            // disabling built-in price lines
+            lastValueVisible: true,
+            priceLineVisible: true,
+        })
 
         // Generate data points for the past week at one-minute intervals
         const now = Date.now();
         const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
         const data = [];
-        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 1000) {
+        const data2 = [];
+        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 60 * 100) {
             const x = timestamp;
             const y = 50; // Generate random data for demonstration
             // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
             data.push({ time: x as UTCTimestamp, value: y });
+            
         }
+
+        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 24 * 60 * 60 * 1000) {
+            const x = timestamp;
+            // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
+            data2.push({ time: format(x, 'yyyy-MM-dd'), value: Math.random() * 100});
+        }
+
+        
 
         _yesSeries.setData(data);
         _noSeries.setData(data);
+        _timeSeries.setData(data2);
         setYesSeries(_yesSeries);
         setNoSeries(_noSeries);
 
@@ -97,7 +117,7 @@ export default function ChartArea() {
         const now = Date.now();
         const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
         const data = [];
-        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 1000) {
+        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 60 * 100) {
             const x = timestamp;
             const y = getLatestPriceFrom(bettingOptionLogs, timestamp, tokenId);
             // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
