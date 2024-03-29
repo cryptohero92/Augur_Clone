@@ -3,12 +3,15 @@ import { createChart, ColorType, ISeriesApi, UTCTimestamp } from 'lightweight-ch
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import { format } from 'date-fns'
+import { LogInfo } from "../../types";
+import { roundToTwo } from "../../app/constant";
 
 export default function ChartArea() {
     const chartContainerRef = useRef();
     const { bettingOptionLogs } = useSelector((state: RootState) => state.orderKey);
-    const [newSeries, setNewSeries] = useState<ISeriesApi<"Line", any>| null>(null)
+    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
+    const [yesSeries, setYesSeries] = useState<ISeriesApi<"Line", any>| null>(null)
+    const [noSeries, setNoSeries] = useState<ISeriesApi<"Line", any>| null>(null)
 
     // useEffect(() => {
     //     if (selectedBettingOption) {
@@ -40,8 +43,16 @@ export default function ChartArea() {
 
         chart.timeScale().fitContent();
 
-        let _newSeries = chart.addLineSeries({ 
+        let _yesSeries = chart.addLineSeries({ 
             color: '#2962FF',
+            lineWidth: 2,
+            // disabling built-in price lines
+            lastValueVisible: false,
+            priceLineVisible: false,
+        });
+
+        let _noSeries = chart.addLineSeries({ 
+            color: '#ff2345',
             lineWidth: 2,
             // disabling built-in price lines
             lastValueVisible: false,
@@ -55,26 +66,15 @@ export default function ChartArea() {
         const data = [];
         for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 1000) {
             const x = timestamp;
-            const y = Math.random() * 100; // Generate random data for demonstration
+            const y = 50; // Generate random data for demonstration
             // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
             data.push({ time: x as UTCTimestamp, value: y });
         }
 
-        // Set the data on the line series
-        _newSeries.setData(data);
-        // _newSeries.setData([
-        //     { time: '2019-04-11', value: 80.01 },
-        //     { time: '2019-04-12', value: 96.63 },
-        //     { time: '2019-04-13', value: 76.64 },
-        //     { time: '2019-04-14', value: 81.89 },
-        //     { time: '2019-04-15', value: 74.43 },
-        //     { time: '2019-04-16', value: 80.01 },
-        //     { time: '2019-04-17', value: 96.63 },
-        //     { time: '2019-04-18', value: 76.64 },
-        //     { time: '2019-04-19', value: 81.89 },
-        //     { time: '2019-04-20', value: 74.43 },
-        // ]);
-        setNewSeries(_newSeries);
+        _yesSeries.setData(data);
+        _noSeries.setData(data);
+        setYesSeries(_yesSeries);
+        setNoSeries(_noSeries);
 
         window.addEventListener('resize', handleResize);
 
@@ -84,11 +84,37 @@ export default function ChartArea() {
         };
     }, [])
 
+    const getLatestPriceFrom = (logs: LogInfo[], timestampLimit: number, tokenId: string) => {
+        let latestLog = logs.filter(log => log.timestamp <= timestampLimit && (log.makerAssetId == tokenId || log.takerAssetId == tokenId)).sort((a, b) => a.timestamp - b.timestamp).at(-1)
+        if (latestLog) {
+            return roundToTwo((latestLog.makerAssetId == tokenId ? Number(latestLog.takerAmountFilled) / Number(latestLog.makerAmountFilled) : Number(latestLog.makerAmountFilled) / Number(latestLog.takerAmountFilled)) * 100)
+        } else {
+            return 50;
+        }
+    }
+
+    const updateSeriesData = (series: ISeriesApi<"Line", any>, tokenId: string) => {
+        const now = Date.now();
+        const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
+        const data = [];
+        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 1000) {
+            const x = timestamp;
+            const y = getLatestPriceFrom(bettingOptionLogs, timestamp, tokenId);
+            // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
+            data.push({ time: x as UTCTimestamp, value: y });
+        }
+        series.setData(data)
+    }
+
     useEffect(() => {
-        // if (bettingOptionLogs.length > 0) {
-        //     debugger;
-        //     new Date(timestamp * 1000)
-        // }
+        if (bettingOptionLogs.length == 0) return;
+        
+        if ( selectedBettingOption?.yesTokenId && yesSeries) {
+            updateSeriesData(yesSeries, selectedBettingOption.yesTokenId);
+        }
+        if (selectedBettingOption?.noTokenId && noSeries) {
+            updateSeriesData(noSeries, selectedBettingOption.noTokenId);
+        }
 
         // newSeries?.setData([
         //     { time: '2019-04-11', value: 90.01 },
@@ -102,7 +128,7 @@ export default function ChartArea() {
         //     { time: '2019-04-19', value: 81.89 },
         //     { time: '2019-04-20', value: 74.43 },
         // ]);
-    }, [bettingOptionLogs, newSeries]);
+    }, [bettingOptionLogs, yesSeries, noSeries, selectedBettingOption]);
 
     return (
         <Box ref={chartContainerRef} />

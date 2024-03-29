@@ -58,7 +58,7 @@ export interface LogInfo {
     makerAmountFilled: string,
     makerAssetId: string,
     takerAssetId: string,
-    timestamp: string
+    timestamp: number
 }
 
 export interface OrderInfo {
