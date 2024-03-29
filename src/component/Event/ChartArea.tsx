@@ -70,6 +70,9 @@ export default function ChartArea() {
     }, [])
 
     useEffect(() => {
+        if (bettingOptionLogs.length > 0) {
+
+        }
         newSeries?.setData([
             { time: '2019-04-11', value: 90.01 },
             { time: '2019-04-12', value: 96.63 },
