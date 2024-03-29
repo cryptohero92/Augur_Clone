@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState  } from "react";
-import { createChart, ColorType, ISeriesApi } from 'lightweight-charts';
+import { createChart, ColorType, ISeriesApi, UTCTimestamp } from 'lightweight-charts';
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
@@ -50,14 +50,14 @@ export default function ChartArea() {
 
         // Generate data points for the past week at one-minute intervals
         const now = Date.now();
-        const oneWeekAgo = now - 100 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+        const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
         const data = [];
-        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 24 * 60 * 60 * 1000) {
-            const x = new Date(timestamp);
+        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 1000) {
+            const x = timestamp;
             const y = Math.random() * 100; // Generate random data for demonstration
             // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
-            data.push({ time: format(x, 'yyyy-MM-dd'), value: y });
+            data.push({ time: x as UTCTimestamp, value: y });
         }
 
         // Set the data on the line series
@@ -89,7 +89,7 @@ export default function ChartArea() {
         //     debugger;
         //     new Date(timestamp * 1000)
         // }
-        
+
         // newSeries?.setData([
         //     { time: '2019-04-11', value: 90.01 },
         //     { time: '2019-04-12', value: 96.63 },
