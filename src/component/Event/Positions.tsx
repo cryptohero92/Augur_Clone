@@ -17,27 +17,14 @@ export default function Positions() {
     const { orders } = useSelector((state: RootState) => state.orderKey);
     const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
     const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey)
-    const [accessToken] = useLocalStorage<string>('accessToken', '')
     const [positions, setPositions] = useState<PositionInfo[]>([]);
 
     const dispatch = useDispatch();
 
     useEffect(() => {
         async function getResult() {
-            if (selectedBettingOption && accessToken != '') {
+            if (selectedBettingOption && correspondingAddress != '') {
                 // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
-                let positions = [
-                    {
-                        shares: 0,
-                        spentMoney:0,
-                        currentPrice: 0
-                    }, 
-                    {
-                        shares: 0,
-                        spentMoney:0,
-                        currentPrice: 0
-                    }
-                ];
                 try {
                     let tokenIdPromise = fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getTokenIds/${selectedBettingOption.ipfsUrl}`)
                     .then((response) => response.json())
@@ -51,7 +38,6 @@ export default function Positions() {
                         return { extractedLogs: res.extractedLogs};
                     });
                     Promise.all([tokenIdPromise, EventLogPromise]).then(results => (Object.assign({}, ...results))).then(({yesTokenId, noTokenId, extractedLogs}) => {
-                        debugger
                         const getTokenPriceFromLastTransaction = (tokenId) => {
                             for (let i = extractedLogs.length - 1; i >= 0; i--) {
                                 let log = extractedLogs[i];
@@ -67,6 +53,24 @@ export default function Positions() {
                         let logs = extractedLogs.filter(log => {
                             return log.maker == correspondingAddress
                         });
+                        if (logs.length == 0) {
+                            setPositions([]);
+                            return;
+                        }
+                        let positions = [
+                            {
+                                shares: 0,
+                                earnedShares: 0,
+                                spentMoney:0,
+                                currentPrice: 0
+                            }, 
+                            {
+                                shares: 0,
+                                earnedShares: 0,
+                                spentMoney:0,
+                                currentPrice: 0
+                            }
+                        ];
                         positions[Number(YES)].currentPrice = getTokenPriceFromLastTransaction(yesTokenId);
                         positions[Number(NO)].currentPrice = getTokenPriceFromLastTransaction(noTokenId);
 
@@ -77,9 +81,9 @@ export default function Positions() {
 
                             if (log.makerAssetId == '0') { // collateral pay
                                 positions[indexInPositions].spentMoney += Number(log.makerAmountFilled);
+                                positions[indexInPositions].earnedShares += Number(log.takerAmountFilled);
                                 positions[indexInPositions].shares += Number(log.takerAmountFilled);
                             } else {
-                                positions[indexInPositions].spentMoney -= Number(log.takerAmountFilled);
                                 positions[indexInPositions].shares -= Number(log.makerAmountFilled);
                             }
                         }
@@ -94,8 +98,8 @@ export default function Positions() {
             }
         }
         getResult();
-    }, [selectedBettingOption, accessToken, orders]);
-    return positions.length ? (
+    }, [selectedBettingOption, correspondingAddress, orders]);
+    return positions.length > 0 ? (
       <>
         <h1>Positions</h1>
         <table width="100%" style={{textAlign:"right"}}>
@@ -111,13 +115,13 @@ export default function Positions() {
           </thead>
           <tbody>
             {positions.map((position: PositionInfo, index: number) => {
-                return position.shares > 0 ? (
+                return position.shares > 0 && position.earnedShares > 0 ? (
                     <tr key={index}>
                     <td>{index == Number(YES) ? 'Yes' : 'No'}</td>
                     <td>{roundToTwo(Number(formatUnits(`${position.shares}`, 6)))}</td>
-                    <td>{ roundToTwo(position.spentMoney * 100 / position.shares)}c</td>
+                    <td>{ roundToTwo(position.spentMoney * 100 / position.earnedShares)}c</td>
                     <td>${roundToTwo(Number(formatUnits(`${position.shares}`, 6)) * position.currentPrice/100)}</td>
-                    <td><Box sx={{float: 'right', display: 'flex'}}>{position.shares * position.currentPrice / 100 - position.spentMoney < 0 && (<>-</>)}${roundToTwo(Number(formatUnits(Math.abs(position.shares * position.currentPrice / 100 - position.spentMoney), 6)))}<Typography sx={{color: position.shares * position.currentPrice / 100 - position.spentMoney < 0 ? 'red' : 'green'}}>({roundToTwo((position.shares * position.currentPrice / 100 - position.spentMoney) * 100 / (position.spentMoney))}%)</Typography></Box></td>
+                    <td><Box sx={{float: 'right', display: 'flex'}}>{(roundToTwo(position.currentPrice / 100 - position.spentMoney / position.earnedShares) < 0) && (<>-</>)}${roundToTwo(Number(formatUnits(Math.floor(Math.abs(position.shares * (position.currentPrice / 100 - position.spentMoney / position.earnedShares))), 6)))}<Typography sx={{color: roundToTwo(position.currentPrice / 100 - position.spentMoney / position.earnedShares) < 0 ? 'red' : 'green'}}>({roundToTwo((position.currentPrice / 100 - position.spentMoney / position.earnedShares) * 100 / (position.spentMoney / position.earnedShares))}%)</Typography></Box></td>
                     <td><Button onClick={() =>{ dispatch(setShowNo(index == Number(NO))); dispatch(setBuyOrSell(SELL))}}>Sell</Button></td>
                 </tr>
                 ) : (null)

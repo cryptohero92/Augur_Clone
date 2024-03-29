@@ -122,7 +122,7 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                                 </Box>
                                 {bettingOption.result == 0 ? (
                                     <Box sx={{ display:'flex', alignItems: 'center', gap:'0.5rem', justifyContent:'flex-end' }}>
-                                        <BettingOptionButtons ipfsUrl={bettingOption.ipfsUrl} />
+                                        <BettingOptionButtons bettingOption={bettingOption} />
                                     </Box>
                                 ) : (
                                     <Box sx={{ display:'flex', alignItems: 'center', gap:'0.5rem', justifyContent:'flex-end' }}>

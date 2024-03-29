@@ -2,16 +2,18 @@ import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { RootState } from '../../app/store';
 import { Box } from '@mui/material';
+import { BettingOptionInfo, OrderInfo } from '../../types';
+import { roundToTwo } from '../../app/constant';
 
-export default function BettingOptionButtons({ipfsUrl}: {ipfsUrl: string}) {
+export default function BettingOptionButtons({bettingOption}: {bettingOption: BettingOptionInfo}) {
     const [yesValue, setYesValue] = useState(50);
     const [noValue, setNoValue] = useState(50);
     
     const { orders } = useSelector((state: RootState) => state.orderKey);
 
     useEffect(() => {
-        if (ipfsUrl) {
-            fetch(`${import.meta.env.VITE_BACKEND_URL}/orders?bettingOptionUrl=${ipfsUrl}`)
+        if (bettingOption && bettingOption.ipfsUrl) {
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/orders?bettingOptionUrl=${bettingOption.ipfsUrl}`)
                 .then((response) => {
                     if (response.status != 200) {
                         throw new Error('Error happened')
@@ -32,7 +34,7 @@ export default function BettingOptionButtons({ipfsUrl}: {ipfsUrl: string}) {
                         const {tokenId, makerAmount, takerAmount, status, side, bettingStyle, ...rest} = order;
                         let price = side == 0 ? makerAmount * 100 / takerAmount: takerAmount * 100 / makerAmount;
 
-                        if (tokenId == yesTokenId) return {
+                        if (tokenId == bettingOption.yesTokenId) return {
                             price,
                             side,
                             ...rest
@@ -56,12 +58,12 @@ export default function BettingOptionButtons({ipfsUrl}: {ipfsUrl: string}) {
                     console.log(err);
                 });
         }
-    }, [ipfsUrl, orders])
+    }, [bettingOption, orders])
 
     return (
         <>
-            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center', alignItems: 'center', backgroundColor: '#27ae601a', color: 'green'}}>Buy Yes {yesValue}¢</Box>
-            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center', alignItems: 'center', backgroundColor: '#eb57571a', color: 'red'}}>Buy No {noValue}¢</Box>
+            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center', alignItems: 'center', backgroundColor: '#27ae601a', color: 'green'}}>Buy Yes {roundToTwo(yesValue)}¢</Box>
+            <Box sx={{ width: '150px', height: '48px', display:'flex', placeContent: 'center', alignItems: 'center', backgroundColor: '#eb57571a', color: 'red'}}>Buy No {roundToTwo(noValue)}¢</Box>
         </>
     )
 }

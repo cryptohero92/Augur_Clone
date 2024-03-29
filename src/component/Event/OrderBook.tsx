@@ -112,7 +112,7 @@ export default function OrderBook() {
         <tr key={order._id}>
           <td>{roundToTwo(order.price)}c</td>
           <td>{roundToTwo(Number(formatUnits(order.shares, 6)))}</td>
-          <td>${roundToTwo(Number(formatUnits(total / 100, 6)))}</td>
+          <td>${roundToTwo(Number(formatUnits(Math.floor(total / 100), 6)))}</td>
         </tr>
       );
     });
