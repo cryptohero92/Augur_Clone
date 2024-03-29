@@ -1,104 +1,81 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-
 import { Box, Button, Typography } from '@mui/material';
-import { RootState } from '../../app/store';
-import { useLocalStorage } from 'usehooks-ts';
 import { NO, SELL, YES, roundToTwo } from '../../app/constant';
 import { formatUnits } from 'ethers';
 import { setBuyOrSell, setShowNo } from '../../feature/slices/orderSlice';
 import { PositionInfo } from '../../types';
+import { RootState } from '../../app/store';
 /*
 	orderbook must show the current event's orders.
 	when user click buy, need to make order.
 */
 
 export default function Positions() {
-    const { orders } = useSelector((state: RootState) => state.orderKey);
+    const { bettingOptionLogs } = useSelector((state: RootState) => state.orderKey);
+    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
     const { correspondingAddress } = useSelector((state: RootState) => state.userKey);
-    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey)
-    const [positions, setPositions] = useState<PositionInfo[]>([]);
 
+    const [positions, setPositions] = useState<PositionInfo[]>([]);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        async function getResult() {
-            if (selectedBettingOption && correspondingAddress != '') {
-                // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
-                try {
-                    let tokenIdPromise = fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getTokenIds/${selectedBettingOption.ipfsUrl}`)
-                    .then((response) => response.json())
-                    .then((res) => {
-                        return res
-                    });
-
-                    let EventLogPromise = fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getEventLogsFor/${selectedBettingOption.ipfsUrl}/OrderFilled`)
-                    .then((response) => response.json())
-                    .then((res) => {
-                        return { extractedLogs: res.extractedLogs};
-                    });
-                    Promise.all([tokenIdPromise, EventLogPromise]).then(results => (Object.assign({}, ...results))).then(({yesTokenId, noTokenId, extractedLogs}) => {
-                        const getTokenPriceFromLastTransaction = (tokenId) => {
-                            for (let i = extractedLogs.length - 1; i >= 0; i--) {
-                                let log = extractedLogs[i];
-                                if (log.makerAssetId == tokenId) {
-                                    return Number(log.takerAmountFilled) * 100 / Number(log.makerAmountFilled);
-                                } else if (log.takerAssetId == tokenId) {
-                                    return Number(log.makerAmountFilled) * 100/ Number(log.takerAmountFilled);
-                                }
-                            }
-                            return 0;
-                        }
-
-                        let logs = extractedLogs.filter(log => {
-                            return log.maker == correspondingAddress
-                        });
-                        if (logs.length == 0) {
-                            setPositions([]);
-                            return;
-                        }
-                        let positions = [
-                            {
-                                shares: 0,
-                                earnedShares: 0,
-                                spentMoney:0,
-                                currentPrice: 0
-                            }, 
-                            {
-                                shares: 0,
-                                earnedShares: 0,
-                                spentMoney:0,
-                                currentPrice: 0
-                            }
-                        ];
-                        positions[Number(YES)].currentPrice = getTokenPriceFromLastTransaction(yesTokenId);
-                        positions[Number(NO)].currentPrice = getTokenPriceFromLastTransaction(noTokenId);
-
-                        for (let i = 0; i < logs.length; i++) {
-                            let log = logs[i];
-
-                            let indexInPositions = log.makerAssetId == yesTokenId || log.takerAssetId == yesTokenId ? Number(YES) : Number(NO);
-
-                            if (log.makerAssetId == '0') { // collateral pay
-                                positions[indexInPositions].spentMoney += Number(log.makerAmountFilled);
-                                positions[indexInPositions].earnedShares += Number(log.takerAmountFilled);
-                                positions[indexInPositions].shares += Number(log.takerAmountFilled);
-                            } else {
-                                positions[indexInPositions].shares -= Number(log.makerAmountFilled);
-                            }
-                        }
-                        setPositions(positions)
-                    })
-                } catch (err) {
-                    debugger
-                    setPositions([]);
-                    console.error(err);
+        if (bettingOptionLogs.length > 0 && correspondingAddress != '' && selectedBettingOption?.yesTokenId && selectedBettingOption?.noTokenId) {
+            const getTokenPriceFromLastTransaction = (tokenId: string) => {
+                for (let i = bettingOptionLogs.length - 1; i >= 0; i--) {
+                    let log = bettingOptionLogs[i];
+                    if (log.makerAssetId == tokenId) {
+                        return Number(log.takerAmountFilled) * 100 / Number(log.makerAmountFilled);
+                    } else if (log.takerAssetId == tokenId) {
+                        return Number(log.makerAmountFilled) * 100/ Number(log.takerAmountFilled);
+                    }
                 }
-                
+                return 0;
             }
+    
+            let logs = bettingOptionLogs.filter(log => {
+                return log.maker == correspondingAddress;
+            })
+            if (logs.length == 0) {
+                setPositions([]);
+                return;
+            }
+            let positions = [
+                {
+                    shares: 0,
+                    earnedShares: 0,
+                    spentMoney:0,
+                    currentPrice: 0
+                }, 
+                {
+                    shares: 0,
+                    earnedShares: 0,
+                    spentMoney:0,
+                    currentPrice: 0
+                }
+            ];
+            positions[Number(YES)].currentPrice = getTokenPriceFromLastTransaction(selectedBettingOption.yesTokenId);
+            positions[Number(NO)].currentPrice = getTokenPriceFromLastTransaction(selectedBettingOption.noTokenId);
+    
+            for (let i = 0; i < logs.length; i++) {
+                let log = logs[i];
+
+                let indexInPositions = log.makerAssetId == selectedBettingOption.yesTokenId || log.takerAssetId == selectedBettingOption.yesTokenId ? Number(YES) : Number(NO);
+
+                if (log.makerAssetId == '0') { // collateral pay
+                    positions[indexInPositions].spentMoney += Number(log.makerAmountFilled);
+                    positions[indexInPositions].earnedShares += Number(log.takerAmountFilled);
+                    positions[indexInPositions].shares += Number(log.takerAmountFilled);
+                } else {
+                    positions[indexInPositions].shares -= Number(log.makerAmountFilled);
+                }
+            }
+            setPositions(positions);
+        } else {
+            setPositions([]);
         }
-        getResult();
-    }, [selectedBettingOption, correspondingAddress, orders]);
+    }, [bettingOptionLogs, selectedBettingOption, correspondingAddress]);
+    
     return positions.length > 0 ? (
       <>
         <h1>Positions</h1>

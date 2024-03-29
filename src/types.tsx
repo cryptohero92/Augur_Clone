@@ -51,6 +51,15 @@ export interface PositionInfo {
     currentPrice: number
 }
 
+export interface LogInfo {
+    maker: string,
+    taker: string,
+    takerAmountFilled: string,
+    makerAmountFilled: string,
+    makerAssetId: string,
+    takerAssetId: string
+}
+
 export interface OrderInfo {
     _id: string,
     salt: string,

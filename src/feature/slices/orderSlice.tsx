@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { OrderInfo } from "../../types";
+import { LogInfo, OrderInfo } from "../../types";
 import { BUY } from "../../app/constant";
 
 const orderBookState = {
     orders: [] as OrderInfo[],
+    bettingOptionLogs: [] as LogInfo[],
     loading: false,
     showNo: false,
     buyOrSell: BUY
@@ -42,6 +43,9 @@ const orderSlice = createSlice({
         },
         setBuyOrSell: (state, action) => {
             state.buyOrSell = action.payload;
+        },
+        setBettingOptionLogs: (state, action) => {
+            state.bettingOptionLogs = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -63,4 +67,4 @@ const orderSlice = createSlice({
 
 export default orderSlice.reducer;
 
-export const { createOrder, updateOrder, removeOrder, setShowNo, setBuyOrSell } = orderSlice.actions;
+export const { createOrder, updateOrder, removeOrder, setShowNo, setBuyOrSell, setBettingOptionLogs } = orderSlice.actions;

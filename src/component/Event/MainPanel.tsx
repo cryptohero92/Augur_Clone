@@ -18,8 +18,8 @@ import Positions from "./Positions";
 import BettingOptionButtons from "./BettingOptionButtions";
 import MyOrders from './MyOrders';
 import { RootState } from "../../app/store";
-import { fetchOrders } from "../../feature/slices/orderSlice";
-import { BettingOptionInfo, PublishedEventInfo } from "../../types";
+import { fetchOrders, setBettingOptionLogs } from "../../feature/slices/orderSlice";
+import { PublishedEventInfo } from "../../types";
 
 function CustomTabPanel(props: any) {
   const { children, value, index, ...other } = props;
@@ -50,7 +50,8 @@ function a11yProps(index: Number) {
 
 export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) {
     const dispatch = useDispatch();
-    const { selectedBettingOption } : { selectedBettingOption: BettingOptionInfo | null } = useSelector((state: RootState) => state.eventKey);
+    const { selectedBettingOption } = useSelector((state: RootState) => state.eventKey);
+    const { orders } = useSelector((state: RootState) => state.orderKey);
 
     const [moreOrLessSwitch, setMoreOrLessSwitch] = useState(true);
     const [choice, setChoice] = useState(0);
@@ -65,6 +66,24 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
             dispatch(fetchOrders({ bettingOptionUrl: selectedBettingOption.ipfsUrl }) as any);
         }
     }, [selectedBettingOption])
+
+    useEffect(() => {
+        async function getResult() {
+            if (selectedBettingOption) {
+                // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
+                fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getEventLogsFor/${selectedBettingOption.ipfsUrl}/OrderFilled`)
+                    .then((response) => response.json())
+                    .then((res) => {
+                        dispatch(setBettingOptionLogs(res.extractedLogs));
+                        
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })                
+            }
+        }
+        getResult();
+    }, [selectedBettingOption, orders]);
 
     useEffect(() => {
         if (eventInfo) {
