@@ -20,6 +20,7 @@
     "axios": "^1.6.5",
     "ethers": "^6.10.0",
     "jwt-decode": "^4.0.0",
+    "lightweight-charts": "^4.1.1",
     "mui-file-input": "^4.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
