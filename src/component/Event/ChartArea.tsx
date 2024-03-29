@@ -3,6 +3,7 @@ import { createChart, ColorType, ISeriesApi } from 'lightweight-charts';
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
+import { format } from 'date-fns'
 
 export default function ChartArea() {
     const chartContainerRef = useRef();
@@ -46,45 +47,61 @@ export default function ChartArea() {
             lastValueVisible: false,
             priceLineVisible: false,
         });
-        _newSeries.setData([
-            { time: '2019-04-11', value: 80.01 },
-            { time: '2019-04-12', value: 96.63 },
-            { time: '2019-04-13', value: 76.64 },
-            { time: '2019-04-14', value: 81.89 },
-            { time: '2019-04-15', value: 74.43 },
-            { time: '2019-04-16', value: 80.01 },
-            { time: '2019-04-17', value: 96.63 },
-            { time: '2019-04-18', value: 76.64 },
-            { time: '2019-04-19', value: 81.89 },
-            { time: '2019-04-20', value: 74.43 },
-        ]);
+
+        // Generate data points for the past week at one-minute intervals
+        const now = Date.now();
+        const oneWeekAgo = now - 100 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+        const data = [];
+        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 24 * 60 * 60 * 1000) {
+            const x = new Date(timestamp);
+            const y = Math.random() * 100; // Generate random data for demonstration
+            // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
+            data.push({ time: format(x, 'yyyy-MM-dd'), value: y });
+        }
+
+        // Set the data on the line series
+        _newSeries.setData(data);
+        // _newSeries.setData([
+        //     { time: '2019-04-11', value: 80.01 },
+        //     { time: '2019-04-12', value: 96.63 },
+        //     { time: '2019-04-13', value: 76.64 },
+        //     { time: '2019-04-14', value: 81.89 },
+        //     { time: '2019-04-15', value: 74.43 },
+        //     { time: '2019-04-16', value: 80.01 },
+        //     { time: '2019-04-17', value: 96.63 },
+        //     { time: '2019-04-18', value: 76.64 },
+        //     { time: '2019-04-19', value: 81.89 },
+        //     { time: '2019-04-20', value: 74.43 },
+        // ]);
         setNewSeries(_newSeries);
 
         window.addEventListener('resize', handleResize);
 
         return () => {
             window.removeEventListener('resize', handleResize);
-
             chart.remove();
         };
     }, [])
 
     useEffect(() => {
-        if (bettingOptionLogs.length > 0) {
-
-        }
-        newSeries?.setData([
-            { time: '2019-04-11', value: 90.01 },
-            { time: '2019-04-12', value: 96.63 },
-            { time: '2019-04-13', value: 76.64 },
-            { time: '2019-04-14', value: 81.89 },
-            { time: '2019-04-15', value: 74.43 },
-            { time: '2019-04-16', value: 80.01 },
-            { time: '2019-04-17', value: 96.63 },
-            { time: '2019-04-18', value: 76.64 },
-            { time: '2019-04-19', value: 81.89 },
-            { time: '2019-04-20', value: 74.43 },
-        ]);
+        // if (bettingOptionLogs.length > 0) {
+        //     debugger;
+        //     new Date(timestamp * 1000)
+        // }
+        
+        // newSeries?.setData([
+        //     { time: '2019-04-11', value: 90.01 },
+        //     { time: '2019-04-12', value: 96.63 },
+        //     { time: '2019-04-13', value: 76.64 },
+        //     { time: '2019-04-14', value: 81.89 },
+        //     { time: '2019-04-15', value: 74.43 },
+        //     { time: '2019-04-16', value: 80.01 },
+        //     { time: '2019-04-17', value: 96.63 },
+        //     { time: '2019-04-18', value: 76.64 },
+        //     { time: '2019-04-19', value: 81.89 },
+        //     { time: '2019-04-20', value: 74.43 },
+        // ]);
     }, [bettingOptionLogs, newSeries]);
 
     return (
