@@ -60,39 +60,19 @@ export default function ChartArea() {
             priceLineVisible: true,
         });
 
-        let _timeSeries = chart.addLineSeries({
-            color: 'green',
-            lineWidth: 2,
-            // disabling built-in price lines
-            lastValueVisible: true,
-            priceLineVisible: true,
-        })
-
         // Generate data points for the past week at one-minute intervals
         const now = Date.now();
         const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
         const data = [];
-        const data2 = [];
-        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 60 * 100) {
+        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 100) {
             const x = timestamp;
             const y = 50; // Generate random data for demonstration
             // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
-            data.push({ time: x as UTCTimestamp, value: y });
-            
+            data.push({ time: x as UTCTimestamp, value: y });            
         }
-
-        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 24 * 60 * 60 * 1000) {
-            const x = timestamp;
-            // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
-            data2.push({ time: format(x, 'yyyy-MM-dd'), value: Math.random() * 100});
-        }
-
-        
-
         _yesSeries.setData(data);
         _noSeries.setData(data);
-        _timeSeries.setData(data2);
         setYesSeries(_yesSeries);
         setNoSeries(_noSeries);
 
@@ -104,36 +84,39 @@ export default function ChartArea() {
         };
     }, [])
 
-    const getLatestPriceFrom = (logs: LogInfo[], timestampLimit: number, tokenId: string) => {
-        let latestLog = logs.filter(log => log.timestamp <= timestampLimit && (log.makerAssetId == tokenId || log.takerAssetId == tokenId)).sort((a, b) => a.timestamp - b.timestamp).at(-1)
+    const getLatestYesPriceFrom = (logs: LogInfo[], timestampLimit: number, yesTokenId: string, noTokenId: string) => {
+        let latestLog = logs.filter(log => log.timestamp <= timestampLimit && (log.makerAssetId == yesTokenId || log.takerAssetId == yesTokenId || log.makerAssetId == noTokenId || log.takerAssetId == noTokenId)).sort((a, b) => a.timestamp - b.timestamp).at(-1)
         if (latestLog) {
-            return roundToTwo((latestLog.makerAssetId == tokenId ? Number(latestLog.takerAmountFilled) / Number(latestLog.makerAmountFilled) : Number(latestLog.makerAmountFilled) / Number(latestLog.takerAmountFilled)) * 100)
+            if (latestLog.makerAssetId == yesTokenId || latestLog.takerAssetId == yesTokenId)
+                return roundToTwo((latestLog.makerAssetId == yesTokenId ? Number(latestLog.takerAmountFilled) / Number(latestLog.makerAmountFilled) : Number(latestLog.makerAmountFilled) / Number(latestLog.takerAmountFilled)) * 100)
+            else 
+                return 100 - roundToTwo((latestLog.makerAssetId == yesTokenId ? Number(latestLog.takerAmountFilled) / Number(latestLog.makerAmountFilled) : Number(latestLog.makerAmountFilled) / Number(latestLog.takerAmountFilled)) * 100)
         } else {
             return 50;
         }
     }
 
-    const updateSeriesData = (series: ISeriesApi<"Line", any>, tokenId: string) => {
+    const updateSeriesData = (yesTokenId: string, noTokenId: string) => {
         const now = Date.now();
         const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
-        const data = [];
-        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 60 * 100) {
+        const yesData = [];
+        const noData = [];
+        for (let timestamp = oneWeekAgo; timestamp <= now; timestamp += 60 * 100) { // 10 min interval
             const x = timestamp;
-            const y = getLatestPriceFrom(bettingOptionLogs, timestamp, tokenId);
+            const y = getLatestYesPriceFrom(bettingOptionLogs, timestamp, yesTokenId, noTokenId);
             // data.push({ time: format(x, 'yyyy-MM-dd hh:mm'), value: y });
-            data.push({ time: x as UTCTimestamp, value: y });
+            yesData.push({ time: x as UTCTimestamp, value: y });
+            noData.push({ time: x as UTCTimestamp, value: 100 - y});
         }
-        series.setData(data)
+        yesSeries?.setData(yesData)
+        noSeries?.setData(noData)
     }
 
     useEffect(() => {
         if (bettingOptionLogs.length == 0) return;
         
-        if ( selectedBettingOption?.yesTokenId && yesSeries) {
-            updateSeriesData(yesSeries, selectedBettingOption.yesTokenId);
-        }
-        if (selectedBettingOption?.noTokenId && noSeries) {
-            updateSeriesData(noSeries, selectedBettingOption.noTokenId);
+        if ( selectedBettingOption?.yesTokenId && selectedBettingOption?.noTokenId && yesSeries && noSeries) {
+            updateSeriesData(selectedBettingOption.yesTokenId, selectedBettingOption.noTokenId);
         }
 
         // newSeries?.setData([
