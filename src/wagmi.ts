@@ -1,17 +1,17 @@
 import { http, createConfig } from 'wagmi'
-import { mainnet, sepolia } from 'wagmi/chains'
-import { coinbaseWallet, walletConnect, metaMask } from 'wagmi/connectors'
+import { pulsechainV4, pulsechain } from 'wagmi/chains'
+import { coinbaseWallet, metaMask } from 'wagmi/connectors'
 
 export const config = createConfig({
-  chains: [mainnet, sepolia],
+  chains: [pulsechain, pulsechainV4],
   connectors: [
     metaMask(),
     coinbaseWallet({ appName: 'Create Wagmi' }),
-    walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
+    // walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
   ],
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
+    [pulsechain.id]: http(),
+    [pulsechainV4.id]: http(),
   },
 })
 

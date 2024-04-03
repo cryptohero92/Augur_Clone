@@ -9,7 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import { useWatchContractEvent } from 'wagmi';
 
 import 'react-toastify/dist/ReactToastify.css';
-import CoastToken from "../../backend/src/artifacts/contracts/sepolia/CST.json";
+import CoastToken from "../../backend/src/artifacts/contracts/pulsechainV4/CST.json";
 import { useLocalStorage } from 'usehooks-ts';
 import { useEffect } from 'react';
 import { JwtDecoded } from './types';

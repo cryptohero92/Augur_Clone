@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Box, Typography, Button, IconButton, Divider, Grid, CircularProgress } from "@mui/material"
 import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
-import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/sepolia/CTFExchangeContract.json"
+import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/pulsechainV4/CTFExchangeContract.json"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
 import { fetchOrders, setShowNo, setBuyOrSell } from "../../feature/slices/orderSlice";
@@ -19,7 +19,7 @@ import CachedIcon from '@mui/icons-material/Cached';
 
 import { useSignTypedData, useAccount } from 'wagmi'
 import { switchChain } from '@wagmi/core'
-import { sepolia } from '@wagmi/core/chains'
+import { pulsechainV4 } from '@wagmi/core/chains'
 import { config } from "../../wagmi";
 
 export default function RightPanel() {
@@ -41,7 +41,7 @@ export default function RightPanel() {
     const [noValue, setNoValue] = useState(50);
     const [yesShares, setYesShares] = useState(0);
     const [noShares, setNoShares] = useState(0);
-    const [chainId, setChainId] = useState<number>(sepolia.id)
+    const [chainId, setChainId] = useState<number>(pulsechainV4.id)
     const [insufficientBalance, setInsufficientBalance] = useState(false)
 
     const [avgValue, setAvgValue] = useState(50);
@@ -434,7 +434,7 @@ export default function RightPanel() {
         const domain: any = { 
             name: 'PLSpeak CTF Exchange', 
             version: '1',
-            chainId: 11155111,
+            chainId: 943,
             verifyingContract: CTFExchangeContract.address
         }
 
@@ -825,11 +825,11 @@ export default function RightPanel() {
 
                                         </Box>
 
-                                        {accessToken != undefined && accessToken != '' ? (chainId == sepolia.id ? (
+                                        {accessToken != undefined && accessToken != '' ? (chainId == pulsechainV4.id ? (
                                             <Button disabled={isProgressing || (buyOrSell == BUY && (Number(amount) > currentMoney)) || (buyOrSell == SELL && (Number(shares) > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#1652f0', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
-                                        ) : (<Button sx={{ backgroundColor: '#D8E0FA', color: '#1652f0'}} onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
+                                        ) : (<Button sx={{ backgroundColor: '#D8E0FA', color: '#1652f0'}} onClick={() => switchToChain(pulsechainV4.id)}>Switch Network</Button>)) : (
                                             <Login handleLoggedIn={handleLoggedIn} />
                                         )}
                                         {isProgressing && (
@@ -880,11 +880,11 @@ export default function RightPanel() {
                                             { insufficientBalance && (<Typography sx={{color: 'red'}}>Insufficient balance</Typography>) }
                                         </Box>
 
-                                        {accessToken != undefined && accessToken != '' ? (chainId == sepolia.id ? (
+                                        {accessToken != undefined && accessToken != '' ? (chainId == pulsechainV4.id ? (
                                             <Button disabled={isProgressing || (buyOrSell == BUY && (Number(amount) > currentMoney)) || (buyOrSell == SELL && (Number(shares) > (showNo ? noShares : yesShares)))} sx={{ backgroundColor: '#1652f0', color: 'white', ":hover": {
                                               backgroundColor: '#ee0012bb'
                                             }}} onClick={handleBuySellClick}>{buyOrSell == BUY ? 'Buy' : 'Sell'}</Button>
-                                        ) : (<Button sx={{ backgroundColor: '#D8E0FA', color: '#1652f0'}} onClick={() => switchToChain(sepolia.id)}>Switch Network</Button>)) : (
+                                        ) : (<Button sx={{ backgroundColor: '#D8E0FA', color: '#1652f0'}} onClick={() => switchToChain(pulsechainV4.id)}>Switch Network</Button>)) : (
                                             <Login handleLoggedIn={handleLoggedIn} />
                                         )}
                                         {isProgressing && (
