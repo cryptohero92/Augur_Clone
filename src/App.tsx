@@ -26,6 +26,7 @@ import Markets from './page/Market/Market';
 import EventView from './page/EventPage/EventViewPage';
 import socket from "./app/socket";
 import { createOrder, removeOrder, updateOrder } from './feature/slices/orderSlice';
+import { pulsechainV4 } from 'viem/chains';
 
 function App() {
   const dispatch = useDispatch();
@@ -111,6 +112,7 @@ function App() {
     address: CoastToken.address as `0x${string}`,
     abi: CoastToken.abi,
     eventName: 'Transfer',
+    chainId: pulsechainV4.id,
     onLogs(logs) {
       try {
         const { from, to } = (logs[0] as any).args;
