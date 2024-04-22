@@ -265,8 +265,10 @@ export default function RightPanel() {
 
                 const sortedOrders = _orders.filter(order => order.isBuy == false).sort((a, b) => a.price - b.price);
                 if (sortedOrders.length > 0) {
+                    let lastOrderPrice = 0;
                     for (let i = 0; i < sortedOrders.length; i++) {
                         let order = sortedOrders[i];
+                        lastOrderPrice = order.price;
                         if (remain >= order.price * order.shares / 100) {
                             makerOrders.push(order);
 
@@ -288,6 +290,10 @@ export default function RightPanel() {
                             break;
                         }
                     }
+                    if (remain > 0) {
+                        lastOrderPrice = 100;
+                    }
+                    conditionalTokenAmount = collateralAmount * 100 / lastOrderPrice;
                     takerFillAmount = Math.floor(Number(amount) * 1000000 - remain);
                 }
 
@@ -299,8 +305,10 @@ export default function RightPanel() {
                 const sortedOrders = _orders.filter(order => order.isBuy == true).sort((a, b) => a.price - b.price);
 
                 if (sortedOrders.length > 0) {
+                    let lastOrderPrice = 0;
                     for (let i = 0; i < sortedOrders.length; i++) {
                         let order = sortedOrders[i];
+                        lastOrderPrice = order.price;
                         if (remainingShares >= order.shares) {
                             makerOrders.push(order);
 
@@ -321,6 +329,10 @@ export default function RightPanel() {
                             break;
                         }
                     }
+                    if (remainingShares > 0) {
+                        lastOrderPrice = 0;
+                    }
+                    collateralAmount = conditionalTokenAmount * lastOrderPrice / 100;
                     takerFillAmount = Math.floor(Number(shares) * 1000000 - remainingShares);
                 }
             }
