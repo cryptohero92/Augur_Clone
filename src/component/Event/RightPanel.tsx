@@ -21,6 +21,7 @@ import { useSignTypedData, useAccount } from 'wagmi'
 import { switchChain } from '@wagmi/core'
 import { pulsechainV4 } from '@wagmi/core/chains'
 import { config } from "../../wagmi";
+import Web3 from 'web3';
 
 export default function RightPanel() {
 
@@ -137,12 +138,39 @@ export default function RightPanel() {
 
     useEffect(() => {
         const getChainId = async () => {
-            await window.ethereum.request({ method: 'eth_chainId' })
-            .then((chainId: number) => {
-                console.log("Connected chain ID:", chainId);
-                setChainId(chainId);
-            })
-            .catch((error: any) => console.error(error));
+            // console.log(window.ethereum.chainId);
+            // await window.ethereum.request({ method: 'eth_chainId' })
+            // .then((chainId: number) => {
+            //     console.log("Connected chain ID:", chainId);
+            //     setChainId(chainId);
+            // })
+            // .catch((error: any) => console.error(error));
+
+            // Check if Coinbase Wallet is installed
+            if (typeof window.ethereum !== 'undefined') {
+                const web3 = new Web3(window.ethereum);
+            
+                // Get the current chain ID
+                web3.eth.net.getId()
+                .then(_chainId => {
+                    let chain_id = Number(_chainId)
+                    console.log(`Chain id is ${chain_id}`)
+                    setChainId(chain_id);
+                    // You can use the chainId for your application logic here
+                })
+                .catch(error => {
+                    console.error('Error getting chain ID: ', error);
+                });
+            
+                // Subscribe to chain changes
+                window.ethereum.on('chainChanged', (_chainId: any) => {
+                // Handle chain change event
+                console.log('Chain changed to: ', _chainId);
+                // Update your application based on the new chain ID
+                });
+            } else {
+                console.log('Coinbase Wallet is not installed');
+            }
         };
         
         getChainId();
