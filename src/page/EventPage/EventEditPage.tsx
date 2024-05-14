@@ -115,6 +115,10 @@ export default function EventEdit() {
         if (imgFile) {
             image = await uploadImage(imgFile);
         }
+        debugger
+        if (inputs.bettingOptions.length == 1) {
+            inputs.bettingOptions[0].title = inputs.title;
+        }
         for (let i = 0; i < inputs.bettingOptions.length; i++) {
             if (inputs.bettingOptions[i].file) {
                 inputs.bettingOptions[i].image = await uploadImage(inputs.bettingOptions[i].file as File);
@@ -133,7 +137,6 @@ export default function EventEdit() {
             method: 'PATCH',
         })
           .then((response) => {
-              debugger
               if (response.status != 200) {
                   throw new Error('withdraw failed')
               } else {
@@ -142,7 +145,6 @@ export default function EventEdit() {
               }
           })
           .catch(err => {
-              debugger
               setStatus(Status.HAVERESULT)
               setResult(Result.FAILURE)
               console.error(err)

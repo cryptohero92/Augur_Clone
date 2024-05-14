@@ -84,7 +84,7 @@ export default function EventCreate() {
         setStatus(Status.INITIAL);
         navigate("/dashboard");
     }
-    
+
     function handleFileChange(value: File | null) {
         setImgFile(value);
     }
@@ -119,6 +119,10 @@ export default function EventCreate() {
             let image = inputs.image;
             if (imgFile) {
                 image = await uploadImage(imgFile);
+            }
+            debugger
+            if (inputs.bettingOptions.length == 1) {
+                inputs.bettingOptions[0].title = inputs.title;
             }
             for (let i = 0; i < inputs.bettingOptions.length; i++) {
                 if (inputs.bettingOptions[i].file) {

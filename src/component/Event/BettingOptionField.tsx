@@ -89,7 +89,7 @@ export default function BettingOptionsField({bettingOptions, setBettingOptions}:
     } else {
       setBettingOptions(multiBettingOptions);
     }
-  }, [bettingMode, multiBettingOptions]);
+  }, [bettingMode, multiBettingOptions, singleDescription]);
 
   return (
     <FormControl sx={{width: 1, mb: 3}}>
