@@ -79,10 +79,12 @@ export default function EventCreate() {
     function handleDateTimeChange(value: dayjs.Dayjs) {
         setInputs((inputs) => ({...inputs, endDate: value}));
     }
+
     function handleClose() {
         setStatus(Status.INITIAL);
         navigate("/dashboard");
     }
+    
     function handleFileChange(value: File | null) {
         setImgFile(value);
     }

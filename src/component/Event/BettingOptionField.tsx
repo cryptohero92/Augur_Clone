@@ -46,6 +46,7 @@ const BettingOption = ({index, option, onRemove, onChange, canRemove}: any) => {
 export default function BettingOptionsField({bettingOptions, setBettingOptions}: any) {
   const [bettingMode, setBettingMode] = useState('single');
   const [multiBettingOptions, setMultiBettingOptions] = useState([{ title: '', description: '', image: '', file: null }, { title: '', description: '', image: '', file: null }]);
+  const [singleDescription, setSingleDescription] = useState('');
 
   useEffect(() => {
     if (bettingOptions.length < 2) {
@@ -58,6 +59,10 @@ export default function BettingOptionsField({bettingOptions, setBettingOptions}:
 
   const handleAddOption = () => {
     setMultiBettingOptions([...multiBettingOptions, {title: '', description: '', image: '', file: null}]);
+  }
+
+  const handleSingleDescriptionChange = (e: any) => {
+    setSingleDescription(e.target.value);
   }
 
   const handleOptionChange = (index: number, field: string, value: any) => {
@@ -80,7 +85,7 @@ export default function BettingOptionsField({bettingOptions, setBettingOptions}:
 
   useEffect(() => {
     if (bettingMode == 'single') {
-      setBettingOptions([{ title: '', description: '', image: '', file: null }]);
+      setBettingOptions([{ title: '', description: singleDescription, image: '', file: null }]);
     } else {
       setBettingOptions(multiBettingOptions);
     }
@@ -99,29 +104,46 @@ export default function BettingOptionsField({bettingOptions, setBettingOptions}:
         <MenuItem value="single">Single</MenuItem>
         <MenuItem value="multi">Multi</MenuItem>
       </Select>
-      { bettingMode == "multi" && (
-        <Box sx={{mt: '1rem'}}>
-          {
-            multiBettingOptions.map((option, index) => (
-              <Box key={index} sx={{mb: '1rem'}}>
-                <BettingOption
-                  index={index}
-                  option={option}
-                  onRemove={() => handleRemoveOption(index)}
-                  onChange={(field: string, value: Blob | MediaSource) => handleOptionChange(index, field, value)}
-                  canRemove={multiBettingOptions.length > 2}
-                />
-              </Box>
-            ))
-          }
-          <Button
-            startIcon={<AddCircleOutlineIcon />}
-            onClick={handleAddOption}
-          >
-            Add Option
-          </Button>
-        </Box>
-      )}
+      <Box sx={{mt: '1rem'}}>
+        { bettingMode == "single" && (
+          <TextField 
+            label="Description"
+            onChange={handleSingleDescriptionChange}
+            required
+            variant="outlined"
+            color="secondary"
+            name="detail"
+            value={singleDescription}
+            multiline
+            maxRows={7}
+            fullWidth
+            sx={{mb: 3}}
+          />
+        )}
+        { bettingMode == "multi" && (
+          <>
+            {
+              multiBettingOptions.map((option, index) => (
+                <Box key={index} sx={{mb: '1rem'}}>
+                  <BettingOption
+                    index={index}
+                    option={option}
+                    onRemove={() => handleRemoveOption(index)}
+                    onChange={(field: string, value: Blob | MediaSource) => handleOptionChange(index, field, value)}
+                    canRemove={multiBettingOptions.length > 2}
+                  />
+                </Box>
+              ))
+            }
+            <Button
+              startIcon={<AddCircleOutlineIcon />}
+              onClick={handleAddOption}
+            >
+              Add Option
+            </Button>
+          </>
+        )}
+      </Box>      
     </FormControl>
   )
 }
