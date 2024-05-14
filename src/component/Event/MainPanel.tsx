@@ -204,9 +204,9 @@ export default function MainPanel({eventInfo}: {eventInfo: PublishedEventInfo}) 
                 <Box>
                     {
                         moreOrLessSwitch ? (<Box sx={{  maxHeight: '2.5rem', overflow: 'hidden' }}>
-                        {eventInfo.detail}
+                        {selectedBettingOption?.description}
                         </Box>) : (<Box>
-                            {eventInfo.detail}
+                            {selectedBettingOption?.description}
                         </Box>)
                     }
                     <Button onClick={() => setMoreOrLessSwitch(!moreOrLessSwitch)}>Show {moreOrLessSwitch ? "more" : "less"} {moreOrLessSwitch ? <KeyboardArrowDownIcon/> : <KeyboardArrowUpIcon/>}</Button>

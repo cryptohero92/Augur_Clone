@@ -47,6 +47,7 @@ export const getBettingOptionsPromise = (eventInfo: any) => {
 
     const ipfsPromise = fetch(`https://gateway.pinata.cloud/ipfs/${eventInfo.bettingOptions[i]}`).then((response) => response.json()).then(optionInfo => ({
       title: optionInfo.title,
+      description: optionInfo.description,
       image: optionInfo.image
     }));
 
