@@ -49,8 +49,12 @@ export default function BettingOptionsField({bettingOptions, setBettingOptions}:
   const [singleDescription, setSingleDescription] = useState('');
 
   useEffect(() => {
-    if (bettingOptions.length < 2) {
+    if (bettingOptions.length < 1) {
+      return;
+    }
+    if (bettingOptions.length == 1) {
       setBettingMode('single');
+      setSingleDescription(bettingOptions[0].description);
     } else {
       setBettingMode('multi');
       setMultiBettingOptions(bettingOptions);
@@ -85,7 +89,7 @@ export default function BettingOptionsField({bettingOptions, setBettingOptions}:
 
   useEffect(() => {
     if (bettingMode == 'single') {
-      setBettingOptions([{ title: '', description: singleDescription, image: '', file: null }]);
+      setBettingOptions((prevOptions: any[]) => [{ ...prevOptions[0], description: singleDescription }]);
     } else {
       setBettingOptions(multiBettingOptions);
     }
