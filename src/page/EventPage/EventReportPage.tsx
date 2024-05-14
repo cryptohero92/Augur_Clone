@@ -110,7 +110,6 @@ export default function EventReport() {
             .then((response) => response.json())
             .then(eventInfo => {
               item.title = eventInfo.title
-              item.detail = eventInfo.detail
               item.image = eventInfo.image
               item.category = eventInfo.category
               item.endDate = eventInfo.endDate
@@ -128,6 +127,8 @@ export default function EventReport() {
     }, [ipfsUrl])
 
     const setBettingOptionResultOfEvent = ({ipfsUrl, result}: any) => {
+      if (eventInfo == null)
+        return;
       for (let i = 0; i < eventInfo.bettingOptions.length; i++) {
         if (eventInfo.bettingOptions[i].ipfsUrl == ipfsUrl) {
           eventInfo.bettingOptions[i].result = result;

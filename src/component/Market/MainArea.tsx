@@ -46,7 +46,6 @@ useEffect(() => {
             .then((response) => response.json())
             .then(eventInfo => {
               item.title = eventInfo.title
-              item.detail = eventInfo.detail
               item.image = eventInfo.image
               item.category = eventInfo.category
               item.endDate = eventInfo.endDate

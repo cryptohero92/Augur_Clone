@@ -13,6 +13,12 @@ const BettingOption = ({index, option, onRemove, onChange, canRemove}: any) => {
         required
         value={option.title}
       />
+      <TextField
+        label="Description"
+        onChange = {(e) => onChange('description', e.target.value)}
+        required
+        value={option.description}
+      />
       <Box sx={{width: '250px'}}>
         <MuiFileInput inputProps={{ accept: '.png, .jpeg' }} value={option.file} onChange={(value) => onChange('file', value)} sx={{width:1}} />
       </Box>
@@ -39,7 +45,7 @@ const BettingOption = ({index, option, onRemove, onChange, canRemove}: any) => {
 
 export default function BettingOptionsField({bettingOptions, setBettingOptions}: any) {
   const [bettingMode, setBettingMode] = useState('single');
-  const [multiBettingOptions, setMultiBettingOptions] = useState([{ title: '', image: '', file: null }, { title: '', image: '', file: null }]);
+  const [multiBettingOptions, setMultiBettingOptions] = useState([{ title: '', description: '', image: '', file: null }, { title: '', description: '', image: '', file: null }]);
 
   useEffect(() => {
     if (bettingOptions.length < 2) {
@@ -51,7 +57,7 @@ export default function BettingOptionsField({bettingOptions, setBettingOptions}:
   }, [bettingOptions])
 
   const handleAddOption = () => {
-    setMultiBettingOptions([...multiBettingOptions, {title: '', image: '', file: null}]);
+    setMultiBettingOptions([...multiBettingOptions, {title: '', description: '', image: '', file: null}]);
   }
 
   const handleOptionChange = (index: number, field: string, value: any) => {
@@ -74,7 +80,7 @@ export default function BettingOptionsField({bettingOptions, setBettingOptions}:
 
   useEffect(() => {
     if (bettingMode == 'single') {
-      setBettingOptions([{ title: '', image: '', file: null }]);
+      setBettingOptions([{ title: '', description: '', image: '', file: null }]);
     } else {
       setBettingOptions(multiBettingOptions);
     }

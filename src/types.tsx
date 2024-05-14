@@ -23,17 +23,15 @@ export interface UserInfo {
 export interface InputState {
     image: string;
     title: string;
-    detail: string;
     category: string;
     endDate: dayjs.Dayjs;
-    bettingOptions: { title: string; image: string; file: File | null }[];
+    bettingOptions: { title: string; description: string; image: string; file: File | null }[];
 }
 
 export interface PublishedEventInfo {
     indexInArray: number,
     ipfsUrl: string,
     title: string,
-    detail: string,
     image: string,
     category: string,
     endDate: string,
@@ -90,6 +88,7 @@ export interface BettingOptionInfo {
     yesTokenId: string | null,
     noTokenId: string | null,
     title: string,
+    description: string,
     image: string,
     bet: number,
     result: number

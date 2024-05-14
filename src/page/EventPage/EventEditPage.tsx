@@ -32,21 +32,19 @@ export default function EventEdit() {
   const [accessToken] = useLocalStorage<string>('accessToken', '')
 
   const categories = useSelector((state: RootState) => state.categoryKey.keywords);
-  const [bettingOptions, setBettingOptions] = useState([{ title: '', image: '', file: null }]);
+  const [bettingOptions, setBettingOptions] = useState([{ title: '', description: '', image: '', file: null }]);
 
   const [inputs, setInputs] = useState<InputState>({
     image: "",
     title: "",
-    detail: "",
     category: "",
     endDate: dayjs(addMonths(new Date(), 1).toString()),
-    bettingOptions: [{ title: '', image: "", file: null }]
+    bettingOptions: [{ title: '', description: "", image: "", file: null }]
   });
 
   const [errors, setErrors] = useState({
     image: false,
     title: false,
-    detail: false,
     category: false,
     endDate: false
   });
@@ -64,11 +62,10 @@ export default function EventEdit() {
     })
         .then((response) => response.json())
         .then((event: any) => {
-            let {image, title, detail, category, endDate, bettingOptions} = event
+            let {image, title, category, endDate, bettingOptions} = event
             setInputs({
                 image,
                 title,
-                detail,
                 category,
                 endDate: dayjs(new Date(endDate).toString()),
                 bettingOptions
@@ -169,10 +166,6 @@ export default function EventEdit() {
         isValid = false;
         errors["title"] = true; //"Please enter first name";
     }
-    if (values["detail"] == "") {
-        isValid = false;
-        errors["detail"] = true; //"Please enter last name.";
-    }
     if (values["category"] == "") {
         isValid = false;
         errors["category"] = true; //"Please enter email address";
@@ -224,20 +217,7 @@ export default function EventEdit() {
                   value={inputs.title}
                   error={errors.title}
               />
-              <TextField 
-                  label="Detail"
-                  onChange={handleChange}
-                  required
-                  variant="outlined"
-                  color="secondary"
-                  name="detail"
-                  value={inputs.detail}
-                  error={errors.detail}
-                  multiline
-                  maxRows={7}
-                  fullWidth
-                  sx={{mb: 3}}
-              />
+              
               <FormControl sx={{width: 1, mb:3}}>
                   <InputLabel htmlFor="grouped-select">Category</InputLabel>
                   <Select value={inputs.category} onChange={handleChange} label="Category" name="category">

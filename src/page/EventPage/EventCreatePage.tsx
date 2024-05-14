@@ -33,20 +33,18 @@ export default function EventCreate() {
     const [accessToken] = useLocalStorage<string>('accessToken', '')
 
     const categories = useSelector((state: RootState) => state.categoryKey.keywords);
-    const [bettingOptions, setBettingOptions] = useState([{ title: '', image: '', file: null }]);
+    const [bettingOptions, setBettingOptions] = useState([{ title: '', description: '', image: '', file: null }]);
 
     const [inputs, setInputs] = useState<InputState>({
         image: "",
         title: "",
-        detail: "",
         category: "",
         endDate: dayjs(addMonths(new Date(), 1).toString()),
-        bettingOptions: [{ title: '', image: "", file: null }]
+        bettingOptions: [{ title: '', description: "", image: "", file: null }]
     });
     const [errors, setErrors] = useState({
         image: false,
         title: false,
-        detail: false,
         category: false,
         endDate: false
     });
@@ -99,10 +97,6 @@ export default function EventCreate() {
         if (values["title"] == "") {
             isValid = false;
             errors["title"] = true; //"Please enter first name";
-        }
-        if (values["detail"] == "") {
-            isValid = false;
-            errors["detail"] = true; //"Please enter last name.";
         }
         if (values["category"] == "") {
             isValid = false;
@@ -195,20 +189,6 @@ export default function EventCreate() {
                     name="title"
                     value={inputs.title}
                     error={errors.title}
-                />
-                <TextField 
-                    label="Detail"
-                    onChange={handleChange}
-                    required
-                    variant="outlined"
-                    color="secondary"
-                    name="detail"
-                    value={inputs.detail}
-                    error={errors.detail}
-                    multiline
-                    maxRows={7}
-                    fullWidth
-                    sx={{mb: 3}}
                 />
                 
                 <FormControl sx={{width: 1, mb:3}}>
