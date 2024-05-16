@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Box, Typography, Button, IconButton, Divider, Grid, CircularProgress } from "@mui/material"
 import QuantityInput from "./QuantityInput"
 import BettingStyleSelectMenu from "./BettingStyleSelectMenu";
-import CTFExchangeContract from "../../../../backend/src/artifacts/contracts/pulsechainV4/CTFExchangeContract.json"
+import CTFExchangeContract from "../../../src/artifacts/contracts/pulsechainV4/CTFExchangeContract.json"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BettingStyle } from "../../types";
 import { fetchOrders, setShowNo, setBuyOrSell } from "../../feature/slices/orderSlice";
