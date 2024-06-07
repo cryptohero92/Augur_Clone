@@ -1,21 +1,17 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useEffect, useState } from 'react';
 import { Box, Button, Grid, Typography } from '@mui/material'
 import { Link } from 'react-router-dom';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import UnPublishedEvent from "../../component/Event/UnPublishedEvent";
-import EventReporter from "../../component/Event/EventReporter";
 import { updatePublishedEvent } from "../../feature/slices/eventSlice";
-import { RootState } from "../../app/store";
 import { PublishedEventInfo } from "../../types";
 import { getBettingOptionsPromise } from "../../app/constant";
 
-export default function Dashboard() {
+export default function Categories() {
     // first need to get all events. these events are from mongodb.
     const dispatch = useDispatch();
     const [events, setEvents] = useState([])
-    const [affairs, setAffairs] = useState([])
-    const { publishedEvents } = useSelector((state: RootState) => state.eventKey)
 
     const getAllEvents = () => {
         fetch(`${import.meta.env.VITE_BACKEND_URL}/events`)
@@ -77,18 +73,8 @@ export default function Dashboard() {
         updatePublishedEventList();
     }, [])
 
-    useEffect(() => {
-        // setAffairs(publishedEvents.filter(event => event.bettingOptions.reduce((resolved, item) => resolved * item.result, 1) == 0));
-        setAffairs(publishedEvents);
-    }, [publishedEvents])
-
     return (
         <Box>
-            <Box>
-                <Typography>
-                    ==== Unpublished Events ===
-                </Typography>
-            </Box>
             <Box sx={{p: 2, width: 1}}>
                 <Link to="/dashboard/create">
                     <Button
@@ -111,29 +97,6 @@ export default function Dashboard() {
                         {events.map((event, index) => (
                             <Grid item key={index} xs={12} sm={6} lg={4} xl={3}>
                                 <UnPublishedEvent event={event} removeEvent={removeEvent} />
-                            </Grid>
-                        ))}
-                    </Grid>
-                )}
-            </Box>
-
-            <Box sx={{mt: 5}}>
-                <Typography>
-                    ==== Published Events ===
-                </Typography>
-            </Box>
-
-            <Box
-                sx={{ flexGrow: 1 }}
-            >
-                
-                {affairs.length == 0 ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}><Typography>No Published Events</Typography></Box>
-                ): (
-                    <Grid container spacing={2} sx={{p: 2}}>
-                        {affairs.map((event, index) => (
-                            <Grid item key={index} xs={12} sm={6} lg={4} xl={3}>
-                                <EventReporter event={event} />
                             </Grid>
                         ))}
                     </Grid>

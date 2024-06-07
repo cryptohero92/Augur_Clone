@@ -70,12 +70,12 @@ export default function Header() {
 
 	useEffect(() => {
 		if (isAdmin) {
-			const exists = pages.includes('Dashboard');
+			const exists = pages.includes('Dashboard/Events');
 			if (!exists) {
-				setPages([...pages, 'Dashboard']);
+				setPages([...pages, 'Dashboard/Events']);
 			}
 		} else {
-			setPages(pages.filter(page => page != 'Dashboard'))
+			setPages(pages.filter(page => page != 'Dashboard/Events'))
 		}
 	}, [isAdmin])
 
@@ -125,7 +125,7 @@ export default function Header() {
 					</MenuItem>
 					{pages.map((page) => (
 						<MenuItem key={page} onClick={() => {navigate(page);handleCloseNavMenu()}}>
-						<Typography textAlign="center">{page}</Typography>
+						<Typography textAlign="center">{page.split("/")[0]}</Typography>
 						</MenuItem>
 					))}
 					</Menu>
@@ -158,7 +158,7 @@ export default function Header() {
 						onClick={() => navigate(page)}
 						sx={{ my: 2, color: 'white', display: 'block' }}
 					>
-						{page}
+						{page.split("/")[0]}
 					</Button>
 					))}
 				</Box>

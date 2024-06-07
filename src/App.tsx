@@ -18,10 +18,13 @@ import { formatUnits } from 'ethers';
 import { useDispatch, useSelector } from "react-redux";
 import { setUserInfo } from './feature/slices/userSlice';
 import { RootState } from './app/store';
-import Dashboard from './page/Dashboard/Dashboard';
+import Events from './page/Dashboard/Events';
+import Categories from './page/Dashboard/Categories';
+
 import EventCreatePage from './page/EventPage/EventCreatePage';
 import EventEditPage from './page/EventPage/EventEditPage';
 import EventReportPage from './page/EventPage/EventReportPage';
+
 import Markets from './page/Market/Market';
 import EventView from './page/EventPage/EventViewPage';
 import socket from "./app/socket";
@@ -134,7 +137,8 @@ function App() {
         <Route path="money" element={<ProtectedRoute><Money /></ProtectedRoute>} />
         <Route path="markets" element={<Markets />} />
         <Route path="event/:ipfsUrl" element={<EventView />} />
-        <Route path="dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
+        <Route path="dashboard/events" element={<AdminRoute><Events /></AdminRoute>} />
+        <Route path="dashboard/categories" element={<AdminRoute><Categories /></AdminRoute>} />
         <Route path="dashboard/create" element={<AdminRoute><EventCreatePage /></AdminRoute>} />
         <Route path="dashboard/update/:eventID" element={<AdminRoute><EventEditPage /></AdminRoute>} />
         <Route path="dashboard/report/:ipfsUrl" element={<AdminRoute><EventReportPage /></AdminRoute>} />
