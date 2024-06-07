@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CategoryState } from '../../types';
+import { Category } from '../../types';
 
 const initialState: CategoryState = {
   keywords: [
@@ -36,10 +37,13 @@ export const categorySlice = createSlice({
     removeCategoryFromActiveList: (state, action: PayloadAction<string>) => {
       state.activeList = state.activeList.filter(activeCategory => activeCategory !== action.payload);
     },
+    setCategories: (state, action: PayloadAction<Category[]>) => {
+      state.keywords = action.payload;
+    }
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { addCategoryToActiveList, removeCategoryFromActiveList } = categorySlice.actions;
+export const { addCategoryToActiveList, removeCategoryFromActiveList, setCategories } = categorySlice.actions;
 
 export default categorySlice.reducer;
