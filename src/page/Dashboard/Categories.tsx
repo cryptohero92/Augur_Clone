@@ -1,71 +1,105 @@
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Box, Button } from '@mui/material'
-import { Link } from 'react-router-dom';
-import { setCategories } from "../../feature/slices/categorySlice";
+import { Box, Button, TextField } from "@mui/material";
+import { Link } from "react-router-dom";
+import { setCategories as setReduxCategories } from "../../feature/slices/categorySlice";
 import CategoryItem from "./CategoryItem";
 import { RootState } from "../../app/store";
 
 export default function Categories() {
-    // first need to get all events. these events are from mongodb.
-    const dispatch = useDispatch();
-    const categories = useSelector((state: RootState) => state.categoryKey.keywords)
+  const dispatch = useDispatch();
+  // Get categories from Redux state
+  const reduxCategories = useSelector((state: RootState) => state.categoryKey.keywords);
 
-    const onDeleteCategory = (categoryName: string) => {
-        dispatch(setCategories(categories.filter(category => category.name !== categoryName)));
-    };
+  // Initialize local state with Redux categories
+  const [categories, setCategories] = useState(reduxCategories);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
-    const onAddCategory = () => {
-        dispatch(setCategories([...categories, { name: 'New Category', subcategories: [] }]));
-    };
+  // Update local state when Redux categories change
+  useEffect(() => {
+    setCategories(reduxCategories);
+  }, [reduxCategories]);
 
-    const onDeleteSubcategory = (categoryName: string, subcategoryName: string) => {
-        dispatch(setCategories(categories.map(category => {
+  const onDeleteCategory = (categoryName: string) => {
+    setCategories(categories.filter((category) => category.name !== categoryName));
+  };
+
+  const onAddCategory = () => {
+    if (newCategoryName.trim() !== "") {
+      setCategories([...categories, { name: newCategoryName.trim(), subcategories: [] }]);
+      setNewCategoryName(""); // Clear the input field after adding
+    }
+  };
+
+  const onDeleteSubcategory = (categoryName: string, subcategoryName: string) => {
+      setCategories(
+        categories.map((category) => {
           if (category.name === categoryName) {
             return {
               ...category,
-              subcategories: category.subcategories.filter(subcategory => subcategory !== subcategoryName),
+              subcategories: category.subcategories.filter((subcategory) => subcategory !== subcategoryName),
             };
           }
           return category;
-        })));
-    };
+        })
+      );
+  };
 
-    const onAddSubcategory = (categoryName: string) => {
-        dispatch(setCategories(categories.map(category => {
-          if (category.name === categoryName) {
-            return {
-              ...category,
-              subcategories: [...category.subcategories, 'New Subcategory'],
-            };
-          }
-          return category;
-        })));
-    };
+  const onAddSubcategory = (categoryName: string, subCategoryName: string) => {
+    if (subCategoryName.trim() !== "") {
+        setCategories(
+          categories.map((category) => {
+            if (category.name === categoryName) {
+              return {
+                ...category,
+                subcategories: [...category.subcategories, subCategoryName.trim()],
+              };
+            }
+            return category;
+          })
+        );
+    }
+  };
 
-    return (
-        <Box>
-            <Box sx={{p: 2, width: 1}}>
-                <Link to="/dashboard/events">
-                    <Button
-                    variant="contained"
-                    color="primary"
-                    >
-                        Events
-                    </Button>
-                </Link>
-            </Box>
-            <Box
-                sx={{ flexGrow: 1 }}
-            >
-                { categories.map((category, index) => (<CategoryItem 
-                    name={category.name} 
-                    subcategories={category.subcategories} 
-                    onDeleteCategory={onDeleteCategory}
-                    onDeleteSubcategory={onDeleteSubcategory} 
-                    onAddSubcategory={onAddSubcategory} key={index} />)) }
-                <button onClick={onAddCategory}>Add Category</button>
-            </Box>
-        </Box>
-    )
+  const onSave = () => {
+    // Save local categories to Redux
+    dispatch(setReduxCategories(categories));
+  };
+
+  return (
+    <Box>
+      <Box sx={{ p: 2, width: 1 }}>
+        <Link to="/dashboard/events">
+          <Button variant="contained" color="primary">
+            Events
+          </Button>
+        </Link>
+      </Box>
+      <Box sx={{ flexGrow: 1 }}>
+        {categories.map((category, index) => (
+          <CategoryItem
+            name={category.name}
+            subcategories={category.subcategories}
+            onDeleteCategory={onDeleteCategory}
+            onDeleteSubcategory={onDeleteSubcategory}
+            onAddSubcategory={onAddSubcategory}
+            key={index}
+          />
+        ))}
+        <TextField
+          label="New Category"
+          value={newCategoryName}
+          onChange={(e) => setNewCategoryName(e.target.value)}
+        />
+        <Button variant="contained" color="primary" onClick={onAddCategory}>
+          Add Category
+        </Button>
+      </Box>
+      <Box>
+        <Button variant="contained" color="secondary" onClick={onSave}>
+          Save
+        </Button>
+      </Box>
+    </Box>
+  );
 }
-
