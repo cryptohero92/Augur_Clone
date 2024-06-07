@@ -85,6 +85,14 @@ export default function Events() {
                         Create Event
                     </Button>
                 </Link>
+                <Link to="/dashboard/categories">
+                    <Button
+                    variant="contained"
+                    color="primary"
+                    >
+                        Categories
+                    </Button>
+                </Link>
             </Box>
             <Box
                 sx={{ flexGrow: 1 }}
