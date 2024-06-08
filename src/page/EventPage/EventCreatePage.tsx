@@ -58,7 +58,7 @@ export default function EventCreate() {
     }, [inputs]);
 
     useEffect(() => {
-        setInputs((inputs) => ({...inputs, category: categories[0].subcategories[0]}))
+        setInputs((inputs) => ({...inputs, category: categories[0].subcategories[0].name}))
     }, [categories])
 
     useEffect(() => {
@@ -203,8 +203,8 @@ export default function EventCreate() {
                         {categories.map((category) => [
                             <ListSubheader key={category.name}>{category.name}</ListSubheader>,
                             ...category.subcategories.map((subcategory) => (
-                            <MenuItem key={subcategory} value={subcategory}>
-                                {subcategory}
+                            <MenuItem key={subcategory.name} value={subcategory.name}>
+                                {subcategory.name}
                             </MenuItem>
                             ))
                         ])}

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Box, Button, TextField } from '@mui/material';
+import { Subcategory } from '../../types';
 
 interface Props {
   name: string;
-  subcategories: string[];
+  subcategories: Subcategory[];
   onDeleteCategory: (name: string) => void;
   onDeleteSubcategory: (categoryName: string, subcategoryName: string) => void;
   onAddSubcategory: (categoryName: string, subcategoryName: string) => void;
@@ -30,10 +31,10 @@ const CategoryItem: React.FC<Props> = ({ name, subcategories, onDeleteCategory, 
         <ul>
           {subcategories.map((subcategory, index) => (
             <li key={index}>
-              {subcategory}
+              {subcategory.name}
               <button onClick={(e) => {
                 e.stopPropagation(); 
-                onDeleteSubcategory(name, subcategory);
+                onDeleteSubcategory(name, subcategory.name);
               }}>Delete Subcategory</button>
             </li>
           ))}

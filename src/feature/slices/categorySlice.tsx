@@ -4,24 +4,24 @@ import { Category } from '../../types';
 
 const initialState: CategoryState = {
   keywords: [
-    {
-      name: 'Crypto',
-      subcategories: ['Prices'],
-    },
-    {
-      name: 'Politics',
-      subcategories: ['Elections', 'Middle East', 'USA Politics'],
-    },
-    {
-      name: 'Science',
-      subcategories: ['Academia', 'Climate & Weather', 'Space'],
-    },
-    {
-      name: 'Sports',
-      subcategories: ['Basketball', 'Soccer'],
-    },
+    // {
+    //   name: 'Crypto',
+    //   subcategories: ['Prices'],
+    // },
+    // {
+    //   name: 'Politics',
+    //   subcategories: ['Elections', 'Middle East', 'USA Politics'],
+    // },
+    // {
+    //   name: 'Science',
+    //   subcategories: ['Academia', 'Climate & Weather', 'Space'],
+    // },
+    // {
+    //   name: 'Sports',
+    //   subcategories: ['Basketball', 'Soccer'],
+    // },
     // Add more categories and subcategories as needed
-  ],
+  ] as Category[],
   activeList: [],
 };
 

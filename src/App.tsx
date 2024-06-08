@@ -29,6 +29,7 @@ import Markets from './page/Market/Market';
 import EventView from './page/EventPage/EventViewPage';
 import socket from "./app/socket";
 import { createOrder, removeOrder, updateOrder } from './feature/slices/orderSlice';
+import { setCategories } from './feature/slices/categorySlice';
 import { pulsechainV4 } from 'viem/chains';
 
 function App() {
@@ -93,17 +94,35 @@ function App() {
       dispatch(removeOrder(data));
     console.log(`Order Deleted....`)
   }
+
+  const onUpdateCategories = (data: any) => {
+    dispatch(setCategories(data));
+  }
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/categories`)
+			.then((response) => response.json())
+			.then((categories) => {
+        debugger
+				dispatch(setCategories(categories));
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+  }, [])
   
   useEffect(() => {
     if (socket) {
         socket.on('Order created', onOrderCreated);
         socket.on('Order updated', onOrderUpdated);
         socket.on('Order deleted', onOrderRemoved);
+        socket.on('Update Categories', onUpdateCategories);
     }
     return () => {
         socket.off('Order created', onOrderCreated);
         socket.off('Order updated', onOrderUpdated);
         socket.off('Order deleted', onOrderRemoved);
+        socket.off('Update Categories', onUpdateCategories);
     }
   }, [socket, selectedBettingOption]);
 

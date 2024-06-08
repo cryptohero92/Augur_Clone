@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Box, Button, TextField } from "@mui/material";
 import { Link } from "react-router-dom";
-import { setCategories as setReduxCategories } from "../../feature/slices/categorySlice";
 import CategoryItem from "./CategoryItem";
 import { RootState } from "../../app/store";
+import { useLocalStorage } from "usehooks-ts";
 
 export default function Categories() {
-  const dispatch = useDispatch();
   // Get categories from Redux state
   const reduxCategories = useSelector((state: RootState) => state.categoryKey.keywords);
+  const [accessToken] = useLocalStorage<string>('accessToken', '')
 
   // Initialize local state with Redux categories
   const [categories, setCategories] = useState(reduxCategories);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Update local state when Redux categories change
   useEffect(() => {
@@ -37,7 +38,7 @@ export default function Categories() {
           if (category.name === categoryName) {
             return {
               ...category,
-              subcategories: category.subcategories.filter((subcategory) => subcategory !== subcategoryName),
+              subcategories: category.subcategories.filter((subcategory) => subcategory.name !== subcategoryName),
             };
           }
           return category;
@@ -52,7 +53,7 @@ export default function Categories() {
             if (category.name === categoryName) {
               return {
                 ...category,
-                subcategories: [...category.subcategories, subCategoryName.trim()],
+                subcategories: [...category.subcategories, {name: subCategoryName.trim()}],
               };
             }
             return category;
@@ -62,8 +63,27 @@ export default function Categories() {
   };
 
   const onSave = () => {
-    // Save local categories to Redux
-    dispatch(setReduxCategories(categories));
+    // Save local categories to backend db
+    setIsSaving(true);
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/categories`, {
+      body: JSON.stringify({
+          categories
+      }),
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST'
+    })
+    .then((response) => {
+        if (response.status != 200)
+            console.error(response);
+        setIsSaving(true);
+    })
+    .catch(err => {
+        console.error(err);
+        setIsSaving(false);
+    });
   };
 
   return (
@@ -96,7 +116,7 @@ export default function Categories() {
         </Button>
       </Box>
       <Box>
-        <Button variant="contained" color="secondary" onClick={onSave}>
+        <Button variant="contained" color="secondary" onClick={onSave} disabled={isSaving}>
           Save
         </Button>
       </Box>

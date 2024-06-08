@@ -105,9 +105,13 @@ export enum Result {
     FAILURE
 }
 
+export interface Subcategory {
+    name: string;
+}
+
 export interface Category {
     name: string;
-    subcategories: string[];
+    subcategories: Subcategory[];
 }
 
 export interface CategoryState {
