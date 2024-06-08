@@ -154,7 +154,7 @@ export default function EventEdit() {
 
   function handleClose() {
     setStatus(Status.INITIAL);
-    navigate("/dashboard");
+    navigate("/dashboard/events");
   }
 
   function handleValidate(values: InputState) {
@@ -250,7 +250,7 @@ export default function EventEdit() {
                     disabled={status == Status.LOADING} 
                     variant="outlined" 
                     color="secondary" 
-                    onClick={() => navigate("/dashboard")}
+                    onClick={() => navigate("/dashboard/events")}
                 >
                     Cancel
                 </Button>

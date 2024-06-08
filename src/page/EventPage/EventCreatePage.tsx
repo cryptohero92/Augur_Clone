@@ -82,7 +82,7 @@ export default function EventCreate() {
 
     function handleClose() {
         setStatus(Status.INITIAL);
-        navigate("/dashboard");
+        navigate("/dashboard/events");
     }
 
     function handleFileChange(value: File | null) {
@@ -227,7 +227,7 @@ export default function EventCreate() {
                         disabled={status == Status.LOADING} 
                         variant="outlined" 
                         color="secondary" 
-                        onClick={() => navigate("/dashboard")}
+                        onClick={() => navigate("/dashboard/events")}
                     >
                         Cancel
                     </Button>
