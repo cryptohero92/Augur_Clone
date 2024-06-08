@@ -16,18 +16,19 @@ export default function IndeterminateCheckbox({name, subcategories}: Category) {
     setChecked(Array(subcategories.length).fill(event.target.checked));
     subcategories.map((item) => {
       let func = event.target.checked ? addCategoryToActiveList : removeCategoryFromActiveList;
-      dispatch(func(item));
+      dispatch(func(item.name));
     })
     
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    debugger
     let newChecked = [...checked];
     newChecked[index] = event.target.checked;
     setChecked(newChecked);
 
     let func = event.target.checked ? addCategoryToActiveList : removeCategoryFromActiveList;
-    dispatch(func(subcategories[index]));
+    dispatch(func(subcategories[index].name));
   }
 
   const children = (
@@ -35,7 +36,7 @@ export default function IndeterminateCheckbox({name, subcategories}: Category) {
       {
         subcategories.map((item, index) => (
           <FormControlLabel
-            label={item}
+            label={item.name}
             key={index}
             control={<Checkbox checked={checked[index]} onChange={(e) => handleChange(e, index)} />}
           />

@@ -78,7 +78,7 @@ export default function Categories() {
     .then((response) => {
         if (response.status != 200)
             console.error(response);
-        setIsSaving(true);
+        setIsSaving(false);
     })
     .catch(err => {
         console.error(err);

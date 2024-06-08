@@ -75,21 +75,18 @@ function App() {
   }, [accessToken])
 
   const onOrderCreated = (data: any) => {
-    debugger
     if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
       dispatch(createOrder(data));
     console.log(`Order Created....`)
   }
 
   const onOrderUpdated = (data: any) => {
-    debugger
     if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
       dispatch(updateOrder(data));
     console.log(`Order Updated....`)
   }
 
   const onOrderRemoved = (data: any) => {
-    debugger
     if (data.tokenId == selectedBettingOption?.yesTokenId || data.tokenId == selectedBettingOption?.noTokenId)
       dispatch(removeOrder(data));
     console.log(`Order Deleted....`)
@@ -103,7 +100,6 @@ function App() {
     fetch(`${import.meta.env.VITE_BACKEND_URL}/categories`)
 			.then((response) => response.json())
 			.then((categories) => {
-        debugger
 				dispatch(setCategories(categories));
 			})
 			.catch((err) => {
