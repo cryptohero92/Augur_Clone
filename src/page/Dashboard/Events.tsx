@@ -99,7 +99,7 @@ export default function Events() {
             >
                 
                 {events.length == 0 ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}><Typography>No Events</Typography></Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}><Typography>No Unpublished Events</Typography></Box>
                 ): (
                     <Grid container spacing={2} sx={{p: 2}}>
                         {events.map((event, index) => (
