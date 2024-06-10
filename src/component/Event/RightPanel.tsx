@@ -58,56 +58,56 @@ export default function RightPanel() {
     // from bettionOption's ipfsUrl, can get bettingOption's yes and no token ids.
     // after getting yes and no token ids, on stakingcontract, by calling tokens[wallet]
 
-    useEffect(() => {
-        async function getResult() {
-            if (selectedBettingOption && accessToken != '') {
-                // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
-                fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
-                    body: JSON.stringify({
-                        ipfsUrl: selectedBettingOption.ipfsUrl,
-                        isYes: true
-                    }),
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                    method: 'POST'
-                })
-                .then((response) => response.json())
-                .then(({balance}) => {
-                    setYesShares(Number(formatUnits(balance as BigNumberish, 6)));
-                })
-                .catch(err => {
-                    console.error(err);
-                    setYesShares(0);
-                });
-
-                fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
-                    body: JSON.stringify({
-                        ipfsUrl: selectedBettingOption.ipfsUrl,
-                        isYes: false
-                    }),
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                    method: 'POST'
-                })
-                .then((response) => response.json())
-                .then(({balance}) => {
-                    setNoShares(Number(formatUnits(balance as BigNumberish, 6)));
-                })
-                .catch(err => {
-                    console.error(err);
-                    setNoShares(0);
-                });
-            } else {
+    function getResult() {
+        if (selectedBettingOption && accessToken != '') {
+            // once bettingOption selected, then need to calculate tokenId for yes and no tokens.
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
+                body: JSON.stringify({
+                    ipfsUrl: selectedBettingOption.ipfsUrl,
+                    isYes: true
+                }),
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                method: 'POST'
+            })
+            .then((response) => response.json())
+            .then(({balance}) => {
+                setYesShares(Number(formatUnits(balance as BigNumberish, 6)));
+            })
+            .catch(err => {
+                console.error(err);
                 setYesShares(0);
+            });
+
+            fetch(`${import.meta.env.VITE_BACKEND_URL}/contract/getConditionalTokenBalanceOf`, {
+                body: JSON.stringify({
+                    ipfsUrl: selectedBettingOption.ipfsUrl,
+                    isYes: false
+                }),
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                method: 'POST'
+            })
+            .then((response) => response.json())
+            .then(({balance}) => {
+                setNoShares(Number(formatUnits(balance as BigNumberish, 6)));
+            })
+            .catch(err => {
+                console.error(err);
                 setNoShares(0);
-            }
+            });
+        } else {
+            setYesShares(0);
+            setNoShares(0);
         }
-        getResult();
-        
+    }
+
+    useEffect(() => {        
+        getResult();        
     }, [selectedBettingOption, accessToken, orders]);
 
     useEffect(() => {
@@ -202,10 +202,10 @@ export default function RightPanel() {
                   }
               })
               // If yes, retrieve it. If no, create it.
-              .then((response) => response.json())
               .then(({hash}) => {
                 console.log(`hash is ${hash}`)
                 setIsProgressing(false);
+                getResult();
               })
               .catch(err => {
                 debugger
