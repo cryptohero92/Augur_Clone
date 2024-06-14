@@ -38,35 +38,6 @@ export function Login({handleLoggedIn}: Props) {
 		gap: '1.5rem'
 	};
 
-	const handleSendMail = async ({
-		publicAddress,
-		nonce
-	}: {
-		publicAddress: string;
-		nonce: string;
-	}) => {
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/email/send`, {
-			body: JSON.stringify({ publicAddress, nonce }),
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			method: 'POST',
-		})
-			.then((response) => {
-				debugger
-				if (response.status != 200) {
-                    throw new Error('withdraw failed')
-                    
-                } else {
-                    return response.json()
-                }
-			})
-			.catch(err => {
-				debugger
-				console.error(err)
-			});
-	};
-
 	const sendOtp = () => {
 		setOtpOpen(false);
 		fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/email/verify`, {
@@ -77,13 +48,16 @@ export function Login({handleLoggedIn}: Props) {
 			method: 'POST'
 		})
 		.then((response) => {
+			debugger
 			if (response.status != 200) {
 				throw new Error('Email verification failed')
 			} else {
 				return response.json()
 			}
 		})
+		.then(handleLoggedIn)
 		.catch(err => {
+			window.alert(err);
 			debugger
 			console.error(err)
 		});
@@ -253,7 +227,7 @@ export function Login({handleLoggedIn}: Props) {
 				aria-labelledby="modal-modal-title"
 				aria-describedby="modal-modal-description"
 			>
-				<Box>
+				<Box sx={style}>
 					<TextField
 						id="filled-search"
 						label="Otp"
