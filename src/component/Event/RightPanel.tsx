@@ -445,7 +445,7 @@ export default function RightPanel() {
             takerAmount: parseUnits(`${buyOrSell == BUY ?  Math.floor(conditionalTokenAmount * 1000000) / 1000000 : Math.floor(collateralAmount * 1000000) / 1000000}`, 6).toString(),
             expiration: '0',
             nonce: '0',
-            feeRateBps: '0',
+            feeRateBps: '500', // 5% for 50:50
             side: `${Number(!buyOrSell)}`,
             signatureType: '0'
         };

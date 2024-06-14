@@ -12,6 +12,8 @@ export function Login({handleLoggedIn}: Props) {
 	// need to show login button. 
 	// i want to 
 	const [open, setOpen] = useState(false);
+	const [otpOpen, setOtpOpen] = useState(false);
+	const [otp, setOtp] = useState('');
 	const handleOpen = () => setOpen(true);
 	const handleClose = () => setOpen(false);
 	const [email, setEmail] = useState('');
@@ -65,14 +67,59 @@ export function Login({handleLoggedIn}: Props) {
 			});
 	};
 
+	const sendOtp = () => {
+		setOtpOpen(false);
+		fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/email/verify`, {
+			body: JSON.stringify({ email, otp }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			method: 'POST'
+		})
+		.then((response) => {
+			if (response.status != 200) {
+				throw new Error('Email verification failed')
+			} else {
+				return response.json()
+			}
+		})
+		.catch(err => {
+			debugger
+			console.error(err)
+		});
+	}
+
 	const loginWithEmail = () => {
-		fetch(`${import.meta.env.VITE_BACKEND_URL}/users?publicAddress=${email}`)
-			.then((response) => response.json())
-			// If yes, retrieve it. If no, create it.
-			.then((users) =>
-				users.length ? users[0] : handleSignup(email)
-			)
-			.then(handleSendMail);
+		// fetch(`${import.meta.env.VITE_BACKEND_URL}/users?publicAddress=${email}`)
+		// 	.then((response) => response.json())
+		// 	// If yes, retrieve it. If no, create it.
+		// 	.then((users) =>
+		// 		users.length ? users[0] : handleSignup(email)
+		// 	)
+		// 	.then(handleSendMail);
+		handleClose();
+
+		fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/email/send`, {
+			body: JSON.stringify({ email }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			method: 'POST'
+		})
+		.then((response) => {
+			if (response.status != 200) {
+				throw new Error('Email sending failed')
+				
+			} else {
+				// return response.json()
+				// show 6 otp digits form
+				setOtpOpen(true);
+			}
+		})
+		.catch(err => {
+			debugger
+			console.error(err)
+		});
 	}
 
 	const handleAuthenticate = ({
@@ -157,48 +204,67 @@ export function Login({handleLoggedIn}: Props) {
 		<>
 			<Button onClick={handleOpen}>Login</Button>
 			<Modal sx={{zIndex: '10 !important'}}
-			open={open}
-			onClose={handleClose}
-			aria-labelledby="modal-modal-title"
-			aria-describedby="modal-modal-description"
+				open={open}
+				onClose={handleClose}
+				aria-labelledby="modal-modal-title"
+				aria-describedby="modal-modal-description"
 			>
-			<Box sx={style}>
-				<Typography id="modal-modal-title" variant="h6" component="h2">
-				Login To PLSpeak
-				</Typography>
-				<Box className="modal-inner-wrapper">
-					<Box className="email-login-wrapper">
-						<TextField
-                            id="filled-search"
-                            label="Email"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                            onChange={(e) => setEmail(e.target.value)}
-                            value={email}
-                        />
-						<Button onClick={loginWithEmail}>Log in with Email</Button>
-					</Box>
-					<Box className="connectors-container">
-					{connectors.map((connector) => {
-						if (connector.type == "injected")
-							return null
-						else
-							return (
-							<button
-								className="connector-button"
-								key={connector.uid}
-								onClick={() => connect({ connector }, {onSuccess: () => {
-									setTryLogin(true);
-								}})}
-								type="button"
-							>
-								{connector.name}
-							</button>)
-					})}
+				<Box sx={style}>
+					<Typography id="modal-modal-title" variant="h6" component="h2">
+					Login To PLSpeak
+					</Typography>
+					<Box className="modal-inner-wrapper">
+						<Box className="email-login-wrapper">
+							<TextField
+								id="filled-search"
+								label="Email"
+								InputLabelProps={{
+									shrink: true,
+								}}
+								onChange={(e) => setEmail(e.target.value)}
+								value={email}
+							/>
+							<Button onClick={loginWithEmail}>Log in with Email</Button>
+						</Box>
+						<Box className="connectors-container">
+						{connectors.map((connector) => {
+							if (connector.type == "injected")
+								return null
+							else
+								return (
+								<button
+									className="connector-button"
+									key={connector.uid}
+									onClick={() => connect({ connector }, {onSuccess: () => {
+										setTryLogin(true);
+									}})}
+									type="button"
+								>
+									{connector.name}
+								</button>)
+						})}
+						</Box>
 					</Box>
 				</Box>
-			</Box>
+			</Modal>
+			<Modal sx={{zIndex: '10 !important'}}
+				open={otpOpen}
+				onClose={() => setOtpOpen(false)}
+				aria-labelledby="modal-modal-title"
+				aria-describedby="modal-modal-description"
+			>
+				<Box>
+					<TextField
+						id="filled-search"
+						label="Otp"
+						InputLabelProps={{
+							shrink: true,
+						}}
+						onChange={(e) => setOtp(e.target.value)}
+						value={otp}
+					/>
+					<Button onClick={sendOtp}>Send</Button>
+				</Box>
 			</Modal>
 		</>
 	)
