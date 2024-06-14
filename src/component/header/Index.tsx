@@ -14,18 +14,20 @@ export default function Header() {
 	const { disconnectAsync } = useDisconnect()
 	const { isConnected } = useAccount();
 	const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '')
-	const isAdmin = useSelector((state: RootState) => state.userKey.isAdmin)
+	const {isAdmin, loggedInWithWallet} = useSelector((state: RootState) => state.userKey)
 
 	const navigate = useNavigate()
 
 	const handleLoggedIn = (auth: Auth) => {
 		console.log(auth)
 		const { accessToken } = auth;
+		console.log('login invoked at A')
 		setAccessToken(accessToken);
 	};
 
 	const handleLogout = async () => {
 		setAccessToken('');
+		console.log('logout invoked')
 		await disconnectAsync();
 	}
 
@@ -37,7 +39,7 @@ export default function Header() {
 		if (recheckFlag == true) {
 			if (isConnected) {
 				console.log(`connected`);
-			} else {
+			} else if (loggedInWithWallet) {
 				console.log(`not connected`);
 				handleLogout();
 			}

@@ -58,7 +58,7 @@ function App() {
 
   useEffect(() => {
     if (accessToken == undefined || accessToken == '') {
-      dispatch(setUserInfo({id: '', publicAddress: '', correspondingAddress: '', isAdmin: false}));
+      dispatch(setUserInfo({id: '', publicAddress: '', correspondingAddress: '', isAdmin: false, loggedInWithWallet: true}));
     }
     else if (accessToken != '' && accessToken != previousToken) {
       previousToken = accessToken;
@@ -67,10 +67,11 @@ function App() {
 					id,
           publicAddress,
 					correspondingAddress,
-          isAdmin
+          isAdmin,
+          loggedInWithWallet
 				}
 			} = jwtDecode<JwtDecoded>(accessToken)
-      dispatch(setUserInfo({id, publicAddress, correspondingAddress, isAdmin}));
+      dispatch(setUserInfo({id, publicAddress, correspondingAddress, isAdmin, loggedInWithWallet}));
     }
   }, [accessToken])
 

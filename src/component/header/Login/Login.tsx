@@ -39,7 +39,6 @@ export function Login({handleLoggedIn}: Props) {
 	};
 
 	const sendOtp = () => {
-		setOtpOpen(false);
 		fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/email/verify`, {
 			body: JSON.stringify({ email, otp }),
 			headers: {
@@ -48,18 +47,20 @@ export function Login({handleLoggedIn}: Props) {
 			method: 'POST'
 		})
 		.then((response) => {
-			debugger
 			if (response.status != 200) {
 				throw new Error('Email verification failed')
 			} else {
 				return response.json()
 			}
+			
 		})
 		.then(handleLoggedIn)
 		.catch(err => {
 			window.alert(err);
-			debugger
 			console.error(err)
+		})
+		.finally(() => {
+			setOtpOpen(false);
 		});
 	}
 

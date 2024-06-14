@@ -124,6 +124,7 @@ export default function RightPanel() {
     const handleLoggedIn = (auth: Auth) => {
         console.log(auth)
         const { accessToken } = auth;
+        console.log('login invoked at B')
         setAccessToken(accessToken);
     };
 

@@ -5,7 +5,8 @@ const initialState: UserInfo = {
     id: '',
     publicAddress: '',
     correspondingAddress: '',
-    isAdmin: false
+    isAdmin: false,
+    loggedInWithWallet: true
 };
 
 const userSlice = createSlice({
@@ -17,6 +18,7 @@ const userSlice = createSlice({
             state.publicAddress = action.payload.publicAddress
             state.correspondingAddress = action.payload.correspondingAddress
             state.isAdmin = action.payload.isAdmin
+            state.loggedInWithWallet = action.payload.loggedInWithWallet;
         }
     }
 });

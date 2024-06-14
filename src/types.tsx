@@ -10,6 +10,7 @@ export interface JwtDecoded {
         publicAddress: string;
 		correspondingAddress: string;
 		isAdmin: boolean;
+        loggedInWithWallet: boolean;
 	};
 }
 
@@ -18,6 +19,7 @@ export interface UserInfo {
     publicAddress: string;
 	correspondingAddress: string;
 	isAdmin: boolean;
+    loggedInWithWallet: boolean;
 }
 
 export interface InputState {
