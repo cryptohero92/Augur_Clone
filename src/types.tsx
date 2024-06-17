@@ -46,8 +46,6 @@ export interface PublishedEventInfo {
 
 export interface PositionInfo {
     shares: number,
-    earnedShares: number,
-    spentMoney: number,
     currentPrice: number
 }
 
