@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { BUY, SELL, mergeElements, roundToTwo } from '../../app/constant';
+import { mergeElements, roundToTwo } from '../../app/constant';
 import { setShowNo } from '../../feature/slices/orderSlice';
 import { formatUnits } from 'ethers';
 
@@ -111,7 +111,7 @@ export default function OrderBook() {
       return (
         <tr key={order._id}>
           <td>{roundToTwo(order.price)}c</td>
-          <td>{roundToTwo(Number(formatUnits(order.shares, 6)))}</td>
+          <td>{roundToTwo(Number(formatUnits(Math.round(order.shares), 6)))}</td>
           <td>${roundToTwo(Number(formatUnits(Math.floor(total / 100), 6)))}</td>
         </tr>
       );
