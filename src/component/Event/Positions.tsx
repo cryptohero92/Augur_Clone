@@ -34,7 +34,7 @@ export default function Positions() {
         })
         .then((response) => response.json())
         .then(({balance}) => ({
-            balance: Number(formatUnits(Math.round(Number(balance)) as BigNumberish, 6))
+            balance
         }))
     }
 
@@ -69,8 +69,8 @@ export default function Positions() {
 
             Promise.all(promises)
             .then((result) => {
-                positions[Number(YES)].shares = result[0].balance
-                positions[Number(NO)].shares = result[1].balance
+                positions[Number(YES)].shares = Number(result[0].balance)
+                positions[Number(NO)].shares = Number(result[1].balance)
             })
             .catch((err) => {
                 console.error(err);
