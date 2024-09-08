@@ -126,3 +126,7 @@ How to spread fee to stakers ?
 
 2002600
 3887400
+
+If I show categories in menu bar, then when user click category, it should go to market with market?_c=crypto, etc. 
+The problem is that current system does not support url based market selection. 
+Then how to resolve this problem?
